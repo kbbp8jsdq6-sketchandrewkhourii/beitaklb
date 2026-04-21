@@ -30,7 +30,7 @@ export function Logo({ size = "md", showTagline = false, className }: LogoProps)
         />
       </div>
       <div className="flex flex-col leading-none">
-        <span className={cn("font-display tracking-wide text-foreground", s.text)}>
+        <span className={cn("font-display tracking-wide text-foreground text-center", s.text)}>
           BEITAK
         </span>
         {showTagline && (
