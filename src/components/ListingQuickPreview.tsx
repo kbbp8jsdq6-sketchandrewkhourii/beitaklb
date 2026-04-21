@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, X } from "lucide-react";
+import { Loader2, MapPin, X } from "lucide-react";
+import { useState } from "react";
 import type { ListingCardData } from "./ListingCard";
-
-const WHATSAPP_NUMBER = "96181160435";
+import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -26,11 +26,25 @@ export function ListingQuickPreview({
   open: boolean;
   onClose: () => void;
 }) {
-  const waHref = listing
-    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        `Hi! I'm interested in reserving "${listing.title}". Can you help me with availability and booking?`
-      )}`
-    : "#";
+  const [waLoading, setWaLoading] = useState(false);
+
+  const handleReserve = async () => {
+    if (!listing || waLoading) return;
+    setWaLoading(true);
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const url = `${origin}/listing/${listing.id}`;
+      const href = await buildListingWhatsAppHref({
+        title: listing.title,
+        location: listing.location,
+        pricePerNight: listing.price_per_night,
+        url,
+      });
+      window.open(href, "_blank", "noopener,noreferrer");
+    } finally {
+      setWaLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>

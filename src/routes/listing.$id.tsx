@@ -65,6 +65,7 @@ function ListingPage() {
   });
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [waLoading, setWaLoading] = useState(false);
 
   const photos = useMemo(
     () => (listing?.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order),
@@ -76,12 +77,23 @@ function ListingPage() {
     return listing.reviews.reduce((s, r) => s + r.rating, 0) / listing.reviews.length;
   }, [listing]);
 
-  const whatsappHref = useMemo(() => {
-    if (!listing) return "#";
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    const msg = `Hi! I'm interested in reserving "${listing.title}". Here is the listing: ${url}. Can you help me with availability and booking?`;
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  }, [listing]);
+  const handleReserveClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!listing || waLoading) return;
+    e.preventDefault();
+    setWaLoading(true);
+    try {
+      const url = typeof window !== "undefined" ? window.location.href : "";
+      const href = await buildListingWhatsAppHref({
+        title: listing.title,
+        location: `${listing.location}, Lebanon`,
+        pricePerNight: Number(listing.price_per_night),
+        url,
+      });
+      window.open(href, "_blank", "noopener,noreferrer");
+    } finally {
+      setWaLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -264,13 +276,22 @@ function ListingPage() {
                 </div>
               </div>
               <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                href="#"
+                onClick={handleReserveClick}
+                aria-disabled={waLoading}
+                className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-70"
               >
-                <WhatsAppIcon className="h-5 w-5" />
-                Reserve via WhatsApp
+                {waLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Generating link...
+                  </>
+                ) : (
+                  <>
+                    <WhatsAppIcon className="h-5 w-5" />
+                    Reserve via WhatsApp
+                  </>
+                )}
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 Instant reply · No booking fees
@@ -291,13 +312,22 @@ function ListingPage() {
             <p className="mt-1 text-xs text-muted-foreground">Up to {listing.max_guests} guests</p>
           </div>
           <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#"
+            onClick={handleReserveClick}
+            aria-disabled={waLoading}
             className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
-            <WhatsAppIcon className="h-4 w-4" />
-            Reserve
+            {waLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                <WhatsAppIcon className="h-4 w-4" />
+                Reserve
+              </>
+            )}
           </a>
         </div>
       </div>
