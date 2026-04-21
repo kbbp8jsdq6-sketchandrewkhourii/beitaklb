@@ -219,8 +219,8 @@ export function FindYourUnit() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Search</p>
-          <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl md:text-6xl">
-            Find Your Perfect Guesthouse
+          <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl md:text-6xl font-serif font-medium">
+            Find It. Book It. Love It
           </h2>
           <p className="mt-3 text-muted-foreground">
             Search by keyword, city, size, amenities and budget — all in one place.

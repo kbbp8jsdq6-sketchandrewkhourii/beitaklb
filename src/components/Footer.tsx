@@ -81,7 +81,9 @@ export function Footer() {
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
             </div>
-            <p className="mt-3 text-sm text-secondary-foreground/70">@beitak.lb · +961 81 160 435</p>
+            <p className="mt-3 text-sm text-secondary-foreground/70 whitespace-pre-line">
+              {`@Beitak.lb\n+961 81 160 435\nE-mail: Beitaklb@gmail.com`}
+            </p>
           </div>
         </div>
 
