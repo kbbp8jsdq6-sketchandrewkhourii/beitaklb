@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, Mail } from "lucide-react";
 import { Logo } from "./Logo";
 
-const WHATSAPP_URL = "https://wa.me/96181160435";
+const BECOME_HOST_MESSAGE = "Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?";
+const WHATSAPP_URL = `https://wa.me/96181160435?text=${encodeURIComponent(BECOME_HOST_MESSAGE)}`;
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -46,9 +47,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/host/new" className="text-secondary-foreground/80 transition hover:text-primary">
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-secondary-foreground/80 transition hover:text-primary"
+                >
                   Become a host
-                </Link>
+                </a>
               </li>
               <li>
                 <a href="#faq" className="text-secondary-foreground/80 transition hover:text-primary">

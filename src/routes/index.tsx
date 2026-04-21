@@ -82,7 +82,7 @@ const FAQS = [
   },
   {
     q: "How do I become a host?",
-    a: "Create an account, then click “List your place” in the navbar to publish your property in minutes.",
+    a: "Reach out to us on WhatsApp and we'll guide you through listing your place. Listings are added by the BEITAK team to keep the experience curated.",
   },
   {
     q: "Is my payment secure?",
@@ -91,10 +91,6 @@ const FAQS = [
   {
     q: "How do I contact the host?",
     a: "Every listing has a “Reserve via WhatsApp” button that opens a pre-filled message to the host with the listing link.",
-  },
-  {
-    q: "Can I switch between guest and host mode?",
-    a: "Yes — every BEITAK account can both browse and host. Just sign in and start exploring or listing your place.",
   },
 ];
 
@@ -171,12 +167,14 @@ function HomePage() {
               >
                 Browse listings
               </Link>
-              <Link
-                to="/host/new"
+              <a
+                href={`https://wa.me/96181160435?text=${encodeURIComponent("Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?")}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-md border-2 border-white bg-white/10 px-7 py-3.5 text-base font-bold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white hover:text-foreground"
               >
                 Become a host
-              </Link>
+              </a>
             </motion.div>
             <motion.p
               className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
@@ -248,13 +246,7 @@ function HomePage() {
           ) : featured.length === 0 ? (
             <div className="mt-10 rounded-3xl border border-dashed border-border bg-background p-12 text-center">
               <p className="font-display text-2xl">No listings yet</p>
-              <p className="mt-2 text-sm text-muted-foreground">Be the first to host on BEITAK.</p>
-              <Link
-                to="/host/new"
-                className="mt-4 inline-flex items-center rounded-md bg-primary px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground transition hover:bg-primary/90"
-              >
-                List your place
-              </Link>
+              <p className="mt-2 text-sm text-muted-foreground">Check back soon — new stays are added regularly.</p>
             </div>
           ) : (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

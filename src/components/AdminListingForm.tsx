@@ -1,31 +1,34 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Header } from "@/components/Header";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { Upload, X, ImagePlus } from "lucide-react";
-
-export const Route = createFileRoute("/host/new")({
-  head: () => ({ meta: [{ title: "List your place — BEITAK" }] }),
-  component: NewListingPage,
-});
 
 const AMENITY_OPTIONS = [
   "Wi-Fi", "Air conditioning", "Heating", "Kitchen", "Pool", "Parking", "Washer",
   "Sea view", "Mountain view", "Garden", "Balcony", "BBQ", "Workspace", "TV",
 ];
 
-function NewListingPage() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onCreated: () => void;
+  adminUserId: string;
+}
 
+export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<string>("");
@@ -39,22 +42,14 @@ function NewListingPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
-  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading…</div>;
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="mx-auto mt-20 max-w-md text-center">
-          <h1 className="font-display text-3xl">Log in to list your place</h1>
-          <Button asChild className="mt-4"><Link to="/auth/login">Log in</Link></Button>
-        </div>
-      </div>
-    );
-  }
-
-  const toggleAmenity = (a: string) => {
-    setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+  const reset = () => {
+    setTitle(""); setDescription(""); setLocation(""); setPrice("");
+    setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
+    setAvailFrom(""); setAvailTo(""); setAmenities([]); setFiles([]);
   };
+
+  const toggleAmenity = (a: string) =>
+    setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const list = Array.from(e.target.files ?? []);
@@ -69,16 +64,12 @@ function NewListingPage() {
       toast.error("Fill all required fields");
       return;
     }
-    if (files.length === 0) {
-      toast.error("Upload at least one photo");
-      return;
-    }
     setSubmitting(true);
     try {
       const { data: created, error: lErr } = await supabase
         .from("listings")
         .insert({
-          host_id: user.id,
+          host_id: adminUserId,
           title: title.trim(),
           description: description.trim(),
           location,
@@ -89,6 +80,7 @@ function NewListingPage() {
           amenities,
           available_from: availFrom || null,
           available_to: availTo || null,
+          is_active: true,
         })
         .select("id")
         .single();
@@ -97,7 +89,7 @@ function NewListingPage() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const ext = file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${created.id}/${Date.now()}-${i}.${ext}`;
+        const path = `${adminUserId}/${created.id}/${Date.now()}-${i}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("listing-photos")
           .upload(path, file, { contentType: file.type, upsert: false });
@@ -110,7 +102,9 @@ function NewListingPage() {
       }
 
       toast.success("Listing published!");
-      navigate({ to: "/listing/$id", params: { id: created.id } });
+      reset();
+      onCreated();
+      onClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create listing");
     } finally {
@@ -119,25 +113,24 @@ function NewListingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <h1 className="font-display text-4xl text-foreground">List your place</h1>
-        <p className="mt-1 text-muted-foreground">Share your home with travellers across Lebanon.</p>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">Add new listing</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <Label htmlFor="title">Listing title *</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Cozy stone house in Bcharre" />
           </div>
           <div>
             <Label htmlFor="desc">Description *</Label>
-            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} placeholder="Tell guests what makes your place special…" />
+            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Tell guests what makes your place special…" />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label>Location (Lebanon) *</Label>
+              <Label>City / Location *</Label>
               <Select value={location} onValueChange={setLocation}>
                 <SelectTrigger><SelectValue placeholder="Pick a city or village" /></SelectTrigger>
                 <SelectContent className="max-h-72">
@@ -148,7 +141,7 @@ function NewListingPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="price">Price per night (USD) *</Label>
+              <Label htmlFor="price">Price / night (USD) *</Label>
               <Input id="price" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="120" />
             </div>
           </div>
@@ -203,8 +196,8 @@ function NewListingPage() {
           </div>
 
           <div>
-            <Label>Photos *</Label>
-            <p className="text-xs text-muted-foreground">Up to 10 photos. First photo is the cover.</p>
+            <Label>Photos</Label>
+            <p className="text-xs text-muted-foreground">Up to 10 photos. First is the cover.</p>
             <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-4">
               {files.map((f, i) => (
                 <div key={i} className="relative aspect-square overflow-hidden rounded-xl border border-border">
@@ -222,19 +215,22 @@ function NewListingPage() {
               {files.length < 10 && (
                 <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground transition hover:border-primary hover:bg-accent">
                   <ImagePlus className="h-6 w-6" />
-                  <span className="text-xs">Add photos</span>
+                  <span className="text-xs">Add</span>
                   <input type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
                 </label>
               )}
             </div>
           </div>
 
-          <Button type="submit" size="lg" className="w-full gap-2" disabled={submitting}>
-            <Upload className="h-4 w-4" />
-            {submitting ? "Publishing…" : "Publish listing"}
-          </Button>
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
+            <Button type="submit" className="flex-1 gap-2" disabled={submitting}>
+              <Upload className="h-4 w-4" />
+              {submitting ? "Publishing…" : "Publish listing"}
+            </Button>
+          </div>
         </form>
-      </main>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

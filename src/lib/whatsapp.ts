@@ -33,15 +33,17 @@ export function buildListingMessage({
   url,
 }: WhatsAppListingMessage): string {
   return [
-    "Hi Beitak! 👋",
+    "Hi Beitak!",
     "",
     "I'm interested in the following listing:",
     "",
-    `🏠 *${title}*`,
-    `📍 *${location}*`,
-    `💰 *$${Math.round(pricePerNight)} / night*`,
+    title,
     "",
-    `🔗 View listing: ${url}`,
+    location,
+    "",
+    `$${Math.round(pricePerNight)} / night`,
+    "",
+    `View listing: ${url}`,
     "",
     "Could you help me with availability and booking?",
   ].join("\n");
