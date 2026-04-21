@@ -1,19 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Search, MessageCircle, Sparkles, Star, Instagram, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { Header } from "@/components/Header";
-import { SearchBar } from "@/components/SearchBar";
+import { Footer } from "@/components/Footer";
+import { Logo } from "@/components/Logo";
 import { ListingCard } from "@/components/ListingCard";
-import { POPULAR_DESTINATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-lebanon.jpg";
+import aboutImage from "@/assets/about-beitak.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BEITAK — Home Is Closer Than You Think" },
+      { title: "BEITAK — Find your perfect stay in Lebanon" },
       {
         name: "description",
-        content: "Book unique stays across Lebanon. From Beirut rooftops to Bcharre's cedars.",
+        content:
+          "Browse unique listings from trusted local hosts across Lebanon. Reserve via WhatsApp and discover stays in Beirut, Byblos, Bcharre and beyond.",
+      },
+      { property: "og:title", content: "BEITAK — Find your perfect stay in Lebanon" },
+      {
+        property: "og:description",
+        content: "Unique stays across Lebanon. Home is closer than you think.",
       },
     ],
   }),
@@ -26,7 +35,7 @@ async function fetchFeatured() {
     .select("id, title, location, price_per_night, listing_photos(photo_url, display_order)")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
-    .limit(8);
+    .limit(4);
   if (error) throw error;
   return (data ?? []).map((l) => {
     const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
@@ -40,119 +49,306 @@ async function fetchFeatured() {
   });
 }
 
+const STEPS = [
+  {
+    icon: Search,
+    title: "Browse listings",
+    desc: "Explore unique stays across Lebanon's most beautiful regions.",
+  },
+  {
+    icon: MessageCircle,
+    title: "Reserve via WhatsApp",
+    desc: "Contact the host instantly to confirm dates and details.",
+  },
+  {
+    icon: Sparkles,
+    title: "Enjoy your stay",
+    desc: "Check in, unwind, and make memories that last.",
+  },
+];
+
+const REVIEWS = [
+  { quote: "Amazing place, super clean and the host was incredible!", name: "Sarah", city: "Beirut" },
+  { quote: "Best mountain view in Lebanon. We're already planning to come back.", name: "Karim", city: "Bcharre" },
+  { quote: "Booking via WhatsApp made it so easy. Highly recommend!", name: "Nour", city: "Byblos" },
+];
+
+const FAQS = [
+  {
+    q: "How do I book a listing?",
+    a: "Open any listing, then tap “Reserve via WhatsApp” to chat directly with the host about dates, guests and pricing.",
+  },
+  {
+    q: "How do I become a host?",
+    a: "Create an account, then click “List your place” in the navbar to publish your property in minutes.",
+  },
+  {
+    q: "Is my payment secure?",
+    a: "Payment is arranged directly with your host. We recommend confirming all details over WhatsApp before transferring.",
+  },
+  {
+    q: "How do I contact the host?",
+    a: "Every listing has a “Reserve via WhatsApp” button that opens a pre-filled message to the host with the listing link.",
+  },
+  {
+    q: "Can I switch between guest and host mode?",
+    a: "Yes — every BEITAK account can both browse and host. Just sign in and start exploring or listing your place.",
+  },
+];
+
 function HomePage() {
   const { data: featured = [], isLoading } = useQuery({
     queryKey: ["featured-listings"],
     queryFn: fetchFeatured,
   });
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero */}
+      {/* 1. HERO */}
       <section className="relative">
-        <div className="relative h-[78vh] min-h-[560px] w-full overflow-hidden">
+        <div className="relative h-[88vh] min-h-[640px] w-full overflow-hidden">
           <img
             src={heroImage}
-            alt="Lebanese village at sunset"
+            alt="Warm Lebanese mountain village at golden hour"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/70" />
+
+          {/* Top-left logo */}
+          <div className="absolute left-6 top-6 hidden sm:block [&_span]:!text-white">
+            <Logo size="md" />
+          </div>
+
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-            <h1 className="font-display text-5xl text-white drop-shadow-lg sm:text-7xl md:text-8xl">
-              BEITAK
+            <div className="sm:hidden [&_span]:!text-white">
+              <Logo size="lg" />
+            </div>
+            <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl">
+              Find your perfect stay in Lebanon
             </h1>
-            <p className="mt-3 max-w-xl font-display text-xl uppercase tracking-[0.3em] text-white/95 drop-shadow sm:text-2xl">
-              Home Is Closer Than You Think
+            <p className="mt-5 max-w-xl text-base text-white/90 sm:text-lg">
+              Browse unique listings from trusted local hosts.
             </p>
-            <p className="mt-4 max-w-xl text-base text-white/85 sm:text-lg">
-              Stay in Lebanon's most beautiful villages and cities — from the
-              cedars of Bcharre to the souks of Tripoli.
+            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+              <Link
+                to="/search"
+                className="inline-flex items-center justify-center rounded-md bg-primary px-7 py-3.5 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90"
+              >
+                Browse listings
+              </Link>
+              <Link
+                to="/host/new"
+                className="inline-flex items-center justify-center rounded-md border-2 border-white bg-white/10 px-7 py-3.5 text-base font-bold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white hover:text-foreground"
+              >
+                Become a host
+              </Link>
+            </div>
+            <p className="mt-8 text-xs uppercase tracking-[0.4em] text-primary">
+              Home is closer than you think
             </p>
-          </div>
-          <div className="absolute -bottom-10 left-1/2 w-full max-w-5xl -translate-x-1/2 px-4">
-            <SearchBar variant="hero" />
           </div>
         </div>
       </section>
 
-      {/* Popular destinations */}
-      <section className="mx-auto max-w-7xl px-4 pt-24 sm:px-6 lg:px-8">
-        <h2 className="font-display text-3xl text-foreground sm:text-4xl">
-          Discover Lebanon
-        </h2>
-        <p className="mt-1 text-muted-foreground">Popular destinations to explore</p>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {POPULAR_DESTINATIONS.map((d) => (
+      {/* 2. HOW IT WORKS */}
+      <section className="border-b border-border bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
+            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+              Three steps to your stay
+            </h2>
+          </div>
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <div
+                key={s.title}
+                className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary"
+              >
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
+                  <s.icon className="h-7 w-7" strokeWidth={1.75} />
+                </div>
+                <p className="mt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Step {i + 1}
+                </p>
+                <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3. FEATURED LISTINGS */}
+      <section className="bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Featured</p>
+              <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+                Featured listings
+              </h2>
+              <p className="mt-2 text-muted-foreground">Handpicked stays from across Lebanon</p>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
+              ))}
+            </div>
+          ) : featured.length === 0 ? (
+            <div className="mt-10 rounded-3xl border border-dashed border-border bg-background p-12 text-center">
+              <p className="font-display text-2xl">No listings yet</p>
+              <p className="mt-2 text-sm text-muted-foreground">Be the first to host on BEITAK.</p>
+              <Link
+                to="/host/new"
+                className="mt-4 inline-flex items-center rounded-md bg-primary px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground transition hover:bg-primary/90"
+              >
+                List your place
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featured.map((l) => (
+                <ListingCard key={l.id} listing={l} />
+              ))}
+            </div>
+          )}
+
+          <div className="mt-10 flex justify-center">
             <Link
-              key={d.name}
               to="/search"
-              search={{ q: d.name }}
-              className="group rounded-2xl border border-border bg-card p-4 transition hover:border-primary hover:shadow-md"
+              className="inline-flex items-center justify-center rounded-md border-2 border-foreground bg-transparent px-7 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
             >
-              <p className="font-display text-xl tracking-wide text-foreground transition group-hover:text-primary">
-                {d.name}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">{d.description}</p>
+              View all listings →
             </Link>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* Featured listings */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between">
+      {/* 4. REVIEWS */}
+      <section className="border-y border-border bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Reviews</p>
+            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+              Loved by guests
+            </h2>
+          </div>
+          <div className="mt-12 -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 hide-scrollbar">
+            {REVIEWS.map((r) => (
+              <figure
+                key={r.name}
+                className="w-[85%] shrink-0 snap-center rounded-2xl border border-border bg-card p-7 sm:w-auto sm:shrink"
+              >
+                <div className="flex gap-1 text-primary">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-primary" />
+                  ))}
+                </div>
+                <blockquote className="mt-4 text-lg text-foreground">“{r.quote}”</blockquote>
+                <figcaption className="mt-5 text-sm font-semibold text-foreground">
+                  — {r.name}, <span className="text-muted-foreground">{r.city}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. ABOUT */}
+      <section className="bg-background">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
           <div>
-            <h2 className="font-display text-3xl text-foreground sm:text-4xl">Latest stays</h2>
-            <p className="mt-1 text-muted-foreground">Fresh listings across the country</p>
-          </div>
-          <Link to="/search" className="text-sm font-semibold text-primary hover:underline">
-            View all →
-          </Link>
-        </div>
-
-        {isLoading ? (
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
-            ))}
-          </div>
-        ) : featured.length === 0 ? (
-          <div className="mt-12 rounded-3xl border border-dashed border-border bg-muted/40 p-12 text-center">
-            <p className="font-display text-2xl text-foreground">No listings yet</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Be the first to host on BEITAK.
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
+            <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
+              We're <span className="text-primary">BEITAK</span>
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-foreground/80">
+              BEITAK connects travelers with unique local stays across Lebanon. Whether you're hosting
+              or exploring, we make the experience simple, personal, and memorable.
             </p>
-            <Link
-              to="/host/new"
-              className="mt-4 inline-flex items-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+            <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
+              Home is closer than you think
+            </p>
+            <a
+              href="https://instagram.com/beitak.lb"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-[#E1306C]"
             >
-              List your place
-            </Link>
+              <Instagram className="h-5 w-5" />
+              instagram.com/beitak.lb
+            </a>
           </div>
-        ) : (
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {featured.map((l) => (
-              <ListingCard key={l.id} listing={l} />
-            ))}
+          <div className="relative">
+            <div className="overflow-hidden rounded-3xl border-4 border-foreground shadow-2xl">
+              <img
+                src={aboutImage}
+                alt="Warm Lebanese stone home at golden hour"
+                width={1024}
+                height={896}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-5 -left-5 hidden rounded-2xl bg-primary px-6 py-4 text-primary-foreground shadow-xl sm:block">
+              <p className="font-display text-2xl tracking-wider">BEITAK</p>
+              <p className="text-[10px] uppercase tracking-[0.3em]">Lebanon stays</p>
+            </div>
           </div>
-        )}
+        </div>
       </section>
 
-      <footer className="border-t border-border bg-secondary text-secondary-foreground">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <p className="font-display text-2xl tracking-wider">BEITAK</p>
-            <p className="text-xs uppercase tracking-[0.3em] text-secondary-foreground/70">
-              Home Is Closer Than You Think
-            </p>
-            <p className="mt-3 text-xs text-secondary-foreground/60">
-              © {new Date().getFullYear()} BEITAK Lebanon. All rights reserved.
-            </p>
+      {/* 6. FAQ */}
+      <section id="faq" className="border-t border-border bg-muted/30">
+        <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">FAQ</p>
+            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+              Frequently asked
+            </h2>
+          </div>
+          <div className="mt-10 space-y-3">
+            {FAQS.map((item, i) => {
+              const open = openFaq === i;
+              return (
+                <div
+                  key={item.q}
+                  className="overflow-hidden rounded-xl border border-border bg-background transition hover:border-primary/50"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                    aria-expanded={open}
+                  >
+                    <span className="font-semibold text-foreground">{item.q}</span>
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-primary transition-transform ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {open && (
+                    <div className="px-6 pb-5 text-sm leading-relaxed text-muted-foreground">
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* 7. FOOTER */}
+      <Footer />
     </div>
   );
 }
