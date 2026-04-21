@@ -103,15 +103,24 @@ export function ListingQuickPreview({
                 >
                   View full listing
                 </Link>
-                <a
-                  href={waHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                <button
+                  type="button"
+                  onClick={handleReserve}
+                  disabled={waLoading}
+                  className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
                 >
-                  <WhatsAppIcon className="h-4 w-4" />
-                  Reserve
-                </a>
+                  {waLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <WhatsAppIcon className="h-4 w-4" />
+                      Reserve
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </motion.div>
