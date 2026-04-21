@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
+import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-lebanon.jpg";
