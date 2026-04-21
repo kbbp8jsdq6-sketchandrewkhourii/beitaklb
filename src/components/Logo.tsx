@@ -12,7 +12,7 @@ const sizeMap: Record<NonNullable<LogoProps["size"]>, string> = {
   sm: "w-[80px]",
   md: "w-[90px] sm:w-[120px]",
   lg: "w-[100px]",
-  xl: "w-[140px] sm:w-[180px]",
+  xl: "w-[220px] sm:w-[300px]",
 };
 
 export function Logo({ size = "md", className }: LogoProps) {
