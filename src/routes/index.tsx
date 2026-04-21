@@ -118,19 +118,14 @@ function HomePage() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/70" />
 
-          {/* Top-left logo */}
-          <div className="absolute left-6 top-6 hidden sm:block [&_span]:!text-white">
-            <Logo size="md" />
-          </div>
-
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <motion.div
-              className="sm:hidden [&_span]:!text-white"
+              className="brightness-0 invert"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             >
-              <Logo size="lg" />
+              <Logo size="xl" />
             </motion.div>
             <motion.h1
               className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"

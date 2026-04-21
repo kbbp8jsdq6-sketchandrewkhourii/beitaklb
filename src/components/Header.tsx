@@ -37,14 +37,14 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b transition-all duration-300 ${
+      className={`sticky top-0 z-40 border-b bg-background transition-all duration-300 ${
         scrolled
-          ? "border-border bg-background/80 shadow-md backdrop-blur-md"
-          : "border-transparent bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+          ? "border-border shadow-md backdrop-blur-md"
+          : "border-border/60"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center" aria-label="BEITAK home">
           <Logo size="md" />
         </Link>
 
