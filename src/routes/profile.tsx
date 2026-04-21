@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { User as UserIcon, Plus, Trash2, MapPin } from "lucide-react";
+import { User as UserIcon, Trash2, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile — BEITAK" }] }),
@@ -128,12 +128,9 @@ function ProfilePage() {
         <section className="mt-8 rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-2xl">My listings</h2>
-            <Button asChild size="sm" className="gap-1">
-              <Link to="/host/new"><Plus className="h-4 w-4" />New</Link>
-            </Button>
           </div>
           {myListings.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">You haven't listed any places yet.</p>
+            <p className="mt-4 text-sm text-muted-foreground">You don't have any listings. Listings on BEITAK are managed by our team — message us on WhatsApp to get yours added.</p>
           ) : (
             <ul className="mt-4 space-y-3">
               {myListings.map((l) => {
