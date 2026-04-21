@@ -10,9 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 const searchSchema = z.object({
   q: z.string().optional().catch(undefined),
-  checkIn: z.string().optional().catch(undefined),
-  checkOut: z.string().optional().catch(undefined),
-  guests: z.number().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/search")({
@@ -29,12 +26,12 @@ export const Route = createFileRoute("/search")({
 type SearchListing = ListingCardData & { description?: string | null };
 
 function SearchPage() {
-  const { q, checkIn, checkOut, guests } = Route.useSearch();
+  const { q } = Route.useSearch();
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const { data: results = [], isLoading } = useQuery<SearchListing[]>({
-    queryKey: ["search-listings", q, checkIn, checkOut, guests],
+    queryKey: ["search-listings", q],
     queryFn: async () => {
       let query = supabase
         .from("listings")
@@ -46,7 +43,6 @@ function SearchPage() {
           `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`
         );
       }
-      if (guests) query = query.gte("max_guests", guests);
       const { data, error } = await query.order("created_at", { ascending: false }).limit(60);
       if (error) throw error;
       return (data ?? []).map((l) => {
@@ -74,10 +70,7 @@ function SearchPage() {
       <Header />
       <section className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-6 sm:px-6 lg:px-8">
-          <SearchBar
-            variant="compact"
-            initial={{ location: q, checkIn, checkOut, guests }}
-          />
+          <SearchBar variant="compact" initial={{ location: q }} />
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -100,7 +93,7 @@ function SearchPage() {
           <div className="mt-12 rounded-3xl border border-dashed border-border bg-muted/40 p-12 text-center">
             <p className="font-display text-2xl text-foreground">No stays found</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Try a different village, city, or date range.
+              Try a different village, city, or keyword.
             </p>
             <Link
               to="/"

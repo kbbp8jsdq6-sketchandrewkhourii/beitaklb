@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User as UserIcon, Calendar, Shield, Instagram } from "lucide-react";
+import { LogOut, User as UserIcon, Shield, Instagram } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,11 +71,6 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/bookings" className="cursor-pointer">
-                      <Calendar className="mr-2 h-4 w-4" /> My bookings
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { MapPin, Star, Users, BedDouble, Bath, Calendar as CalIcon, Check, Instagram, DollarSign, Loader2 } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +37,7 @@ async function fetchListing(id: string) {
     .from("listings")
     .select(`
       id, title, description, location, price_per_night, max_guests, bedrooms, bathrooms,
-      amenities, available_from, available_to, host_id, created_at,
+      amenities, host_id, created_at,
       listing_photos(id, photo_url, display_order),
       profiles:host_id (full_name, avatar_url),
       reviews(id, rating, comment, created_at, reviewer_id, profiles:reviewer_id(full_name))
@@ -228,16 +228,6 @@ function ListingPage() {
                 </ul>
               </div>
             )}
-            {listing.available_from && (
-              <div className="py-6">
-                <h3 className="font-display text-xl">Availability</h3>
-                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalIcon className="h-4 w-4" />
-                  {listing.available_from} → {listing.available_to ?? "ongoing"}
-                </p>
-              </div>
-            )}
-
             {/* Reviews */}
             {listing.reviews && listing.reviews.length > 0 && (
               <div className="border-t border-border py-6">

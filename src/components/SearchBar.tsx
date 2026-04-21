@@ -1,14 +1,14 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, CalendarDays, Users, Home } from "lucide-react";
+import { Search, MapPin, Home } from "lucide-react";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
 interface SearchBarProps {
-  initial?: { location?: string; checkIn?: string; checkOut?: string; guests?: number };
+  initial?: { location?: string };
   variant?: "hero" | "compact";
 }
 
@@ -21,15 +21,11 @@ type ListingSuggestion = {
 export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
   const navigate = useNavigate();
   const [location, setLocation] = useState(initial?.location ?? "");
-  const [checkIn, setCheckIn] = useState(initial?.checkIn ?? "");
-  const [checkOut, setCheckOut] = useState(initial?.checkOut ?? "");
-  const [guests, setGuests] = useState<number>(initial?.guests ?? 1);
   const [openSuggest, setOpenSuggest] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const trimmed = location.trim();
 
-  // Live listing suggestions — search across title, location, description, amenities
   const { data: listingMatches = [] } = useQuery<ListingSuggestion[]>({
     queryKey: ["search-suggest", trimmed.toLowerCase()],
     enabled: trimmed.length >= 1,
@@ -45,7 +41,6 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
         )
         .limit(8);
       if (error) {
-        // Fallback: simpler query if amenities array literal causes issue
         const { data: d2 } = await supabase
           .from("listings")
           .select("id, title, location")
@@ -81,9 +76,6 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
       to: "/search",
       search: {
         q: location || undefined,
-        checkIn: checkIn || undefined,
-        checkOut: checkOut || undefined,
-        guests: guests > 1 ? guests : undefined,
       },
     });
   };
@@ -93,11 +85,10 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
       ref={wrapperRef}
       className={cn(
         "relative w-full",
-        variant === "hero" ? "max-w-4xl" : "max-w-3xl"
+        variant === "hero" ? "max-w-2xl" : "max-w-xl"
       )}
     >
-      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-border bg-card shadow-lg sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
-        {/* Location / keyword */}
+      <div className="grid grid-cols-[1fr_auto] gap-px overflow-hidden rounded-3xl border border-border bg-card shadow-lg">
         <div className="relative flex items-center gap-3 px-5 py-3">
           <MapPin className="h-5 w-5 shrink-0 text-primary" />
           <div className="flex flex-1 flex-col">
@@ -183,57 +174,11 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
           )}
         </div>
 
-        {/* Check-in */}
-        <div className="flex items-center gap-3 border-t border-border px-5 py-3 sm:border-l sm:border-t-0">
-          <CalendarDays className="h-5 w-5 shrink-0 text-muted-foreground" />
-          <div className="flex flex-1 flex-col">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-foreground">Check in</label>
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="bg-transparent text-sm text-foreground outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Check-out */}
-        <div className="flex items-center gap-3 border-t border-border px-5 py-3 sm:border-l sm:border-t-0">
-          <CalendarDays className="h-5 w-5 shrink-0 text-muted-foreground" />
-          <div className="flex flex-1 flex-col">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-foreground">Check out</label>
-            <input
-              type="date"
-              value={checkOut}
-              min={checkIn || undefined}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="bg-transparent text-sm text-foreground outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Guests */}
-        <div className="flex items-center gap-3 border-t border-border px-5 py-3 sm:border-l sm:border-t-0">
-          <Users className="h-5 w-5 shrink-0 text-muted-foreground" />
-          <div className="flex flex-1 flex-col">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-foreground">Guests</label>
-            <input
-              type="number"
-              min={1}
-              max={32}
-              value={guests}
-              onChange={(e) => setGuests(Math.max(1, Number(e.target.value) || 1))}
-              className="bg-transparent text-sm text-foreground outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Search button */}
-        <div className="flex items-center justify-center border-t border-border bg-card p-2 sm:border-l sm:border-t-0">
+        <div className="flex items-center justify-center bg-card p-2">
           <Button
             onClick={handleSearch}
             size="lg"
-            className="h-12 w-full gap-2 rounded-2xl px-6 sm:w-auto"
+            className="h-12 gap-2 rounded-2xl px-6"
           >
             <Search className="h-5 w-5" />
             <span className="font-semibold">Search</span>
