@@ -190,6 +190,9 @@ function HomePage() {
         </div>
       </section>
 
+      {/* 1.5 FIND YOUR UNIT */}
+      <FindYourUnit />
+
       {/* 2. HOW IT WORKS */}
       <section className="border-b border-border bg-background">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
