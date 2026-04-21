@@ -120,14 +120,24 @@ function HomePage() {
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
+              transition={{
+                duration: 0.9,
+                ease: [0.22, 1, 0.36, 1],
+                scale: { type: "spring", stiffness: 120, damping: 12 },
+              }}
             >
               <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="drop-shadow-2xl"
+                animate={{
+                  y: [0, -12, 0],
+                  rotate: [0, 1.5, 0, -1.5, 0],
+                }}
+                transition={{
+                  y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                  rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+                }}
+                className="drop-shadow-[0_15px_35px_rgba(230,48,48,0.45)]"
               >
                 <Logo size="xl" />
               </motion.div>
