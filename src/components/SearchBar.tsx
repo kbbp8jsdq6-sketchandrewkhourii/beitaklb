@@ -1,7 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, MapPin, CalendarDays, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Search, MapPin, CalendarDays, Users, Home } from "lucide-react";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +11,12 @@ interface SearchBarProps {
   initial?: { location?: string; checkIn?: string; checkOut?: string; guests?: number };
   variant?: "hero" | "compact";
 }
+
+type ListingSuggestion = {
+  id: string;
+  title: string;
+  location: string;
+};
 
 export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
   const navigate = useNavigate();
@@ -19,11 +27,45 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
   const [openSuggest, setOpenSuggest] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const suggestions = useMemo(() => {
-    if (!location.trim()) return [];
-    const q = location.toLowerCase();
-    return LEBANESE_LOCATIONS.filter((l) => l.toLowerCase().includes(q)).slice(0, 8);
-  }, [location]);
+  const trimmed = location.trim();
+
+  // Live listing suggestions — search across title, location, description, amenities
+  const { data: listingMatches = [] } = useQuery<ListingSuggestion[]>({
+    queryKey: ["search-suggest", trimmed.toLowerCase()],
+    enabled: trimmed.length >= 1,
+    staleTime: 15_000,
+    queryFn: async () => {
+      const term = trimmed.replace(/[%,]/g, " ");
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id, title, location, description, amenities")
+        .eq("is_active", true)
+        .or(
+          `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`
+        )
+        .limit(8);
+      if (error) {
+        // Fallback: simpler query if amenities array literal causes issue
+        const { data: d2 } = await supabase
+          .from("listings")
+          .select("id, title, location")
+          .eq("is_active", true)
+          .or(`title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%`)
+          .limit(8);
+        return (d2 ?? []).map((l) => ({ id: l.id, title: l.title, location: l.location }));
+      }
+      return (data ?? []).map((l) => ({ id: l.id, title: l.title, location: l.location }));
+    },
+  });
+
+  const cityMatches = useMemo(() => {
+    if (!trimmed) return [];
+    const q = trimmed.toLowerCase();
+    return LEBANESE_LOCATIONS.filter((l) => l.toLowerCase().includes(q)).slice(0, 5);
+  }, [trimmed]);
+
+  const showDropdown = openSuggest && trimmed.length >= 1;
+  const hasResults = listingMatches.length > 0 || cityMatches.length > 0;
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -34,6 +76,7 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
   }, []);
 
   const handleSearch = () => {
+    setOpenSuggest(false);
     navigate({
       to: "/search",
       search: {
@@ -54,7 +97,7 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
       )}
     >
       <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-border bg-card shadow-lg sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
-        {/* Location */}
+        {/* Location / keyword */}
         <div className="relative flex items-center gap-3 px-5 py-3">
           <MapPin className="h-5 w-5 shrink-0 text-primary" />
           <div className="flex flex-1 flex-col">
@@ -67,28 +110,76 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
                 setOpenSuggest(true);
               }}
               onFocus={() => setOpenSuggest(true)}
-              placeholder="Search Lebanese villages…"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
+              placeholder="Search by name, city, amenity…"
               className="bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
-          {openSuggest && suggestions.length > 0 && (
-            <ul className="absolute left-0 top-full z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-border bg-popover py-1 shadow-xl">
-              {suggestions.map((s) => (
-                <li key={s}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLocation(s);
-                      setOpenSuggest(false);
-                    }}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-accent"
-                  >
-                    <MapPin className="h-4 w-4 text-primary" />
-                    {s}
-                  </button>
-                </li>
-              ))}
-            </ul>
+          {showDropdown && (
+            <div className="absolute left-0 top-full z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-xl border border-border bg-popover py-1 shadow-xl">
+              {!hasResults && (
+                <p className="px-4 py-3 text-sm text-muted-foreground">No matches yet…</p>
+              )}
+              {listingMatches.length > 0 && (
+                <>
+                  <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Listings
+                  </p>
+                  <ul>
+                    {listingMatches.map((l) => (
+                      <li key={l.id}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setOpenSuggest(false);
+                            navigate({ to: "/listing/$id", params: { id: l.id } });
+                          }}
+                          className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-accent"
+                        >
+                          <Home className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-foreground">{l.title}</p>
+                            <p className="truncate text-xs text-muted-foreground">{l.location}</p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {cityMatches.length > 0 && (
+                <>
+                  <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Cities & villages
+                  </p>
+                  <ul>
+                    {cityMatches.map((s) => (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setLocation(s);
+                            setOpenSuggest(false);
+                            navigate({ to: "/search", search: { q: s } });
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-accent"
+                        >
+                          <MapPin className="h-4 w-4 text-primary" />
+                          {s}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
           )}
         </div>
 
