@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, LogOut, User as UserIcon, Calendar, Shield } from "lucide-react";
+import { Plus, LogOut, User as UserIcon, Calendar, Shield, Instagram } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,15 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-2">
+          <a
+            href="https://instagram.com/beitak.lb"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Follow @beitak.lb on Instagram"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-[#E1306C]"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
           {user ? (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden gap-2 sm:inline-flex">
