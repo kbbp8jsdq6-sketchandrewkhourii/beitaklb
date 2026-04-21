@@ -40,7 +40,12 @@ function SearchPage() {
         .from("listings")
         .select("id, title, description, location, price_per_night, max_guests, listing_photos(photo_url, display_order)")
         .eq("is_active", true);
-      if (q) query = query.ilike("location", `%${q}%`);
+      if (q) {
+        const term = q.replace(/[%,]/g, " ");
+        query = query.or(
+          `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`
+        );
+      }
       if (guests) query = query.gte("max_guests", guests);
       const { data, error } = await query.order("created_at", { ascending: false }).limit(60);
       if (error) throw error;
