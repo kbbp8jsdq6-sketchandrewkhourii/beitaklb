@@ -15,7 +15,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookingsIndexRouteImport } from './routes/bookings.index'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
-import { Route as HostNewRouteImport } from './routes/host.new'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as BookingsIdConfirmationRouteImport } from './routes/bookings.$id.confirmation'
@@ -50,11 +49,6 @@ const ListingIdRoute = ListingIdRouteImport.update({
   path: '/listing/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HostNewRoute = HostNewRouteImport.update({
-  id: '/host/new',
-  path: '/host/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/auth/signup',
   path: '/auth/signup',
@@ -78,7 +72,6 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/host/new': typeof HostNewRoute
   '/listing/$id': typeof ListingIdRoute
   '/bookings/': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
@@ -90,7 +83,6 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/host/new': typeof HostNewRoute
   '/listing/$id': typeof ListingIdRoute
   '/bookings': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
@@ -103,7 +95,6 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/host/new': typeof HostNewRoute
   '/listing/$id': typeof ListingIdRoute
   '/bookings/': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
@@ -117,7 +108,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/auth/login'
     | '/auth/signup'
-    | '/host/new'
     | '/listing/$id'
     | '/bookings/'
     | '/bookings/$id/confirmation'
@@ -129,7 +119,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/auth/login'
     | '/auth/signup'
-    | '/host/new'
     | '/listing/$id'
     | '/bookings'
     | '/bookings/$id/confirmation'
@@ -141,7 +130,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/auth/login'
     | '/auth/signup'
-    | '/host/new'
     | '/listing/$id'
     | '/bookings/'
     | '/bookings/$id/confirmation'
@@ -154,7 +142,6 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
-  HostNewRoute: typeof HostNewRoute
   ListingIdRoute: typeof ListingIdRoute
   BookingsIndexRoute: typeof BookingsIndexRoute
   BookingsIdConfirmationRoute: typeof BookingsIdConfirmationRoute
@@ -204,13 +191,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/host/new': {
-      id: '/host/new'
-      path: '/host/new'
-      fullPath: '/host/new'
-      preLoaderRoute: typeof HostNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/signup': {
       id: '/auth/signup'
       path: '/auth/signup'
@@ -242,7 +222,6 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
-  HostNewRoute: HostNewRoute,
   ListingIdRoute: ListingIdRoute,
   BookingsIndexRoute: BookingsIndexRoute,
   BookingsIdConfirmationRoute: BookingsIdConfirmationRoute,
