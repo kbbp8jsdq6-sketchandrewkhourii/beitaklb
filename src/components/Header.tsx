@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, LogOut, User as UserIcon, Calendar, Shield, Instagram } from "lucide-react";
+import { LogOut, User as UserIcon, Calendar, Shield, Instagram } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,12 +60,6 @@ export function Header() {
           </a>
           {user ? (
             <>
-              <Button asChild variant="ghost" size="sm" className="hidden gap-2 sm:inline-flex">
-                <Link to="/host/new">
-                  <Plus className="h-4 w-4" />
-                  List your place
-                </Link>
-              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-2 rounded-full">
@@ -82,11 +76,6 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link to="/bookings" className="cursor-pointer">
                       <Calendar className="mr-2 h-4 w-4" /> My bookings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/host/new" className="cursor-pointer sm:hidden">
-                      <Plus className="mr-2 h-4 w-4" /> List your place
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (
