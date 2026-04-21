@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MessageCircle, Sparkles, Star, Instagram, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
@@ -123,16 +124,36 @@ function HomePage() {
           </div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-            <div className="sm:hidden [&_span]:!text-white">
+            <motion.div
+              className="sm:hidden [&_span]:!text-white"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
               <Logo size="lg" />
-            </div>
-            <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl">
+            </motion.div>
+            <motion.h1
+              className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+            >
               Find your perfect stay in Lebanon
-            </h1>
-            <p className="mt-5 max-w-xl text-base text-white/90 sm:text-lg">
+            </motion.h1>
+            <motion.p
+              className="mt-5 max-w-xl text-base text-white/90 sm:text-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+            >
               Browse unique listings from trusted local hosts.
-            </p>
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            </motion.p>
+            <motion.div
+              className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
+            >
               <Link
                 to="/search"
                 className="inline-flex items-center justify-center rounded-md bg-primary px-7 py-3.5 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90"
@@ -145,10 +166,15 @@ function HomePage() {
               >
                 Become a host
               </Link>
-            </div>
-            <p className="mt-8 text-xs uppercase tracking-[0.4em] text-primary">
+            </motion.div>
+            <motion.p
+              className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
+            >
               Home is closer than you think
-            </p>
+            </motion.p>
           </div>
         </div>
       </section>
@@ -164,9 +190,13 @@ function HomePage() {
           </div>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
             {STEPS.map((s, i) => (
-              <div
+              <motion.div
                 key={s.title}
                 className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary"
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5, delay: i * 0.15, ease: "easeOut" }}
               >
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
                   <s.icon className="h-7 w-7" strokeWidth={1.75} />
@@ -176,7 +206,7 @@ function HomePage() {
                 </p>
                 <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -214,8 +244,8 @@ function HomePage() {
             </div>
           ) : (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {featured.map((l) => (
-                <ListingCard key={l.id} listing={l} />
+              {featured.map((l, i) => (
+                <ListingCard key={l.id} listing={l} index={i} />
               ))}
             </div>
           )}

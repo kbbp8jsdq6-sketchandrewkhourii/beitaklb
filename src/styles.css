@@ -157,3 +157,13 @@
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Soft pulse for primary CTAs */
+@keyframes pulse-soft {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-primary) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 12px color-mix(in oklab, var(--color-primary) 0%, transparent);
+  }
+}

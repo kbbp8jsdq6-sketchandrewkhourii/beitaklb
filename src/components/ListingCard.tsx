@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { MapPin, Star, Instagram } from "lucide-react";
 
 export interface ListingCardData {
@@ -10,10 +11,38 @@ export interface ListingCardData {
   rating?: number | null;
 }
 
-export function ListingCard({ listing }: { listing: ListingCardData }) {
+export function ListingCard({
+  listing,
+  index = 0,
+  onQuickPreview,
+}: {
+  listing: ListingCardData;
+  index?: number;
+  onQuickPreview?: (listing: ListingCardData) => void;
+}) {
+  const handleMobileTap = (e: React.MouseEvent) => {
+    if (!onQuickPreview) return;
+    // Only trigger quick preview tap on touch (coarse pointer) devices
+    if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
+      e.preventDefault();
+      onQuickPreview(listing);
+    }
+  };
+
   return (
-    <div className="group block">
-      <Link to="/listing/$id" params={{ id: listing.id }} className="block">
+    <motion.div
+      className="group block"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.08, 0.6), ease: "easeOut" }}
+      onMouseEnter={() => onQuickPreview && onQuickPreview(listing)}
+    >
+      <Link
+        to="/listing/$id"
+        params={{ id: listing.id }}
+        className="block"
+        onClick={handleMobileTap}
+      >
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
           {listing.cover ? (
             <img
@@ -71,6 +100,6 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           </p>
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }
