@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type AnyOption = "Any" | "1" | "2" | "3" | "4" | "5" | "5+";
@@ -29,125 +32,13 @@ interface Unit {
   name: string;
   city: string;
   location: string;
+  description: string;
   price: number;
   beds: number;
   baths: number;
   amenities: string[];
-  image: string;
+  image: string | null;
 }
-
-const UNITS: Unit[] = [
-  {
-    id: "u1",
-    name: "Cedar Loft",
-    city: "Beirut",
-    location: "Beirut, Mar Mikhael",
-    price: 850,
-    beds: 1,
-    baths: 1,
-    amenities: ["AC", "Balcony", "Washer/Dryer"],
-    image:
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u2",
-    name: "Mountain Retreat",
-    city: "Bcharre",
-    location: "Bcharre",
-    price: 1400,
-    beds: 2,
-    baths: 2,
-    amenities: ["Parking", "Balcony", "AC", "Pet Friendly", "Chimney"],
-    image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u3",
-    name: "Marina View Suite",
-    city: "Byblos",
-    location: "Byblos",
-    price: 2300,
-    beds: 3,
-    baths: 2,
-    amenities: ["Pool", "Gym", "Parking", "AC", "Beach Access", "Jacuzzi"],
-    image:
-      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u4",
-    name: "Olive Garden Studio",
-    city: "Batroun",
-    location: "Batroun",
-    price: 650,
-    beds: 1,
-    baths: 1,
-    amenities: ["AC", "Washer/Dryer", "BBQ Area"],
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u5",
-    name: "Cornish Penthouse",
-    city: "Beirut",
-    location: "Beirut, Manara",
-    price: 2950,
-    beds: 3,
-    baths: 3,
-    amenities: ["Pool", "Gym", "Parking", "Balcony", "AC", "Washer/Dryer", "Jacuzzi"],
-    image:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u6",
-    name: "Cozy Family Flat",
-    city: "Jounieh",
-    location: "Jounieh",
-    price: 1100,
-    beds: 2,
-    baths: 1,
-    amenities: ["Parking", "AC", "Pet Friendly", "Balcony", "Wheelchair Accessibility"],
-    image:
-      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u7",
-    name: "Designer One-Bed",
-    city: "Beirut",
-    location: "Beirut, Achrafieh",
-    price: 1600,
-    beds: 1,
-    baths: 1,
-    amenities: ["Gym", "AC", "Washer/Dryer", "Balcony"],
-    image:
-      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u8",
-    name: "Hillside Villa",
-    city: "Broummana",
-    location: "Broummana",
-    price: 2750,
-    beds: 5,
-    baths: 4,
-    amenities: ["Pool", "Parking", "Pet Friendly", "Balcony", "AC", "BBQ Area", "Chimney"],
-    image:
-      "https://images.unsplash.com/photo-1598228723793-52759bba239c?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "u9",
-    name: "Faraya Chalet",
-    city: "Faraya",
-    location: "Faraya",
-    price: 1800,
-    beds: 4,
-    baths: 3,
-    amenities: ["Parking", "AC", "Chimney", "BBQ Area", "Jacuzzi"],
-    image:
-      "https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?auto=format&fit=crop&w=1200&q=80",
-  },
-];
-
-const CITIES = Array.from(new Set(UNITS.map((u) => u.city))).sort();
 
 function countMatch(value: number, selected: AnyOption): boolean {
   if (selected === "Any") return true;
@@ -155,7 +46,48 @@ function countMatch(value: number, selected: AnyOption): boolean {
   return value === Number(selected);
 }
 
+async function fetchAllUnits(): Promise<Unit[]> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      "id, title, description, location, price_per_night, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)"
+    )
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((l) => {
+    const photos = (l.listing_photos ?? [])
+      .slice()
+      .sort((a, b) => a.display_order - b.display_order);
+    // Derive a "city" — first part of location before any comma
+    const city = (l.location ?? "").split(",")[0].trim();
+    return {
+      id: l.id,
+      name: l.title,
+      city,
+      location: l.location,
+      description: l.description ?? "",
+      price: Number(l.price_per_night),
+      beds: l.bedrooms ?? 0,
+      baths: Number(l.bathrooms ?? 0),
+      amenities: l.amenities ?? [],
+      image: photos[0]?.photo_url ?? null,
+    };
+  });
+}
+
 export function FindYourUnit() {
+  const { data: UNITS = [], isLoading } = useQuery({
+    queryKey: ["find-your-unit-listings"],
+    queryFn: fetchAllUnits,
+    staleTime: 30_000,
+  });
+
+  const cities = useMemo(
+    () => Array.from(new Set(UNITS.map((u) => u.city).filter(Boolean))).sort(),
+    [UNITS]
+  );
+
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
@@ -184,12 +116,21 @@ export function FindYourUnit() {
 
   const handleSearch = () => {
     setApplied({ keyword, city, bed, bath, price, amenities, submitted: true });
-    // Smooth scroll to results
     requestAnimationFrame(() => {
       const el = document.getElementById("find-your-unit-results");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
+
+  // Live suggestions as user types in the keyword field
+  const suggestions = useMemo(() => {
+    const k = keyword.trim().toLowerCase();
+    if (!k) return [];
+    return UNITS.filter((u) => {
+      const hay = `${u.name} ${u.location} ${u.city} ${u.description} ${u.amenities.join(" ")}`.toLowerCase();
+      return hay.includes(k);
+    }).slice(0, 6);
+  }, [keyword, UNITS]);
 
   const results = useMemo(() => {
     const k = applied.keyword.trim().toLowerCase();
@@ -200,12 +141,15 @@ export function FindYourUnit() {
       if (u.price < applied.price[0] || u.price > applied.price[1]) return false;
       if (!applied.amenities.every((a) => u.amenities.includes(a))) return false;
       if (k) {
-        const haystack = `${u.name} ${u.location} ${u.city} ${u.amenities.join(" ")}`.toLowerCase();
+        const haystack = `${u.name} ${u.location} ${u.city} ${u.description} ${u.amenities.join(" ")}`.toLowerCase();
         if (!haystack.includes(k)) return false;
       }
       return true;
     });
-  }, [applied]);
+  }, [applied, UNITS]);
+
+  // Until the user submits, show all available units
+  const displayed = applied.submitted ? results : UNITS;
 
   return (
     <section
@@ -232,7 +176,7 @@ export function FindYourUnit() {
           <p className="text-foreground font-serif font-extrabold text-center text-slate-950 text-xl bg-white">Find your perfect guesthouse.</p>
 
           <div className="mt-4 space-y-3">
-            {/* Keyword search */}
+            {/* Keyword search w/ live suggestions */}
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -240,9 +184,37 @@ export function FindYourUnit() {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="Search by name, location or feature…"
+                placeholder="Search by name, city, location, description or amenity…"
                 className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
+              {keyword.trim().length > 0 && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border bg-popover shadow-xl">
+                  <p className="px-4 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Matching listings
+                  </p>
+                  <ul className="pb-2">
+                    {suggestions.map((u) => (
+                      <li key={u.id}>
+                        <Link
+                          to="/listing/$id"
+                          params={{ id: u.id }}
+                          className="flex items-start gap-3 px-4 py-2.5 hover:bg-accent"
+                        >
+                          {u.image ? (
+                            <img src={u.image} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
+                          ) : (
+                            <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-foreground">{u.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{u.location}</p>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* City dropdown */}
@@ -254,7 +226,7 @@ export function FindYourUnit() {
                 className="h-12 w-full appearance-none rounded-full border border-border bg-background pl-11 pr-10 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="All Cities">All Cities</option>
-                {CITIES.map((c) => (
+                {cities.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -263,7 +235,6 @@ export function FindYourUnit() {
               <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
 
-            {/* Bedrooms — horizontal scroll picker */}
             <ScrollPicker
               label="Bedrooms"
               icon={<Bed className="h-4 w-4 text-primary" />}
@@ -272,7 +243,6 @@ export function FindYourUnit() {
               onChange={(v) => setBed(v)}
             />
 
-            {/* Bathrooms — horizontal scroll picker */}
             <ScrollPicker
               label="Bathrooms"
               icon={<Bath className="h-4 w-4 text-primary" />}
@@ -281,7 +251,6 @@ export function FindYourUnit() {
               onChange={(v) => setBath(v)}
             />
 
-            {/* Amenities popover button */}
             <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
               <PopoverTrigger asChild>
                 <button
@@ -343,7 +312,6 @@ export function FindYourUnit() {
               </PopoverContent>
             </Popover>
 
-            {/* Selected amenity tags */}
             {amenities.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {amenities.map((a) => (
@@ -365,7 +333,6 @@ export function FindYourUnit() {
               </div>
             )}
 
-            {/* Price range */}
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-foreground">
@@ -391,7 +358,6 @@ export function FindYourUnit() {
               </div>
             </div>
 
-            {/* Search button */}
             <button
               type="button"
               onClick={handleSearch}
@@ -413,7 +379,13 @@ export function FindYourUnit() {
             </h3>
           </div>
 
-          {results.length === 0 ? (
+          {isLoading ? (
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
+              ))}
+            </div>
+          ) : displayed.length === 0 ? (
             <div className="mt-6 rounded-3xl border border-dashed border-border bg-background p-12 text-center">
               <p className="font-display text-2xl">No units found</p>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -422,7 +394,7 @@ export function FindYourUnit() {
             </div>
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {results.map((u, i) => (
+              {displayed.map((u, i) => (
                 <motion.article
                   key={u.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -430,44 +402,54 @@ export function FindYourUnit() {
                   transition={{ duration: 0.4, delay: i * 0.05, ease: "easeOut" }}
                   className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img
-                      src={u.image}
-                      alt={u.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute right-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
-                      ${u.price.toLocaleString()}/mo
+                  <Link to="/listing/$id" params={{ id: u.id }} className="block">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                      {u.image ? (
+                        <img
+                          src={u.image}
+                          alt={u.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                          No photo
+                        </div>
+                      )}
+                      <div className="absolute right-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
+                        ${u.price.toLocaleString()}/night
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-5">
-                    <h4 className="font-display text-xl text-foreground">{u.name}</h4>
-                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {u.location}
-                    </p>
-                    <div className="mt-3 flex items-center gap-4 text-sm text-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Bed className="h-4 w-4 text-primary" />
-                        {u.beds} bed{u.beds > 1 ? "s" : ""}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Bath className="h-4 w-4 text-primary" />
-                        {u.baths} bath{u.baths > 1 ? "s" : ""}
-                      </span>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {u.amenities.map((a) => (
-                        <span
-                          key={a}
-                          className="rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
-                        >
-                          {a}
+                    <div className="p-5">
+                      <h4 className="font-display text-xl text-foreground">{u.name}</h4>
+                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {u.location}
+                      </p>
+                      <div className="mt-3 flex items-center gap-4 text-sm text-foreground">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Bed className="h-4 w-4 text-primary" />
+                          {u.beds} bed{u.beds !== 1 ? "s" : ""}
                         </span>
-                      ))}
+                        <span className="inline-flex items-center gap-1.5">
+                          <Bath className="h-4 w-4 text-primary" />
+                          {u.baths} bath{u.baths !== 1 ? "s" : ""}
+                        </span>
+                      </div>
+                      {u.amenities.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-1.5">
+                          {u.amenities.slice(0, 6).map((a) => (
+                            <span
+                              key={a}
+                              className="rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
+                            >
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  </Link>
                 </motion.article>
               ))}
             </div>
