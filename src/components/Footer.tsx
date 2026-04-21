@@ -19,8 +19,8 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           {/* Brand */}
-          <div>
-            <div className="brightness-0 invert">
+          <div className="flex flex-col items-center text-center md:items-start md:text-left">
+            <div className="flex justify-center md:justify-start">
               <Logo size="lg" />
             </div>
             <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] shadow-md opacity-70 text-base">
