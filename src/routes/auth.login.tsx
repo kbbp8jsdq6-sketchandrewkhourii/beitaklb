@@ -35,7 +35,7 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-accent/30 to-background px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-6 flex justify-center">
-          <Link to="/"><Logo size="lg" showTagline /></Link>
+          <Link to="/"><Logo size="xl" /></Link>
         </div>
         <div className="rounded-3xl border border-border bg-card p-8 shadow-xl">
           <h1 className="font-display text-3xl text-foreground">Welcome back</h1>

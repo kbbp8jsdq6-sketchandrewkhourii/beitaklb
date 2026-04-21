@@ -20,8 +20,8 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           {/* Brand */}
           <div>
-            <div className="[&_span]:!text-white">
-              <Logo size="md" />
+            <div className="brightness-0 invert">
+              <Logo size="lg" />
             </div>
             <p className="mt-4 text-sm uppercase tracking-[0.25em] text-primary">
               Home is closer than you think

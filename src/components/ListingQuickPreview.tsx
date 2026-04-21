@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, X } from "lucide-react";
+import { Loader2, MapPin, X } from "lucide-react";
+import { useState } from "react";
 import type { ListingCardData } from "./ListingCard";
-
-const WHATSAPP_NUMBER = "96181160435";
+import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -26,11 +26,25 @@ export function ListingQuickPreview({
   open: boolean;
   onClose: () => void;
 }) {
-  const waHref = listing
-    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        `Hi! I'm interested in reserving "${listing.title}". Can you help me with availability and booking?`
-      )}`
-    : "#";
+  const [waLoading, setWaLoading] = useState(false);
+
+  const handleReserve = async () => {
+    if (!listing || waLoading) return;
+    setWaLoading(true);
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const url = `${origin}/listing/${listing.id}`;
+      const href = await buildListingWhatsAppHref({
+        title: listing.title,
+        location: listing.location,
+        pricePerNight: listing.price_per_night,
+        url,
+      });
+      window.open(href, "_blank", "noopener,noreferrer");
+    } finally {
+      setWaLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -89,15 +103,24 @@ export function ListingQuickPreview({
                 >
                   View full listing
                 </Link>
-                <a
-                  href={waHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                <button
+                  type="button"
+                  onClick={handleReserve}
+                  disabled={waLoading}
+                  className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
                 >
-                  <WhatsAppIcon className="h-4 w-4" />
-                  Reserve
-                </a>
+                  {waLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <WhatsAppIcon className="h-4 w-4" />
+                      Reserve
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </motion.div>
