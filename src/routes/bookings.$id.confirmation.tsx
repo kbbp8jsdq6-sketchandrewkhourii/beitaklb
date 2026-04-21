@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Check, Calendar, MapPin, Users } from "lucide-react";
 
 export const Route = createFileRoute("/bookings/$id/confirmation")({
-  head: () => ({ meta: [{ title: "Booking confirmed — BEITAK" }] }),
+  head: () => ({ meta: [{ title: "Booking confirmed — BEITAK" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ConfirmationPage,
 });
 

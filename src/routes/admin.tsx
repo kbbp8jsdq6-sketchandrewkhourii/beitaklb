@@ -11,7 +11,7 @@ import { Shield, Users, Home as HomeIcon, Calendar, DollarSign, Trash2, Ban, Shi
 import { AdminListingForm } from "@/components/AdminListingForm";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — BEITAK" }] }),
+  head: () => ({ meta: [{ title: "Admin — BEITAK" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AdminPage,
 });
 

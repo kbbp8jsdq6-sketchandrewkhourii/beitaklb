@@ -33,27 +33,17 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BEITAK — Home Is Closer Than You Think" },
-      {
-        name: "description",
-        content:
-          "Discover and book unique homes across Lebanon — from Beirut rooftops to Bcharre cedars. BEITAK connects you with authentic Lebanese stays.",
-      },
-      { property: "og:title", content: "BEITAK — Home Is Closer Than You Think" },
-      {
-        property: "og:description",
-        content: "Property rentals across Lebanon's most beautiful villages and cities.",
-      },
+      { name: "robots", content: "index, follow" },
+      // Google Search Console verification — replace content value with your verification code
+      { name: "google-site-verification", content: "REPLACE_WITH_YOUR_GOOGLE_VERIFICATION_CODE" },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "BEITAK — Home Is Closer Than You Think" },
-      { name: "description", content: "Beitak.lb is a real estate platform for finding and booking guesthouses." },
-      { property: "og:description", content: "Beitak.lb is a real estate platform for finding and booking guesthouses." },
-      { name: "twitter:description", content: "Beitak.lb is a real estate platform for finding and booking guesthouses." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8589acf6-7b92-4a77-94bb-b002b50011f7/id-preview-09abcac8--9b3af1ab-98df-4b5c-be47-030404eee3e1.lovable.app-1776784593588.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8589acf6-7b92-4a77-94bb-b002b50011f7/id-preview-09abcac8--9b3af1ab-98df-4b5c-be47-030404eee3e1.lovable.app-1776784593588.png" },
+      { property: "og:site_name", content: "BEITAK" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "canonical", href: "https://beitaklb.lovable.app/" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

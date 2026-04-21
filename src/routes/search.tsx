@@ -15,9 +15,12 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/search")({
   head: () => ({
     meta: [
-      { title: "Search stays — BEITAK" },
-      { name: "description", content: "Find stays across Lebanon's villages and cities." },
+      { title: "Search Stays in Lebanon — BEITAK" },
+      { name: "description", content: "Browse and search unique guesthouses, villas and apartments across Lebanon. Filter by city to find your perfect Lebanese stay." },
+      { property: "og:title", content: "Search Stays in Lebanon — BEITAK" },
+      { property: "og:description", content: "Browse unique stays across Lebanon — from Beirut to Bcharre." },
     ],
+    links: [{ rel: "canonical", href: "https://beitaklb.lovable.app/search" }],
   }),
   validateSearch: (search) => searchSchema.parse(search),
   component: SearchPage,

@@ -10,9 +10,40 @@ import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
 export const Route = createFileRoute("/listing/$id")({
-  head: ({ params }) => ({
-    meta: [{ title: `Listing — BEITAK` }, { name: "description", content: `Stay in Lebanon — listing ${params.id}` }],
-  }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("listings")
+      .select("title, description, location, listing_photos(photo_url, display_order)")
+      .eq("id", params.id)
+      .maybeSingle();
+    if (!data) return { meta: null as null | { title: string; description: string; location: string; image: string | null } };
+    const photos = (data.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
+    return {
+      meta: {
+        title: data.title,
+        description: data.description,
+        location: data.location,
+        image: photos[0]?.photo_url ?? null,
+      },
+    };
+  },
+  head: ({ loaderData }) => {
+    const m = loaderData?.meta;
+    if (!m) {
+      return { meta: [{ title: "Listing — BEITAK" }, { name: "description", content: "Stay in Lebanon with BEITAK." }] };
+    }
+    const title = `${m.title} in ${m.location} — BEITAK`.slice(0, 60);
+    const desc = (m.description ?? `Stay at ${m.title} in ${m.location}.`).slice(0, 160);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        ...(m.image ? [{ property: "og:image", content: m.image }, { name: "twitter:image", content: m.image }] : []),
+      ],
+    };
+  },
   component: ListingPage,
   notFoundComponent: () => (
     <div className="flex min-h-screen items-center justify-center bg-background">

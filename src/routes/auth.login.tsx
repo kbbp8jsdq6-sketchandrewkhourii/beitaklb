@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth/login")({
-  head: () => ({ meta: [{ title: "Log in — BEITAK" }] }),
+  head: () => ({ meta: [{ title: "Log in — BEITAK" }, { name: "description", content: "Log in to BEITAK to manage your stays in Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
