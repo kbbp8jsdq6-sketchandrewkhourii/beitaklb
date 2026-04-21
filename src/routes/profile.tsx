@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { User as UserIcon, Trash2, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — BEITAK" }] }),
+  head: () => ({ meta: [{ title: "Profile — BEITAK" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ProfilePage,
 });
 
