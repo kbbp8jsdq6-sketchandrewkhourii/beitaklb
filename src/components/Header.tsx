@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, LogOut, User as UserIcon, Calendar, Shield } from "lucide-react";
+import { Plus, LogOut, User as UserIcon, Calendar, Shield, Instagram } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
