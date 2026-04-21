@@ -138,7 +138,18 @@ function ListingPage() {
       <Header />
       <article className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <header>
-          <h1 className="font-display text-4xl text-foreground sm:text-5xl">{listing.title}</h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="font-display text-4xl text-foreground sm:text-5xl">{listing.title}</h1>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow @beitak.lb on Instagram"
+              className="shrink-0 rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-[#E1306C]"
+            >
+              <Instagram className="h-5 w-5" />
+            </a>
+          </div>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             {avgRating != null && (
               <span className="flex items-center gap-1 text-foreground">
