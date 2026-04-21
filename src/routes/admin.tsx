@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, Users, Home as HomeIcon, Calendar, DollarSign, Trash2, Ban, ShieldOff } from "lucide-react";
+import { Shield, Users, Home as HomeIcon, Calendar, DollarSign, Trash2, Ban, ShieldOff, Plus } from "lucide-react";
+import { AdminListingForm } from "@/components/AdminListingForm";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — BEITAK" }] }),
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/admin")({
 function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const [tab, setTab] = useState<"overview" | "users" | "listings" | "bookings">("overview");
+  const [showNew, setShowNew] = useState(false);
 
   const usersQ = useQuery({
     queryKey: ["admin-users"],
@@ -165,6 +167,11 @@ function AdminPage() {
           </TabsContent>
 
           <TabsContent value="listings" className="mt-6">
+            <div className="mb-4 flex justify-end">
+              <Button onClick={() => setShowNew(true)} className="gap-2">
+                <Plus className="h-4 w-4" /> Add new listing
+              </Button>
+            </div>
             <div className="overflow-x-auto rounded-2xl border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted text-left text-xs uppercase tracking-wider">
@@ -194,6 +201,14 @@ function AdminPage() {
                 </tbody>
               </table>
             </div>
+            {user && (
+              <AdminListingForm
+                open={showNew}
+                onClose={() => setShowNew(false)}
+                onCreated={() => listingsQ.refetch()}
+                adminUserId={user.id}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="bookings" className="mt-6">
