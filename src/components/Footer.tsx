@@ -21,7 +21,7 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
             <div className="flex justify-center md:justify-start">
-              <Logo size="lg" variant="white" className="w-[160px] sm:w-[200px]" />
+              <Logo size="lg" variant="white" className="w-[240px] sm:w-[320px]" />
             </div>
             <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] shadow-md opacity-70 text-base">
               Home is closer than you think.
