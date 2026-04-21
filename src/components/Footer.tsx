@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 import { Logo } from "./Logo";
 
 const WHATSAPP_URL = "https://wa.me/96181160435";
@@ -81,9 +81,17 @@ export function Footer() {
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
             </div>
-            <p className="mt-3 text-sm text-secondary-foreground/70 whitespace-pre-line">
-              {`@Beitak.lb\n+961 81 160 435\nE-mail: Beitaklb@gmail.com`}
-            </p>
+            <div className="mt-3 space-y-1.5 text-sm text-secondary-foreground/70">
+              <p>@Beitak.lb</p>
+              <p className="flex items-center gap-2">
+                <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
+                <span>+961 81 160 435</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Mail className="h-4 w-4 shrink-0" />
+                <span>Beitaklb@gmail.com</span>
+              </p>
+            </div>
           </div>
         </div>
 
