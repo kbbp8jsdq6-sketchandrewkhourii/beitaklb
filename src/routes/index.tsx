@@ -120,12 +120,17 @@ function HomePage() {
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <motion.div
-              className="brightness-0 invert"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Logo size="xl" />
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="drop-shadow-2xl"
+              >
+                <Logo size="xl" />
+              </motion.div>
             </motion.div>
             <motion.h1
               className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
