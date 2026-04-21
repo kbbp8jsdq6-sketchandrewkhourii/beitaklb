@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { ListingCard } from "@/components/ListingCard";
