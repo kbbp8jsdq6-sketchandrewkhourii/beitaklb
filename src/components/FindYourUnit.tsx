@@ -229,7 +229,7 @@ export function FindYourUnit() {
 
         {/* Filter card */}
         <div className="mt-10 rounded-3xl border border-border bg-background p-5 shadow-sm sm:p-7">
-          <p className="text-sm font-semibold text-foreground">Plan less. Experience more.</p>
+          <p className="text-foreground font-serif font-extrabold text-center text-slate-950 text-xl bg-white border border-red-700 border-double">Find your perfect guesthouse.</p>
 
           <div className="mt-4 space-y-3">
             {/* Keyword search */}
