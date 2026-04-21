@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import logoSrc from "@/assets/beitak-logo.png";
-import logoWhiteSrc from "@/assets/beitak-logo-white.png";
+import logoWhiteSrc from "@/assets/beitak-logo-white.jpg";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl";
