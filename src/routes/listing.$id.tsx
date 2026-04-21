@@ -1,12 +1,15 @@
 import { createFileRoute, Link, useNavigate, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { MapPin, Star, Users, BedDouble, Bath, Calendar as CalIcon, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Calendar as CalIcon, Check, ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+
+const WHATSAPP_NUMBER = "96181160435";
+const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
 export const Route = createFileRoute("/listing/$id")({
   head: ({ params }) => ({
