@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { z } from "zod";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
-import { ListingCard } from "@/components/ListingCard";
+import { ListingCard, type ListingCardData } from "@/components/ListingCard";
+import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 import { supabase } from "@/integrations/supabase/client";
 
 const searchSchema = z.object({
@@ -24,15 +26,19 @@ export const Route = createFileRoute("/search")({
   component: SearchPage,
 });
 
+type SearchListing = ListingCardData & { description?: string | null };
+
 function SearchPage() {
   const { q, checkIn, checkOut, guests } = Route.useSearch();
+  const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
-  const { data: results = [], isLoading } = useQuery({
+  const { data: results = [], isLoading } = useQuery<SearchListing[]>({
     queryKey: ["search-listings", q, checkIn, checkOut, guests],
     queryFn: async () => {
       let query = supabase
         .from("listings")
-        .select("id, title, location, price_per_night, max_guests, listing_photos(photo_url, display_order)")
+        .select("id, title, description, location, price_per_night, max_guests, listing_photos(photo_url, display_order)")
         .eq("is_active", true);
       if (q) query = query.ilike("location", `%${q}%`);
       if (guests) query = query.gte("max_guests", guests);
@@ -43,6 +49,7 @@ function SearchPage() {
         return {
           id: l.id,
           title: l.title,
+          description: l.description,
           location: l.location,
           price_per_night: Number(l.price_per_night),
           cover: photos[0]?.photo_url ?? null,
@@ -50,6 +57,12 @@ function SearchPage() {
       });
     },
   });
+
+  const openPreview = (listing: ListingCardData) => {
+    const full = results.find((r) => r.id === listing.id);
+    setPreview(full ?? listing);
+    setPreviewOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,12 +106,18 @@ function SearchPage() {
           </div>
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {results.map((l) => (
-              <ListingCard key={l.id} listing={l} />
+            {results.map((l, i) => (
+              <ListingCard key={l.id} listing={l} index={i} onQuickPreview={openPreview} />
             ))}
           </div>
         )}
       </section>
+
+      <ListingQuickPreview
+        listing={preview}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   );
 }
