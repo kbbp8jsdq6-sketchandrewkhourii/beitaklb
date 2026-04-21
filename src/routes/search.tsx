@@ -1,17 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { ListingCard } from "@/components/ListingCard";
 import { supabase } from "@/integrations/supabase/client";
 
 const searchSchema = z.object({
-  q: fallback(z.string().optional(), undefined),
-  checkIn: fallback(z.string().optional(), undefined),
-  checkOut: fallback(z.string().optional(), undefined),
-  guests: fallback(z.number().optional(), undefined),
+  q: z.string().optional().catch(undefined),
+  checkIn: z.string().optional().catch(undefined),
+  checkOut: z.string().optional().catch(undefined),
+  guests: z.number().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/search")({
@@ -21,7 +20,7 @@ export const Route = createFileRoute("/search")({
       { name: "description", content: "Find stays across Lebanon's villages and cities." },
     ],
   }),
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (search) => searchSchema.parse(search),
   component: SearchPage,
 });
 
