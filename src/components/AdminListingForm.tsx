@@ -36,8 +36,6 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [maxGuests, setMaxGuests] = useState("2");
   const [bedrooms, setBedrooms] = useState("1");
   const [bathrooms, setBathrooms] = useState("1");
-  const [availFrom, setAvailFrom] = useState("");
-  const [availTo, setAvailTo] = useState("");
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +43,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const reset = () => {
     setTitle(""); setDescription(""); setLocation(""); setPrice("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
-    setAvailFrom(""); setAvailTo(""); setAmenities([]); setFiles([]);
+    setAmenities([]); setFiles([]);
   };
 
   const toggleAmenity = (a: string) =>
@@ -78,8 +76,6 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
           bedrooms: Number(bedrooms),
           bathrooms: Number(bathrooms),
           amenities,
-          available_from: availFrom || null,
-          available_to: availTo || null,
           is_active: true,
         })
         .select("id")
@@ -158,17 +154,6 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             <div>
               <Label htmlFor="ba">Bathrooms</Label>
               <Input id="ba" type="number" min="0" step="0.5" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="from">Available from</Label>
-              <Input id="from" type="date" value={availFrom} onChange={(e) => setAvailFrom(e.target.value)} />
-            </div>
-            <div>
-              <Label htmlFor="to">Available to</Label>
-              <Input id="to" type="date" value={availTo} min={availFrom || undefined} onChange={(e) => setAvailTo(e.target.value)} />
             </div>
           </div>
 
