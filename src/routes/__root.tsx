@@ -35,7 +35,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "robots", content: "index, follow" },
       // Google Search Console verification — replace content value with your verification code
-      { name: "google-site-verification", content: "REPLACE_WITH_YOUR_GOOGLE_VERIFICATION_CODE" },
+      { name: "google-site-verification", content: "o_qzU6fjkHKfA8AAoWNbLn_5hlazjpwcLn9LhdzeZiI" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "BEITAK" },
       { name: "twitter:card", content: "summary_large_image" },
