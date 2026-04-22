@@ -25,7 +25,7 @@ export function Footer() {
               <Logo size="lg" />
             </div>
             <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] shadow-md opacity-70 text-base">
-              Home is closer than you think.
+              {" "}
             </p>
             <p className="mt-3 max-w-xs text-sm text-secondary-foreground/70">
               Discover unique stays across Lebanon — from coastal villas to mountain retreats.
