@@ -296,7 +296,7 @@ function HomePage() {
       </section>
 
       {/* 5. ABOUT */}
-      <section className="bg-background">
+      <section id="about" className="bg-background scroll-mt-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
@@ -307,6 +307,23 @@ function HomePage() {
               BEITAK connects travelers with unique local stays across Lebanon. Whether you're hosting
               or exploring, we make the experience simple, personal, and memorable.
             </p>
+
+            <div id="mission" className="mt-8 scroll-mt-24 rounded-2xl border-l-4 border-primary bg-primary/5 p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Mission</p>
+              <p className="mt-2 text-base leading-relaxed text-foreground/80">
+                Make every Lebanese stay effortless — connecting travelers directly with curated
+                hosts, with no middlemen and no surprises.
+              </p>
+            </div>
+
+            <div id="vision" className="mt-4 scroll-mt-24 rounded-2xl border-l-4 border-foreground bg-muted/40 p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-foreground">Our Vision</p>
+              <p className="mt-2 text-base leading-relaxed text-foreground/80">
+                To become Lebanon's most loved stays platform — where hosts thrive and travelers
+                fall in love with the country, one home at a time.
+              </p>
+            </div>
+
             <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
               Home is closer than you think
             </p>
@@ -314,7 +331,7 @@ function HomePage() {
               href="https://instagram.com/beitak.lb"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-[#E1306C]"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-[#E1306C]"
             >
               <Instagram className="h-5 w-5" />
               instagram.com/beitak.lb
