@@ -17,7 +17,7 @@ interface LogoProps {
 const sizeMap: Record<NonNullable<LogoProps["size"]>, string> = {
   sm: "w-[80px]",
   md: "w-[90px] sm:w-[120px]",
-  lg: "w-[100px]",
+  lg: "w-[220px] sm:w-[280px]",
   xl: "w-[160px] sm:w-[240px]",
   hero: "w-[160px] sm:w-[240px]",
   auth: "w-[150px]",
