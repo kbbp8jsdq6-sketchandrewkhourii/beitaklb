@@ -115,9 +115,18 @@ function AdminPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          <Shield className="h-8 w-8 text-primary" />
-          <h1 className="font-display text-4xl">Admin dashboard</h1>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Shield className="h-8 w-8 text-primary" />
+            <h1 className="font-display text-4xl">Admin dashboard</h1>
+          </div>
+          <Button
+            onClick={() => { setTab("listings"); setShowNew(true); }}
+            size="lg"
+            className="gap-2"
+          >
+            <Plus className="h-5 w-5" /> Add new listing
+          </Button>
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="mt-6">
