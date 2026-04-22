@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Logo } from "./Logo";
+import { LogoTransparent } from "./LogoTransparent";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut, User as UserIcon, Shield, Instagram, Heart } from "lucide-react";
@@ -46,7 +46,7 @@ export function Header() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center" aria-label="BEITAK home">
-          <Logo size="md" />
+          <LogoTransparent size="navbar" />
         </Link>
 
         <nav className="flex items-center gap-2">

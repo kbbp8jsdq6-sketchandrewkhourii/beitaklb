@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Logo } from "@/components/Logo";
+import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
@@ -134,7 +134,7 @@ function HomePage() {
                 }}
                 className="drop-shadow-[0_15px_35px_rgba(230,48,48,0.45)]"
               >
-                <Logo size="hero" />
+                <LogoTransparent size="hero" />
               </motion.div>
             </motion.div>
             <motion.h1
