@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { HamburgerMenu } from "./HamburgerMenu";
 
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();

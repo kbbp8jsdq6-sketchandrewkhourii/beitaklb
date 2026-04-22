@@ -163,6 +163,29 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             </p>
           </div>
 
+          <div>
+            <Label htmlFor="cat">Category *</Label>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {CATEGORIES.map((c) => {
+                const active = category === c.value;
+                return (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setCategory(c.value)}
+                    className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
+                      active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-foreground hover:border-primary"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="pwd">Weekday price (USD) *</Label>
