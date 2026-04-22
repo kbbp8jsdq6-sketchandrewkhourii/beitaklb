@@ -26,6 +26,10 @@ const AMENITIES = [
   "Jacuzzi",
   "Wheelchair Accessibility",
   "Breakfast included",
+  "Electricity 24/7",
+  "High speed WiFi",
+  "Smart TV & streaming services",
+  "Hot water",
 ] as const;
 
 interface Unit {

@@ -23,6 +23,10 @@ const AMENITY_OPTIONS = [
   "Jacuzzi",
   "Wheelchair Accessibility",
   "Breakfast included",
+  "Electricity 24/7",
+  "High speed WiFi",
+  "Smart TV & streaming services",
+  "Hot water",
 ];
 
 type Category = "villa" | "cabin" | "apartment";
