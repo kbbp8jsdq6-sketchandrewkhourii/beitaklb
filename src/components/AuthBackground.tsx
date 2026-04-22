@@ -1,0 +1,118 @@
+import { Home, MapPin } from "lucide-react";
+
+/**
+ * BEITAK animated auth background.
+ * Pure CSS keyframes — softly drifting houses, pins, and geometric shapes.
+ * Stays within the BEITAK palette (red + black) at low opacity over white.
+ */
+export function AuthBackground() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      style={{ background: "#ffffff" }}
+    >
+      {/* Houses */}
+      <span className="auth-bg-float auth-bg-house-1 absolute text-[color:rgba(230,48,48,0.10)]">
+        <Home className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
+      </span>
+      <span className="auth-bg-float auth-bg-house-2 absolute text-[color:rgba(230,48,48,0.08)]">
+        <Home className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.5} />
+      </span>
+      <span className="auth-bg-float auth-bg-house-3 absolute text-[color:rgba(0,0,0,0.05)]">
+        <Home className="h-14 w-14 sm:h-20 sm:w-20" strokeWidth={1.5} />
+      </span>
+
+      {/* Map pins */}
+      <span className="auth-bg-float auth-bg-pin-1 absolute text-[color:rgba(230,48,48,0.12)]">
+        <MapPin className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.5} />
+      </span>
+      <span className="auth-bg-float auth-bg-pin-2 absolute text-[color:rgba(0,0,0,0.06)]">
+        <MapPin className="h-8 w-8 sm:h-12 sm:w-12" strokeWidth={1.5} />
+      </span>
+      <span className="auth-bg-float auth-bg-pin-3 absolute text-[color:rgba(230,48,48,0.10)]">
+        <MapPin className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
+      </span>
+
+      {/* Geometric SVGs */}
+      <svg
+        className="auth-bg-float auth-bg-geo-1 absolute h-16 w-16 sm:h-24 sm:w-24"
+        viewBox="0 0 100 100"
+        fill="none"
+        stroke="rgba(230,48,48,0.10)"
+        strokeWidth="2"
+      >
+        <circle cx="50" cy="50" r="40" />
+        <circle cx="50" cy="50" r="24" />
+      </svg>
+      <svg
+        className="auth-bg-float auth-bg-geo-2 absolute h-20 w-20 sm:h-28 sm:w-28"
+        viewBox="0 0 100 100"
+        fill="none"
+        stroke="rgba(0,0,0,0.05)"
+        strokeWidth="2"
+      >
+        <polygon points="50,10 90,80 10,80" />
+      </svg>
+      <svg
+        className="auth-bg-float auth-bg-geo-3 absolute h-14 w-14 sm:h-20 sm:w-20"
+        viewBox="0 0 100 100"
+        fill="none"
+        stroke="rgba(230,48,48,0.08)"
+        strokeWidth="2"
+      >
+        <rect x="15" y="15" width="70" height="70" rx="8" transform="rotate(15 50 50)" />
+      </svg>
+      <svg
+        className="auth-bg-float auth-bg-geo-4 absolute h-10 w-10 sm:h-16 sm:w-16"
+        viewBox="0 0 100 100"
+        fill="none"
+        stroke="rgba(0,0,0,0.06)"
+        strokeWidth="2"
+      >
+        <path d="M10 50 L50 10 L90 50 L50 90 Z" />
+      </svg>
+
+      <style>{`
+        @keyframes auth-drift-a {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(30px, -25px) rotate(8deg); }
+        }
+        @keyframes auth-drift-b {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(-25px, 30px) rotate(-10deg); }
+        }
+        @keyframes auth-drift-c {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(20px, 25px) rotate(12deg); }
+        }
+        @keyframes auth-drift-d {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(-30px, -20px) rotate(-6deg); }
+        }
+
+        .auth-bg-float { will-change: transform; }
+
+        .auth-bg-house-1 { top: 8%;  left: 6%;   animation: auth-drift-a 24s ease-in-out infinite; }
+        .auth-bg-house-2 { top: 70%; left: 12%;  animation: auth-drift-b 28s ease-in-out infinite; }
+        .auth-bg-house-3 { top: 18%; right: 8%;  animation: auth-drift-c 26s ease-in-out infinite; }
+
+        .auth-bg-pin-1   { top: 40%; left: 4%;   animation: auth-drift-d 22s ease-in-out infinite; }
+        .auth-bg-pin-2   { top: 78%; right: 10%; animation: auth-drift-a 30s ease-in-out infinite; }
+        .auth-bg-pin-3   { top: 12%; left: 45%;  animation: auth-drift-b 25s ease-in-out infinite; }
+
+        .auth-bg-geo-1   { top: 55%; right: 6%;  animation: auth-drift-c 27s ease-in-out infinite; }
+        .auth-bg-geo-2   { top: 30%; left: 30%;  animation: auth-drift-d 29s ease-in-out infinite; }
+        .auth-bg-geo-3   { bottom: 8%; left: 40%; animation: auth-drift-a 23s ease-in-out infinite; }
+        .auth-bg-geo-4   { top: 50%; left: 55%;  animation: auth-drift-b 26s ease-in-out infinite; }
+
+        @media (max-width: 640px) {
+          .auth-bg-float { transform: scale(0.75); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .auth-bg-float { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
