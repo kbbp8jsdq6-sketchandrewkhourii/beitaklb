@@ -434,8 +434,13 @@ export function FindYourUnit() {
                         </div>
                       )}
                       <div className="absolute right-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
-                        ${u.price.toLocaleString()}/night
+                        From ${Math.min(u.priceWeekday, u.priceWeekend).toLocaleString()}/night
                       </div>
+                      {u.amenities.some((a) => a.toLowerCase() === "breakfast included") && (
+                        <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
+                          ☕ Breakfast
+                        </div>
+                      )}
                     </div>
                     <div className="p-5">
                       <h4 className="font-display text-xl text-foreground">{u.name}</h4>

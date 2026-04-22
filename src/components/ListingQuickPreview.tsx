@@ -4,6 +4,7 @@ import { Loader2, MapPin, X } from "lucide-react";
 import { useState } from "react";
 import type { ListingCardData } from "./ListingCard";
 import { buildListingWhatsAppHref } from "@/lib/whatsapp";
+import { WhatsAppReserveModal } from "./WhatsAppReserveModal";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -27,6 +28,12 @@ export function ListingQuickPreview({
   onClose: () => void;
 }) {
   const [waLoading, setWaLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const openConfirm = () => {
+    if (!listing || waLoading) return;
+    setShowConfirm(true);
+  };
 
   const handleReserve = async () => {
     if (!listing || waLoading) return;
@@ -37,10 +44,12 @@ export function ListingQuickPreview({
       const href = await buildListingWhatsAppHref({
         title: listing.title,
         location: listing.location,
-        pricePerNight: listing.price_per_night,
+        priceWeekday: listing.price_weekday ?? listing.price_per_night,
+        priceWeekend: listing.price_weekend ?? listing.price_per_night,
         url,
       });
       window.open(href, "_blank", "noopener,noreferrer");
+      setShowConfirm(false);
     } finally {
       setWaLoading(false);
     }
@@ -90,8 +99,9 @@ export function ListingQuickPreview({
                 <p className="mt-3 line-clamp-2 text-sm text-foreground/80">{listing.description}</p>
               )}
               <p className="mt-3 text-base">
+                <span className="text-muted-foreground">From </span>
                 <span className="font-semibold text-foreground">
-                  ${listing.price_per_night.toFixed(0)}
+                  ${Math.min(listing.price_weekday ?? listing.price_per_night, listing.price_weekend ?? listing.price_per_night).toFixed(0)}
                 </span>
                 <span className="text-muted-foreground"> / night</span>
               </p>
@@ -105,7 +115,7 @@ export function ListingQuickPreview({
                 </Link>
                 <button
                   type="button"
-                  onClick={handleReserve}
+                  onClick={openConfirm}
                   disabled={waLoading}
                   className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
                 >
@@ -126,6 +136,12 @@ export function ListingQuickPreview({
           </motion.div>
         </motion.div>
       )}
+      <WhatsAppReserveModal
+        open={showConfirm}
+        loading={waLoading}
+        onConfirm={handleReserve}
+        onCancel={() => setShowConfirm(false)}
+      />
     </AnimatePresence>
   );
 }
