@@ -111,6 +111,7 @@ export function Header() {
               </Button>
             </>
           )}
+          <HamburgerMenu />
         </nav>
       </div>
     </header>
