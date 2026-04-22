@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { AuthBackground } from "@/components/AuthBackground";
+import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,12 +34,13 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-accent/30 to-background px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <AuthBackground />
+      <div className="relative z-10 w-full max-w-md">
         <div className="mb-6 flex justify-center">
           <Link to="/"><Logo size="xl" /></Link>
         </div>
-        <div className="rounded-3xl border border-border bg-card p-8 shadow-xl">
+        <div className="rounded-3xl border border-border bg-white p-8 shadow-xl">
           <h1 className="font-display text-3xl text-foreground">Welcome back</h1>
           <p className="mt-1 text-sm text-muted-foreground">Log in to continue.</p>
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -47,7 +50,16 @@ function LoginPage() {
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <div className="mt-1.5 text-right">
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-[13px]"
+                  style={{ color: "#E63030" }}
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? "Signing in…" : "Log in"}
