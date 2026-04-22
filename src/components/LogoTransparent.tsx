@@ -11,7 +11,7 @@ interface LogoTransparentProps {
 // - hero   : 160px mobile / 220px desktop
 const sizeMap: Record<NonNullable<LogoTransparentProps["size"]>, string> = {
   navbar: "w-[90px] sm:w-[120px]",
-  hero: "w-[200px] sm:w-[280px]",
+  hero: "w-[240px] sm:w-[380px]",
 };
 
 /**
