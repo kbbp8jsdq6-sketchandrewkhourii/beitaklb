@@ -14,7 +14,14 @@ export interface ListingCardData {
   cover?: string | null;
   rating?: number | null;
   amenities?: string[];
+  category?: "villa" | "cabin" | "apartment" | null;
 }
+
+const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
+  villa: "Villa",
+  cabin: "Cabin",
+  apartment: "Apartment",
+};
 
 export function ListingCard({
   listing,
@@ -82,6 +89,11 @@ export function ListingCard({
             <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-foreground backdrop-blur">
               {listing.location.split(" (")[0]}
             </span>
+            {listing.category && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-background shadow backdrop-blur">
+                {CATEGORY_LABEL[listing.category]}
+              </span>
+            )}
             {hasBreakfast && (
               <span className="inline-flex items-center gap-1 rounded-full bg-primary/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
                 <Coffee className="h-3 w-3" /> Breakfast

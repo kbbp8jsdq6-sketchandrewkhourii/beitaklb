@@ -69,7 +69,7 @@ async function fetchListing(id: string) {
     .from("listings")
     .select(`
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
-      amenities, host_id, created_at,
+      amenities, category, host_id, created_at,
       listing_photos(id, photo_url, display_order),
       profiles:host_id (full_name, avatar_url),
       reviews(id, rating, comment, created_at, reviewer_id, profiles:reviewer_id(full_name))
@@ -80,6 +80,12 @@ async function fetchListing(id: string) {
   if (!data) throw notFound();
   return data;
 }
+
+const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
+  villa: "Villa",
+  cabin: "Cabin",
+  apartment: "Apartment",
+};
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -207,7 +213,14 @@ function ListingPage() {
       <article className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <header>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="font-display text-4xl text-foreground sm:text-5xl">{listing.title}</h1>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-4xl text-foreground sm:text-5xl">{listing.title}</h1>
+              {listing.category && (
+                <span className="mt-2 inline-flex items-center rounded-full bg-foreground px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-background">
+                  {CATEGORY_LABEL[listing.category as "villa" | "cabin" | "apartment"]}
+                </span>
+              )}
+            </div>
             <a
               href={INSTAGRAM_URL}
               target="_blank"

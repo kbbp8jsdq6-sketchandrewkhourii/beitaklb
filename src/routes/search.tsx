@@ -10,7 +10,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 const searchSchema = z.object({
   q: z.string().optional().catch(undefined),
+  category: z.enum(["villa", "cabin", "apartment"]).optional().catch(undefined),
 });
+
+type ListingCategory = "villa" | "cabin" | "apartment";
+
+const CATEGORY_LABEL: Record<ListingCategory, string> = {
+  villa: "Villas",
+  cabin: "Cabins",
+  apartment: "Apartments",
+};
 
 export const Route = createFileRoute("/search")({
   head: () => ({
@@ -26,20 +35,26 @@ export const Route = createFileRoute("/search")({
   component: SearchPage,
 });
 
-type SearchListing = ListingCardData & { description?: string | null };
+type SearchListing = ListingCardData & {
+  description?: string | null;
+  category?: ListingCategory;
+};
 
 function SearchPage() {
-  const { q } = Route.useSearch();
+  const { q, category } = Route.useSearch();
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const { data: results = [], isLoading } = useQuery<SearchListing[]>({
-    queryKey: ["search-listings", q],
+    queryKey: ["search-listings", q, category],
     queryFn: async () => {
       let query = supabase
         .from("listings")
-        .select("id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, listing_photos(photo_url, display_order)")
+        .select("id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, listing_photos(photo_url, display_order)")
         .eq("is_active", true);
+      if (category) {
+        query = query.eq("category", category);
+      }
       if (q) {
         const term = q.replace(/[%,]/g, " ");
         query = query.or(
@@ -59,6 +74,7 @@ function SearchPage() {
           price_weekday: Number(l.price_weekday),
           price_weekend: Number(l.price_weekend),
           amenities: l.amenities ?? [],
+          category: l.category as ListingCategory,
           cover: photos[0]?.photo_url ?? null,
         };
       });
@@ -82,7 +98,11 @@ function SearchPage() {
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-baseline justify-between">
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
-            {q ? `Stays in ${q}` : "All stays in Lebanon"}
+            {category
+              ? CATEGORY_LABEL[category]
+              : q
+                ? `Stays in ${q}`
+                : "All stays in Lebanon"}
           </h1>
           <p className="text-sm text-muted-foreground">
             {isLoading ? "Searching…" : `${results.length} result${results.length === 1 ? "" : "s"}`}

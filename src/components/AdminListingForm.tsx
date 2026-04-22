@@ -25,6 +25,13 @@ const AMENITY_OPTIONS = [
   "Breakfast included",
 ];
 
+type Category = "villa" | "cabin" | "apartment";
+const CATEGORIES: { value: Category; label: string }[] = [
+  { value: "villa", label: "Villa" },
+  { value: "cabin", label: "Cabin" },
+  { value: "apartment", label: "Apartment" },
+];
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -36,6 +43,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<string>("");
+  const [category, setCategory] = useState<Category>("apartment");
   const [priceWeekday, setPriceWeekday] = useState("");
   const [priceWeekend, setPriceWeekend] = useState("");
   const [maxGuests, setMaxGuests] = useState("2");
@@ -46,7 +54,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
-    setTitle(""); setDescription(""); setLocation(""); setPriceWeekday(""); setPriceWeekend("");
+    setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
+    setPriceWeekday(""); setPriceWeekend("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
     setAmenities([]); setFiles([]);
   };
@@ -76,6 +85,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         title: title.trim(),
         description: description.trim(),
         location,
+        category,
         price_per_night: Math.min(wd, we),
         price_weekday: wd,
         price_weekend: we,
@@ -151,6 +161,29 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             <p className="mt-1 text-xs text-muted-foreground">
               Pick a suggestion or type any new city — it will appear in the search filter automatically.
             </p>
+          </div>
+
+          <div>
+            <Label htmlFor="cat">Category *</Label>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {CATEGORIES.map((c) => {
+                const active = category === c.value;
+                return (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setCategory(c.value)}
+                    className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
+                      active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-foreground hover:border-primary"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
