@@ -3,71 +3,74 @@ import { Home, MapPin } from "lucide-react";
 /**
  * BEITAK animated auth background.
  * Pure CSS keyframes — softly drifting houses, pins, and geometric shapes.
- * Stays within the BEITAK palette (red + black) at low opacity over white.
+ * Palette: red #E63030 @ 25% (houses/pins/geo), black #111111 @ 15% (houses/pins/geo).
  */
 export function AuthBackground() {
+  const RED = "rgba(230,48,48,0.25)";
+  const BLACK = "rgba(17,17,17,0.15)";
+
   return (
     <div
       aria-hidden
       className="pointer-events-none absolute inset-0 overflow-hidden"
       style={{ background: "#ffffff" }}
     >
-      {/* Houses */}
-      <span className="auth-bg-float auth-bg-house-1 absolute text-[color:rgba(230,48,48,0.10)]">
-        <Home className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
+      {/* Houses — 30% larger than before */}
+      <span className="auth-bg-float auth-bg-house-1 absolute" style={{ color: RED }}>
+        <Home className="h-[62px] w-[62px] sm:h-[83px] sm:w-[83px]" strokeWidth={1.5} />
       </span>
-      <span className="auth-bg-float auth-bg-house-2 absolute text-[color:rgba(230,48,48,0.08)]">
-        <Home className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.5} />
+      <span className="auth-bg-float auth-bg-house-2 absolute" style={{ color: RED }}>
+        <Home className="h-[52px] w-[52px] sm:h-[73px] sm:w-[73px]" strokeWidth={1.5} />
       </span>
-      <span className="auth-bg-float auth-bg-house-3 absolute text-[color:rgba(0,0,0,0.05)]">
-        <Home className="h-14 w-14 sm:h-20 sm:w-20" strokeWidth={1.5} />
-      </span>
-
-      {/* Map pins */}
-      <span className="auth-bg-float auth-bg-pin-1 absolute text-[color:rgba(230,48,48,0.12)]">
-        <MapPin className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.5} />
-      </span>
-      <span className="auth-bg-float auth-bg-pin-2 absolute text-[color:rgba(0,0,0,0.06)]">
-        <MapPin className="h-8 w-8 sm:h-12 sm:w-12" strokeWidth={1.5} />
-      </span>
-      <span className="auth-bg-float auth-bg-pin-3 absolute text-[color:rgba(230,48,48,0.10)]">
-        <MapPin className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
+      <span className="auth-bg-float auth-bg-house-3 absolute" style={{ color: BLACK }}>
+        <Home className="h-[73px] w-[73px] sm:h-[104px] sm:w-[104px]" strokeWidth={1.5} />
       </span>
 
-      {/* Geometric SVGs */}
+      {/* Map pins — 30% larger */}
+      <span className="auth-bg-float auth-bg-pin-1 absolute" style={{ color: RED }}>
+        <MapPin className="h-[52px] w-[52px] sm:h-[73px] sm:w-[73px]" strokeWidth={1.5} />
+      </span>
+      <span className="auth-bg-float auth-bg-pin-2 absolute" style={{ color: BLACK }}>
+        <MapPin className="h-[42px] w-[42px] sm:h-[62px] sm:w-[62px]" strokeWidth={1.5} />
+      </span>
+      <span className="auth-bg-float auth-bg-pin-3 absolute" style={{ color: RED }}>
+        <MapPin className="h-[62px] w-[62px] sm:h-[83px] sm:w-[83px]" strokeWidth={1.5} />
+      </span>
+
+      {/* Geometric SVGs — 30% larger */}
       <svg
-        className="auth-bg-float auth-bg-geo-1 absolute h-16 w-16 sm:h-24 sm:w-24"
+        className="auth-bg-float auth-bg-geo-1 absolute h-[83px] w-[83px] sm:h-[125px] sm:w-[125px]"
         viewBox="0 0 100 100"
         fill="none"
-        stroke="rgba(230,48,48,0.10)"
+        stroke={RED}
         strokeWidth="2"
       >
         <circle cx="50" cy="50" r="40" />
         <circle cx="50" cy="50" r="24" />
       </svg>
       <svg
-        className="auth-bg-float auth-bg-geo-2 absolute h-20 w-20 sm:h-28 sm:w-28"
+        className="auth-bg-float auth-bg-geo-2 absolute h-[104px] w-[104px] sm:h-[146px] sm:w-[146px]"
         viewBox="0 0 100 100"
         fill="none"
-        stroke="rgba(0,0,0,0.05)"
+        stroke={BLACK}
         strokeWidth="2"
       >
         <polygon points="50,10 90,80 10,80" />
       </svg>
       <svg
-        className="auth-bg-float auth-bg-geo-3 absolute h-14 w-14 sm:h-20 sm:w-20"
+        className="auth-bg-float auth-bg-geo-3 absolute h-[73px] w-[73px] sm:h-[104px] sm:w-[104px]"
         viewBox="0 0 100 100"
         fill="none"
-        stroke="rgba(230,48,48,0.08)"
+        stroke={RED}
         strokeWidth="2"
       >
         <rect x="15" y="15" width="70" height="70" rx="8" transform="rotate(15 50 50)" />
       </svg>
       <svg
-        className="auth-bg-float auth-bg-geo-4 absolute h-10 w-10 sm:h-16 sm:w-16"
+        className="auth-bg-float auth-bg-geo-4 absolute h-[52px] w-[52px] sm:h-[83px] sm:w-[83px]"
         viewBox="0 0 100 100"
         fill="none"
-        stroke="rgba(0,0,0,0.06)"
+        stroke={BLACK}
         strokeWidth="2"
       >
         <path d="M10 50 L50 10 L90 50 L50 90 Z" />
