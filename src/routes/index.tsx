@@ -134,7 +134,7 @@ function HomePage() {
                 }}
                 className="drop-shadow-[0_15px_35px_rgba(230,48,48,0.45)]"
               >
-                <Logo size="xl" />
+                <Logo size="hero" />
               </motion.div>
             </motion.div>
             <motion.h1
