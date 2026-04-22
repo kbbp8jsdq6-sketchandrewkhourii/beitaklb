@@ -29,15 +29,12 @@ function ForgotPasswordPage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    const { data, error } = await supabase.functions.invoke("send-reset-email", {
-      body: {
-        email,
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      },
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
     });
     setSubmitting(false);
-    if (error || (data && (data as any).error)) {
-      setError(((data as any)?.error as string) || error?.message || "Something went wrong");
+    if (error) {
+      setError(error.message);
       return;
     }
     setSuccess(true);
