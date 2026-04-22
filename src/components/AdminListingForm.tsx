@@ -22,6 +22,7 @@ const AMENITY_OPTIONS = [
   "Chimney",
   "Jacuzzi",
   "Wheelchair Accessibility",
+  "Breakfast included",
 ];
 
 interface Props {
@@ -35,7 +36,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<string>("");
-  const [price, setPrice] = useState("");
+  const [priceWeekday, setPriceWeekday] = useState("");
+  const [priceWeekend, setPriceWeekend] = useState("");
   const [maxGuests, setMaxGuests] = useState("2");
   const [bedrooms, setBedrooms] = useState("1");
   const [bathrooms, setBathrooms] = useState("1");
@@ -44,7 +46,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
-    setTitle(""); setDescription(""); setLocation(""); setPrice("");
+    setTitle(""); setDescription(""); setLocation(""); setPriceWeekday(""); setPriceWeekend("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
     setAmenities([]); setFiles([]);
   };
@@ -61,26 +63,31 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !description || !location || !price) {
+    if (!title || !description || !location || !priceWeekday || !priceWeekend) {
       toast.error("Fill all required fields");
       return;
     }
     setSubmitting(true);
     try {
+      const wd = Number(priceWeekday);
+      const we = Number(priceWeekend);
+      const insertPayload = {
+        host_id: adminUserId,
+        title: title.trim(),
+        description: description.trim(),
+        location,
+        price_per_night: Math.min(wd, we),
+        price_weekday: wd,
+        price_weekend: we,
+        max_guests: Number(maxGuests),
+        bedrooms: Number(bedrooms),
+        bathrooms: Number(bathrooms),
+        amenities,
+        is_active: true,
+      };
       const { data: created, error: lErr } = await supabase
         .from("listings")
-        .insert({
-          host_id: adminUserId,
-          title: title.trim(),
-          description: description.trim(),
-          location,
-          price_per_night: Number(price),
-          max_guests: Number(maxGuests),
-          bedrooms: Number(bedrooms),
-          bathrooms: Number(bathrooms),
-          amenities,
-          is_active: true,
-        })
+        .insert(insertPayload)
         .select("id")
         .single();
       if (lErr) throw lErr;
@@ -127,28 +134,39 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Tell guests what makes your place special…" />
           </div>
 
+          <div>
+            <Label htmlFor="loc">City / Location *</Label>
+            <Input
+              id="loc"
+              list="city-suggestions"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. Bcharre, Beirut, Tyre…"
+            />
+            <datalist id="city-suggestions">
+              {LEBANESE_LOCATIONS.map((l) => (
+                <option key={l} value={l} />
+              ))}
+            </datalist>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Pick a suggestion or type any new city — it will appear in the search filter automatically.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="loc">City / Location *</Label>
-              <Input
-                id="loc"
-                list="city-suggestions"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Bcharre, Beirut, Tyre…"
-              />
-              <datalist id="city-suggestions">
-                {LEBANESE_LOCATIONS.map((l) => (
-                  <option key={l} value={l} />
-                ))}
-              </datalist>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Pick a suggestion or type any new city — it will appear in the search filter automatically.
-              </p>
+              <Label htmlFor="pwd">Weekday price (USD) *</Label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                <Input id="pwd" type="number" min="0" value={priceWeekday} onChange={(e) => setPriceWeekday(e.target.value)} placeholder="120" className="pl-7" />
+              </div>
             </div>
             <div>
-              <Label htmlFor="price">Price / night (USD) *</Label>
-              <Input id="price" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="120" />
+              <Label htmlFor="pwe">Weekend price (USD) *</Label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                <Input id="pwe" type="number" min="0" value={priceWeekend} onChange={(e) => setPriceWeekend(e.target.value)} placeholder="180" className="pl-7" />
+              </div>
             </div>
           </div>
 

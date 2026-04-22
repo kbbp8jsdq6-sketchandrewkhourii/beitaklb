@@ -25,6 +25,7 @@ const AMENITIES = [
   "Chimney",
   "Jacuzzi",
   "Wheelchair Accessibility",
+  "Breakfast included",
 ] as const;
 
 interface Unit {
@@ -34,6 +35,8 @@ interface Unit {
   location: string;
   description: string;
   price: number;
+  priceWeekday: number;
+  priceWeekend: number;
   beds: number;
   baths: number;
   amenities: string[];
@@ -50,7 +53,7 @@ async function fetchAllUnits(): Promise<Unit[]> {
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, description, location, price_per_night, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)"
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)"
     )
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -59,15 +62,18 @@ async function fetchAllUnits(): Promise<Unit[]> {
     const photos = (l.listing_photos ?? [])
       .slice()
       .sort((a, b) => a.display_order - b.display_order);
-    // Derive a "city" — first part of location before any comma
     const city = (l.location ?? "").split(",")[0].trim();
+    const weekday = Number(l.price_weekday ?? l.price_per_night);
+    const weekend = Number(l.price_weekend ?? l.price_per_night);
     return {
       id: l.id,
       name: l.title,
       city,
       location: l.location,
       description: l.description ?? "",
-      price: Number(l.price_per_night),
+      price: weekday, // base reference for filter & "from $X" display
+      priceWeekday: weekday,
+      priceWeekend: weekend,
       beds: l.bedrooms ?? 0,
       baths: Number(l.bathrooms ?? 0),
       amenities: l.amenities ?? [],
@@ -88,12 +94,8 @@ export function FindYourUnit() {
     [UNITS]
   );
 
-  // Dynamic price ceiling — rounded up to nearest $50, min $500
-  const maxPrice = useMemo(() => {
-    if (UNITS.length === 0) return 3000;
-    const top = Math.max(...UNITS.map((u) => u.price));
-    return Math.max(500, Math.ceil(top / 50) * 50);
-  }, [UNITS]);
+  // Price ceiling fixed at $3,000 (per spec)
+  const maxPrice = 3000;
 
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
@@ -432,8 +434,13 @@ export function FindYourUnit() {
                         </div>
                       )}
                       <div className="absolute right-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
-                        ${u.price.toLocaleString()}/night
+                        From ${Math.min(u.priceWeekday, u.priceWeekend).toLocaleString()}/night
                       </div>
+                      {u.amenities.some((a) => a.toLowerCase() === "breakfast included") && (
+                        <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
+                          ☕ Breakfast
+                        </div>
+                      )}
                     </div>
                     <div className="p-5">
                       <h4 className="font-display text-xl text-foreground">{u.name}</h4>

@@ -22,7 +22,10 @@ export async function shortenUrl(longUrl: string): Promise<string> {
 export interface WhatsAppListingMessage {
   title: string;
   location: string;
-  pricePerNight: number;
+  /** Used as fallback when weekday/weekend prices aren't provided. */
+  pricePerNight?: number;
+  priceWeekday?: number;
+  priceWeekend?: number;
   url: string;
 }
 
@@ -30,8 +33,16 @@ export function buildListingMessage({
   title,
   location,
   pricePerNight,
+  priceWeekday,
+  priceWeekend,
   url,
 }: WhatsAppListingMessage): string {
+  let priceLine: string;
+  if (priceWeekday != null && priceWeekend != null) {
+    priceLine = `💰 Weekday: $${Math.round(priceWeekday)} / night | Weekend: $${Math.round(priceWeekend)} / night`;
+  } else {
+    priceLine = `$${Math.round(pricePerNight ?? priceWeekday ?? priceWeekend ?? 0)} / night`;
+  }
   return [
     "Hi Beitak!",
     "",
@@ -41,7 +52,7 @@ export function buildListingMessage({
     "",
     location,
     "",
-    `$${Math.round(pricePerNight)} / night`,
+    priceLine,
     "",
     `View listing: ${url}`,
     "",

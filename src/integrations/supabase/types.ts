@@ -152,6 +152,35 @@ export type Database = {
         }
         Relationships: []
       }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_photos: {
         Row: {
           created_at: string
@@ -199,6 +228,8 @@ export type Database = {
           location: string
           max_guests: number
           price_per_night: number
+          price_weekday: number
+          price_weekend: number
           title: string
           updated_at: string
         }
@@ -216,6 +247,8 @@ export type Database = {
           location: string
           max_guests?: number
           price_per_night: number
+          price_weekday: number
+          price_weekend: number
           title: string
           updated_at?: string
         }
@@ -233,6 +266,8 @@ export type Database = {
           location?: string
           max_guests?: number
           price_per_night?: number
+          price_weekday?: number
+          price_weekend?: number
           title?: string
           updated_at?: string
         }

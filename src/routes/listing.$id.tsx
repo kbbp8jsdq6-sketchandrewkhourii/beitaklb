@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2 } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
+import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
 import { supabase } from "@/integrations/supabase/client";
 import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 
@@ -67,7 +68,7 @@ async function fetchListing(id: string) {
   const { data, error } = await supabase
     .from("listings")
     .select(`
-      id, title, description, location, price_per_night, max_guests, bedrooms, bathrooms,
+      id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, host_id, created_at,
       listing_photos(id, photo_url, display_order),
       profiles:host_id (full_name, avatar_url),
@@ -97,6 +98,7 @@ function ListingPage() {
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [waLoading, setWaLoading] = useState(false);
+  const [showReserveModal, setShowReserveModal] = useState(false);
 
   const photos = useMemo(
     () => (listing?.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order),
@@ -108,19 +110,26 @@ function ListingPage() {
     return listing.reviews.reduce((s, r) => s + r.rating, 0) / listing.reviews.length;
   }, [listing]);
 
-  const handleReserveClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!listing || waLoading) return;
+  const openReserveModal = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
+    if (!listing || waLoading) return;
+    setShowReserveModal(true);
+  };
+
+  const handleConfirmReserve = async () => {
+    if (!listing || waLoading) return;
     setWaLoading(true);
     try {
       const url = typeof window !== "undefined" ? window.location.href : "";
       const href = await buildListingWhatsAppHref({
         title: listing.title,
         location: `${listing.location}, Lebanon`,
-        pricePerNight: Number(listing.price_per_night),
+        priceWeekday: Number(listing.price_weekday),
+        priceWeekend: Number(listing.price_weekend),
         url,
       });
       window.open(href, "_blank", "noopener,noreferrer");
+      setShowReserveModal(false);
     } finally {
       setWaLoading(false);
     }
@@ -219,7 +228,7 @@ function ListingPage() {
               <MapPin className="h-4 w-4 text-primary" /> {listing.location}, Lebanon
             </span>
             <span className="flex items-center gap-1.5">
-              <DollarSign className="h-4 w-4 text-primary" /> ${Number(listing.price_per_night).toFixed(0)} / night
+              <DollarSign className="h-4 w-4 text-primary" /> Weekday ${Number(listing.price_weekday).toFixed(0)} · Weekend ${Number(listing.price_weekend).toFixed(0)}
             </span>
             <span className="flex items-center gap-1.5">
               <Users className="h-4 w-4 text-primary" /> Up to {listing.max_guests} guests
@@ -248,14 +257,21 @@ function ListingPage() {
               <div className="border-b border-border py-6">
                 <h3 className="font-display text-xl">Amenities</h3>
                 <ul className="mt-4 flex flex-wrap gap-2">
-                  {listing.amenities.map((a) => (
-                    <li
-                      key={a}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground"
-                    >
-                      <Check className="h-3.5 w-3.5 text-primary" /> {a}
-                    </li>
-                  ))}
+                  {listing.amenities.map((a) => {
+                    const isBreakfast = a.toLowerCase() === "breakfast included";
+                    return (
+                      <li
+                        key={a}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${
+                          isBreakfast
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-foreground"
+                        }`}
+                      >
+                        {isBreakfast ? <Coffee className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5 text-primary" />} {a}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
@@ -283,10 +299,16 @@ function ListingPage() {
           {/* Booking card (desktop) */}
           <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-lg">
-              <p className="text-2xl">
-                <span className="font-semibold">${Number(listing.price_per_night).toFixed(0)}</span>
-                <span className="text-base text-muted-foreground"> / night</span>
-              </p>
+              <div className="space-y-1">
+                <p className="flex items-baseline justify-between text-sm">
+                  <span className="text-muted-foreground">Weekday</span>
+                  <span><span className="font-semibold text-foreground">${Number(listing.price_weekday).toFixed(0)}</span><span className="text-xs text-muted-foreground"> / night</span></span>
+                </p>
+                <p className="flex items-baseline justify-between text-sm">
+                  <span className="text-muted-foreground">Weekend</span>
+                  <span><span className="font-semibold text-foreground">${Number(listing.price_weekend).toFixed(0)}</span><span className="text-xs text-muted-foreground"> / night</span></span>
+                </p>
+              </div>
               <div className="mt-4 flex items-center gap-3 border-y border-border py-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
                   {(listing.profiles?.full_name ?? "H").charAt(0).toUpperCase()}
@@ -298,7 +320,7 @@ function ListingPage() {
               </div>
               <a
                 href="#"
-                onClick={handleReserveClick}
+                onClick={openReserveModal}
                 aria-disabled={waLoading}
                 className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-70"
               >
@@ -326,32 +348,31 @@ function ListingPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-lg font-semibold leading-none">
-              ${Number(listing.price_per_night).toFixed(0)}
-              <span className="text-sm font-normal text-muted-foreground"> / night</span>
+            <p className="text-sm font-semibold leading-tight">
+              <span className="text-muted-foreground">From </span>
+              ${Math.min(Number(listing.price_weekday), Number(listing.price_weekend)).toFixed(0)}
+              <span className="text-xs font-normal text-muted-foreground"> / night</span>
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">Up to {listing.max_guests} guests</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Up to {listing.max_guests} guests</p>
           </div>
           <a
             href="#"
-            onClick={handleReserveClick}
+            onClick={openReserveModal}
             aria-disabled={waLoading}
             className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
-            {waLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              <>
-                <WhatsAppIcon className="h-4 w-4" />
-                Reserve
-              </>
-            )}
+            <WhatsAppIcon className="h-4 w-4" />
+            Reserve
           </a>
         </div>
       </div>
+
+      <WhatsAppReserveModal
+        open={showReserveModal}
+        loading={waLoading}
+        onConfirm={handleConfirmReserve}
+        onCancel={() => setShowReserveModal(false)}
+      />
 
       {lightboxIdx !== null && (
         <Lightbox

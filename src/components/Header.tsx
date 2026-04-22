@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User as UserIcon, Shield, Instagram } from "lucide-react";
+import { LogOut, User as UserIcon, Shield, Instagram, Heart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +49,14 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-2">
+          <Link
+            to="/favorites"
+            aria-label="My favorites"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
+            activeProps={{ className: "text-primary" }}
+          >
+            <Heart className="h-5 w-5" />
+          </Link>
           <a
             href="https://instagram.com/beitak.lb"
             target="_blank"
@@ -71,6 +79,11 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" /> Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/favorites" className="cursor-pointer">
+                      <Heart className="mr-2 h-4 w-4" /> Favorites
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (
