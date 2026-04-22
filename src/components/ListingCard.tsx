@@ -58,13 +58,16 @@ export function ListingCard({
     listing.price_weekend ?? listing.price_per_night,
   );
 
+  // Detect coarse pointer (mobile/touch) once per render — disables hover preview entirely.
+  const isCoarsePointer =
+    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+
   return (
     <motion.div
       className="group block"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.08, 0.6), ease: "easeOut" }}
-      onMouseEnter={() => onQuickPreview && onQuickPreview(listing)}
     >
       <Link
         to="/listing/$id"
@@ -84,6 +87,14 @@ export function ListingCard({
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-accent">
               <MapPin className="h-10 w-10 text-primary/40" />
             </div>
+          )}
+          {/* Center hover hotspot — only triggers preview when hovering exact center of the cover photo */}
+          {onQuickPreview && !isCoarsePointer && (
+            <div
+              aria-hidden="true"
+              onMouseEnter={() => onQuickPreview(listing)}
+              className="pointer-events-auto absolute left-1/2 top-1/2 h-1/3 w-1/3 -translate-x-1/2 -translate-y-1/2"
+            />
           )}
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
             <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-foreground backdrop-blur">
