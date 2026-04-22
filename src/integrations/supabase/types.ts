@@ -220,6 +220,7 @@ export type Database = {
           available_to: string | null
           bathrooms: number
           bedrooms: number
+          category: Database["public"]["Enums"]["listing_category"]
           created_at: string
           description: string
           host_id: string
@@ -239,6 +240,7 @@ export type Database = {
           available_to?: string | null
           bathrooms?: number
           bedrooms?: number
+          category: Database["public"]["Enums"]["listing_category"]
           created_at?: string
           description: string
           host_id: string
@@ -258,6 +260,7 @@ export type Database = {
           available_to?: string | null
           bathrooms?: number
           bedrooms?: number
+          category?: Database["public"]["Enums"]["listing_category"]
           created_at?: string
           description?: string
           host_id?: string
@@ -450,6 +453,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
+      listing_category: "villa" | "cabin" | "apartment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -579,6 +583,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
+      listing_category: ["villa", "cabin", "apartment"],
     },
   },
 } as const
