@@ -88,20 +88,33 @@ export function FindYourUnit() {
     [UNITS]
   );
 
+  // Dynamic price ceiling — rounded up to nearest $50, min $500
+  const maxPrice = useMemo(() => {
+    if (UNITS.length === 0) return 3000;
+    const top = Math.max(...UNITS.map((u) => u.price));
+    return Math.max(500, Math.ceil(top / 50) * 50);
+  }, [UNITS]);
+
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
-  const [price, setPrice] = useState<[number, number]>([0, 3000]);
+  const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
+
+  // Keep budget in sync when listings load and bump the ceiling
+  useEffect(() => {
+    setMaxBudget(maxPrice);
+    setApplied((prev) => ({ ...prev, maxBudget: maxPrice }));
+  }, [maxPrice]);
 
   const [applied, setApplied] = useState({
     keyword: "",
     city: "All Cities",
     bed: "Any" as AnyOption,
     bath: "Any" as AnyOption,
-    price: [0, 3000] as [number, number],
+    maxBudget: 3000,
     amenities: [] as string[],
     submitted: false,
   });
