@@ -108,6 +108,14 @@ function ListingPage() {
   const [waLoading, setWaLoading] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
 
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const isFav = listing ? favoriteIds.has(listing.id) : false;
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (listing) toggleFavorite(listing.id);
+  };
+
   const photos = useMemo(
     () => (listing?.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order),
     [listing]
