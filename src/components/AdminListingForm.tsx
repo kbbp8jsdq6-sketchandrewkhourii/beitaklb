@@ -25,6 +25,13 @@ const AMENITY_OPTIONS = [
   "Breakfast included",
 ];
 
+type Category = "villa" | "cabin" | "apartment";
+const CATEGORIES: { value: Category; label: string }[] = [
+  { value: "villa", label: "Villa" },
+  { value: "cabin", label: "Cabin" },
+  { value: "apartment", label: "Apartment" },
+];
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -36,6 +43,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<string>("");
+  const [category, setCategory] = useState<Category>("apartment");
   const [priceWeekday, setPriceWeekday] = useState("");
   const [priceWeekend, setPriceWeekend] = useState("");
   const [maxGuests, setMaxGuests] = useState("2");
@@ -46,7 +54,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
-    setTitle(""); setDescription(""); setLocation(""); setPriceWeekday(""); setPriceWeekend("");
+    setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
+    setPriceWeekday(""); setPriceWeekend("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
     setAmenities([]); setFiles([]);
   };
@@ -76,6 +85,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         title: title.trim(),
         description: description.trim(),
         location,
+        category,
         price_per_night: Math.min(wd, we),
         price_weekday: wd,
         price_weekend: we,
