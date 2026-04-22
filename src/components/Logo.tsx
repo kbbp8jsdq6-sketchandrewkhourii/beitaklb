@@ -14,7 +14,6 @@ interface LogoProps {
 //   - md    : navbar — 120px desktop / 90px mobile
 //   - lg    : footer — 100px wide
 //   - auth  : auth pages — 150px wide
-//   - xl    : large display (kept for any other usage)
 const sizeMap: Record<NonNullable<LogoProps["size"]>, string> = {
   sm: "w-[80px]",
   md: "w-[90px] sm:w-[120px]",
@@ -29,9 +28,7 @@ export function Logo({ size = "md", className }: LogoProps) {
     <img
       src={logoSrc}
       alt="BEITAK — Home is closer than you think"
-      className={cn(sizeMap[size], "h-auto object-contain")}
-      style={{ background: "transparent" }}
-      {...(className ? { className: cn(sizeMap[size], "h-auto object-contain", className) } : {})}
+      className={cn(sizeMap[size], "h-auto object-contain", className)}
     />
   );
 }
