@@ -38,7 +38,7 @@ function SearchPage() {
     queryFn: async () => {
       let query = supabase
         .from("listings")
-        .select("id, title, description, location, price_per_night, max_guests, listing_photos(photo_url, display_order)")
+        .select("id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, listing_photos(photo_url, display_order)")
         .eq("is_active", true);
       if (q) {
         const term = q.replace(/[%,]/g, " ");
@@ -56,6 +56,9 @@ function SearchPage() {
           description: l.description,
           location: l.location,
           price_per_night: Number(l.price_per_night),
+          price_weekday: Number(l.price_weekday),
+          price_weekend: Number(l.price_weekend),
+          amenities: l.amenities ?? [],
           cover: photos[0]?.photo_url ?? null,
         };
       });
