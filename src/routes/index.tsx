@@ -8,8 +8,8 @@ import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { supabase } from "@/integrations/supabase/client";
-import heroImage from "@/assets/hero-lebanon.jpg";
 import aboutImage from "@/assets/about-beitak.jpg";
 
 export const Route = createFileRoute("/")({
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
 async function fetchFeatured() {
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, location, price_per_night, listing_photos(photo_url, display_order)")
+    .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(4);
@@ -46,6 +46,9 @@ async function fetchFeatured() {
       title: l.title,
       location: l.location,
       price_per_night: Number(l.price_per_night),
+      price_weekday: Number(l.price_weekday),
+      price_weekend: Number(l.price_weekend),
+      amenities: l.amenities ?? [],
       cover: photos[0]?.photo_url ?? null,
     };
   });
@@ -108,12 +111,7 @@ function HomePage() {
       {/* 1. HERO */}
       <section className="relative">
         <div className="relative h-[88vh] min-h-[640px] w-full overflow-hidden">
-          <img
-            src={heroImage}
-            alt="Warm Lebanese mountain village at golden hour"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/70" />
+          <HeroSlideshow />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <motion.div
