@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoSrc from "@/assets/beitak-logo.png";
+import logoSrc from "@/assets/beitak-logo.jpg";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl" | "hero" | "auth";
