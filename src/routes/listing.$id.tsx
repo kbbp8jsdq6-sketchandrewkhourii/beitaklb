@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee } from "lucide-react";
+import { motion } from "framer-motion";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
+import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 
