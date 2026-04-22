@@ -171,7 +171,7 @@ function ListingPage() {
       <Header />
 
       {/* Hero gallery */}
-      <section className="w-full">
+      <section className="relative w-full">
         {heroPhoto ? (
           <button
             onClick={() => setLightboxIdx(0)}
@@ -195,6 +195,28 @@ function ListingPage() {
             <MapPin className="h-16 w-16 text-primary/30" />
           </div>
         )}
+        {/* Floating favorite button */}
+        <button
+          type="button"
+          onClick={handleFavoriteClick}
+          aria-label={isFav ? "Remove from favorites" : "Save to favorites"}
+          aria-pressed={isFav}
+          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 text-foreground shadow-lg backdrop-blur transition active:scale-90 hover:bg-background"
+        >
+          <motion.span
+            key={isFav ? "fav-on" : "fav-off"}
+            initial={{ scale: 0.7 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 320, damping: 14 }}
+            className="inline-flex"
+          >
+            <Heart
+              className={`h-6 w-6 transition-colors ${
+                isFav ? "fill-primary text-primary" : "text-foreground"
+              }`}
+            />
+          </motion.span>
+        </button>
 
         {/* Thumbnail grid */}
         {restPhotos.length > 0 && (
