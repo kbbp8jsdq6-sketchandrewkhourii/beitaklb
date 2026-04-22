@@ -45,7 +45,7 @@ function ForgotPasswordPage() {
       <AuthBackground />
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-6 flex justify-center">
-          <Link to="/"><Logo size="xl" /></Link>
+          <Link to="/"><Logo size="auth" /></Link>
         </div>
         <div className="rounded-3xl border border-border bg-white p-8 shadow-2xl ring-1 ring-black/5">
           <h1 className="font-display text-3xl text-foreground">Reset your password</h1>

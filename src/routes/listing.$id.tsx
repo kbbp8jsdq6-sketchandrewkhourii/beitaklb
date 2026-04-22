@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee } from "lucide-react";
+import { motion } from "framer-motion";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
+import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 
@@ -106,6 +108,14 @@ function ListingPage() {
   const [waLoading, setWaLoading] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
 
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const isFav = listing ? favoriteIds.has(listing.id) : false;
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (listing) toggleFavorite(listing.id);
+  };
+
   const photos = useMemo(
     () => (listing?.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order),
     [listing]
@@ -161,7 +171,7 @@ function ListingPage() {
       <Header />
 
       {/* Hero gallery */}
-      <section className="w-full">
+      <section className="relative w-full">
         {heroPhoto ? (
           <button
             onClick={() => setLightboxIdx(0)}
@@ -185,6 +195,28 @@ function ListingPage() {
             <MapPin className="h-16 w-16 text-primary/30" />
           </div>
         )}
+        {/* Floating favorite button */}
+        <button
+          type="button"
+          onClick={handleFavoriteClick}
+          aria-label={isFav ? "Remove from favorites" : "Save to favorites"}
+          aria-pressed={isFav}
+          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 text-foreground shadow-lg backdrop-blur transition active:scale-90 hover:bg-background"
+        >
+          <motion.span
+            key={isFav ? "fav-on" : "fav-off"}
+            initial={{ scale: 0.7 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 320, damping: 14 }}
+            className="inline-flex"
+          >
+            <Heart
+              className={`h-6 w-6 transition-colors ${
+                isFav ? "fill-primary text-primary" : "text-foreground"
+              }`}
+            />
+          </motion.span>
+        </button>
 
         {/* Thumbnail grid */}
         {restPhotos.length > 0 && (
