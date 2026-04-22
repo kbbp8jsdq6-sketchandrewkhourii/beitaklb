@@ -5,20 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, ImagePlus } from "lucide-react";
 
 const AMENITY_OPTIONS = [
-  "Wi-Fi", "Air conditioning", "Heating", "Kitchen", "Pool", "Parking", "Washer",
-  "Sea view", "Mountain view", "Garden", "Balcony", "BBQ", "Workspace", "TV",
+  "Pool",
+  "Gym",
+  "Parking",
+  "Pet Friendly",
+  "Washer/Dryer",
+  "Balcony",
+  "AC",
+  "BBQ Area",
+  "Beach Access",
+  "Chimney",
+  "Jacuzzi",
+  "Wheelchair Accessibility",
 ];
 
 interface Props {
@@ -126,15 +129,22 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label>City / Location *</Label>
-              <Select value={location} onValueChange={setLocation}>
-                <SelectTrigger><SelectValue placeholder="Pick a city or village" /></SelectTrigger>
-                <SelectContent className="max-h-72">
-                  {LEBANESE_LOCATIONS.map((l) => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="loc">City / Location *</Label>
+              <Input
+                id="loc"
+                list="city-suggestions"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Bcharre, Beirut, Tyre…"
+              />
+              <datalist id="city-suggestions">
+                {LEBANESE_LOCATIONS.map((l) => (
+                  <option key={l} value={l} />
+                ))}
+              </datalist>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pick a suggestion or type any new city — it will appear in the search filter automatically.
+              </p>
             </div>
             <div>
               <Label htmlFor="price">Price / night (USD) *</Label>

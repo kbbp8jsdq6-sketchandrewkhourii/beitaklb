@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -88,20 +88,33 @@ export function FindYourUnit() {
     [UNITS]
   );
 
+  // Dynamic price ceiling — rounded up to nearest $50, min $500
+  const maxPrice = useMemo(() => {
+    if (UNITS.length === 0) return 3000;
+    const top = Math.max(...UNITS.map((u) => u.price));
+    return Math.max(500, Math.ceil(top / 50) * 50);
+  }, [UNITS]);
+
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
-  const [price, setPrice] = useState<[number, number]>([0, 3000]);
+  const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
+
+  // Keep budget in sync when listings load and bump the ceiling
+  useEffect(() => {
+    setMaxBudget(maxPrice);
+    setApplied((prev) => ({ ...prev, maxBudget: maxPrice }));
+  }, [maxPrice]);
 
   const [applied, setApplied] = useState({
     keyword: "",
     city: "All Cities",
     bed: "Any" as AnyOption,
     bath: "Any" as AnyOption,
-    price: [0, 3000] as [number, number],
+    maxBudget: 3000,
     amenities: [] as string[],
     submitted: false,
   });
@@ -115,7 +128,7 @@ export function FindYourUnit() {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    setApplied({ keyword, city, bed, bath, price, amenities, submitted: true });
+    setApplied({ keyword, city, bed, bath, maxBudget, amenities, submitted: true });
     requestAnimationFrame(() => {
       const el = document.getElementById("find-your-unit-results");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -138,7 +151,7 @@ export function FindYourUnit() {
       if (applied.city !== "All Cities" && u.city !== applied.city) return false;
       if (!countMatch(u.beds, applied.bed)) return false;
       if (!countMatch(u.baths, applied.bath)) return false;
-      if (u.price < applied.price[0] || u.price > applied.price[1]) return false;
+      if (u.price > applied.maxBudget) return false;
       if (!applied.amenities.every((a) => u.amenities.includes(a))) return false;
       if (k) {
         const haystack = `${u.name} ${u.location} ${u.city} ${u.description} ${u.amenities.join(" ")}`.toLowerCase();
@@ -336,26 +349,28 @@ export function FindYourUnit() {
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-foreground">
-                  Price Range: Min. to Max.
+                  Max budget per night
                 </p>
+                <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
+                  Up to ${maxBudget.toLocaleString()}
+                </span>
               </div>
               <div className="mt-4 px-1">
                 <Slider
-                  value={price}
+                  value={[maxBudget]}
                   min={0}
-                  max={3000}
+                  max={maxPrice}
                   step={50}
-                  onValueChange={(v) => setPrice([v[0], v[1]] as [number, number])}
+                  onValueChange={(v) => setMaxBudget(v[0])}
                 />
               </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="rounded-md bg-foreground px-2.5 py-1 text-xs font-bold text-background">
-                  ${price[0]}
-                </span>
-                <span className="rounded-md bg-foreground px-2.5 py-1 text-xs font-bold text-background">
-                  ${price[1]}
-                </span>
+              <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+                <span>$0</span>
+                <span>${maxPrice.toLocaleString()}</span>
               </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Drag down from the top to lower your maximum.
+              </p>
             </div>
 
             <button
