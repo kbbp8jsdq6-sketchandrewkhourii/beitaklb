@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
