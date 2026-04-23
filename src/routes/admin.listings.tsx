@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff, Trash2, Plus, Filter } from "lucide-react";
+import { Eye, EyeOff, Trash2, Plus, Filter, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminListingForm } from "@/components/AdminListingForm";
+import { AdminListingEditForm } from "@/components/AdminListingEditForm";
 
 export const Route = createFileRoute("/admin/listings")({
   head: () => ({
