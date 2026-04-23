@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { VerifyEmailGate } from "@/components/VerifyEmailGate";
 import { BackButton } from "@/components/BackButton";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 
 import appCss from "../styles.css?url";
 
@@ -94,11 +95,17 @@ function SiteGate() {
 
   if (!loading && user && !isVerified && !isAuthRoute) {
     return (
-      <VerifyEmailGate requireAuth={false}>
-        <Outlet />
-      </VerifyEmailGate>
+      <MaintenanceGate>
+        <VerifyEmailGate requireAuth={false}>
+          <Outlet />
+        </VerifyEmailGate>
+      </MaintenanceGate>
     );
   }
 
-  return <Outlet />;
+  return (
+    <MaintenanceGate>
+      <Outlet />
+    </MaintenanceGate>
+  );
 }
