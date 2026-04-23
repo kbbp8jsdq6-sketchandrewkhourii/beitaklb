@@ -339,7 +339,7 @@ function HomePage() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-5 -left-5 hidden rounded-2xl bg-primary px-6 py-4 text-primary-foreground shadow-xl sm:block">
+            <div className="absolute -bottom-5 -left-5 hidden rounded-2xl bg-primary px-6 py-4 text-primary-foreground shadow-xl sm:block opacity-0">
               <p className="font-display text-2xl tracking-wider">BEITAK</p>
               <p className="text-[10px] uppercase tracking-[0.3em]">Lebanon stays</p>
             </div>
