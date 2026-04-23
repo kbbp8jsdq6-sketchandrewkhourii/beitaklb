@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { HamburgerMenu } from "./HamburgerMenu";
+import { AnnouncementBar } from "./AnnouncementBar";
 
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();
@@ -37,6 +38,7 @@ export function Header() {
   };
 
   return (
+    <>
     <header
       className={`sticky top-0 z-40 border-b bg-background transition-all duration-300 ${
         scrolled
@@ -115,5 +117,7 @@ export function Header() {
         </nav>
       </div>
     </header>
+    <AnnouncementBar />
+    </>
   );
 }
