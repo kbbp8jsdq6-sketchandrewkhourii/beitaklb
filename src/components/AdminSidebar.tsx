@@ -2,12 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { LayoutDashboard, Home as HomeIcon, Users, ClipboardCheck, ArrowLeft } from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
-const NAV = [
+type NavItem = {
+  to: "/admin" | "/admin/listings" | "/admin/users" | "/admin/approvals";
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+};
+
+const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/listings", label: "Listings", icon: HomeIcon },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck },
-] as const;
+];
 
 export function AdminSidebar() {
   return (
