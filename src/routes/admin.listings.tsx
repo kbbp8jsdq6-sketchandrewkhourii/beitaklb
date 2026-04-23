@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff, Trash2, Plus, Filter } from "lucide-react";
+import { Eye, EyeOff, Trash2, Plus, Filter, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminListingForm } from "@/components/AdminListingForm";
+import { AdminListingEditForm } from "@/components/AdminListingEditForm";
 
 export const Route = createFileRoute("/admin/listings")({
   head: () => ({
@@ -31,6 +32,7 @@ type Category = "villa" | "cabin" | "apartment";
 function AdminListingsPage() {
   const { user } = useAuth();
   const [showNew, setShowNew] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [hostFilter, setHostFilter] = useState<string>("all");
@@ -189,6 +191,14 @@ function AdminListingsPage() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      onClick={() => setEditingId(l.id)}
+                      title="Edit"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
                       onClick={() => toggleActive(l.id, l.is_active)}
                       title={l.is_active ? "Hide" : "Show"}
                     >
@@ -230,6 +240,13 @@ function AdminListingsPage() {
           adminUserId={user.id}
         />
       )}
+
+      <AdminListingEditForm
+        open={editingId !== null}
+        listingId={editingId}
+        onClose={() => setEditingId(null)}
+        onSaved={() => listingsQ.refetch()}
+      />
     </div>
   );
 }
