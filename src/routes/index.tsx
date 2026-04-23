@@ -154,7 +154,7 @@ function HomePage() {
               Browse unique listings from trusted local hosts.
             </motion.p>
             <motion.div
-              className="mt-8 flex w-full max-w-md flex-row flex-wrap items-center justify-center gap-3 sm:max-w-none sm:w-auto"
+              className="mt-8 flex w-full max-w-md flex-row flex-wrap items-center justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-nowrap"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
