@@ -1,5 +1,3 @@
-import logoWhite from "@/assets/beitak-logo-announcement.png";
-
 const ITEMS = [
   "🏠 500+ Customers Served",
   "🏡 400+ Listings Available",
@@ -16,12 +14,6 @@ function LoopContent() {
           <span aria-hidden className="text-white/80">⬥</span>
         </span>
       ))}
-      <img
-        src={logoWhite}
-        alt="BEITAK"
-        className="ml-2 h-6 w-auto object-contain"
-        style={{ mixBlendMode: "screen" }}
-      />
     </div>
   );
 }
