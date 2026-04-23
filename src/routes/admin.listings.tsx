@@ -191,6 +191,14 @@ function AdminListingsPage() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      onClick={() => setEditingId(l.id)}
+                      title="Edit"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
                       onClick={() => toggleActive(l.id, l.is_active)}
                       title={l.is_active ? "Hide" : "Show"}
                     >
