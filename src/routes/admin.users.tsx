@@ -118,7 +118,7 @@ function AdminUsersPage() {
     }
   };
 
-  const inferRole = (u: (typeof filtered)[number]): Role => {
+  const inferRole = (u: (typeof filtered)[number]): DisplayRole => {
     const roles = (u.user_roles ?? []).map((r) => r.role);
     if (roles.includes("admin")) return "admin";
     if (hostsQ.data?.has(u.id)) return "host";
