@@ -24,7 +24,10 @@ export const Route = createFileRoute("/admin/users")({
   component: AdminUsersPage,
 });
 
-type Role = "admin" | "host" | "user";
+// app_role enum in the database only supports "admin" | "user".
+// "Host" is a display-only status inferred from owning at least one listing.
+type Role = "admin" | "user";
+type DisplayRole = Role | "host";
 
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
