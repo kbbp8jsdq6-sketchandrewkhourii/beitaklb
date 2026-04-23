@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -107,6 +107,15 @@ function ListingPage() {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [waLoading, setWaLoading] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
+
+  // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from("listing_views")
+      .insert({ listing_id: id })
+      .then(() => {});
+  }, [id]);
 
   const { favoriteIds, toggleFavorite } = useFavorites();
   const isFav = listing ? favoriteIds.has(listing.id) : false;
