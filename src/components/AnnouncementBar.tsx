@@ -26,7 +26,7 @@ export function AnnouncementBar() {
       role="region"
       aria-label="Announcements"
     >
-      <div className="flex py-3 text-sm font-bold leading-relaxed tracking-wide text-white announcement-track">
+      <div className="flex py-3 font-serif text-sm leading-relaxed tracking-wide text-white announcement-track">
         {/* Two copies for seamless loop */}
         <LoopContent />
         <LoopContent />
