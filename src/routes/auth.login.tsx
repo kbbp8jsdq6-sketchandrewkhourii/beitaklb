@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Logo } from "@/components/Logo";
+import authLogoBlack from "@/assets/beitak-logo-auth-black.png";
 import { AuthBackground } from "@/components/AuthBackground";
 import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,13 @@ function LoginPage() {
       <AuthBackground />
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-6 flex justify-center">
-          <Link to="/"><Logo size="auth" /></Link>
+          <Link to="/">
+            <img
+              src={authLogoBlack}
+              alt="BEITAK — Home is closer than you think"
+              className="w-[150px] h-auto object-contain"
+            />
+          </Link>
         </div>
         <div className="rounded-3xl border border-border bg-white p-8 shadow-2xl ring-1 ring-black/5">
           <h1 className="font-display text-3xl text-foreground">Welcome back</h1>
