@@ -213,6 +213,27 @@ export type Database = {
           },
         ]
       }
+      listing_views: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          viewer_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          viewer_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          viewer_id?: string | null
+        }
+        Relationships: []
+      }
       listings: {
         Row: {
           amenities: string[]
@@ -231,6 +252,10 @@ export type Database = {
           price_per_night: number
           price_weekday: number
           price_weekend: number
+          rejection_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["listing_status"]
           title: string
           updated_at: string
         }
@@ -251,6 +276,10 @@ export type Database = {
           price_per_night: number
           price_weekday: number
           price_weekend: number
+          rejection_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
           title: string
           updated_at?: string
         }
@@ -271,6 +300,10 @@ export type Database = {
           price_per_night?: number
           price_weekday?: number
           price_weekend?: number
+          rejection_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
           title?: string
           updated_at?: string
         }
@@ -454,6 +487,7 @@ export type Database = {
       app_role: "admin" | "user"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
       listing_category: "villa" | "cabin" | "apartment"
+      listing_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -584,6 +618,7 @@ export const Constants = {
       app_role: ["admin", "user"],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
       listing_category: ["villa", "cabin", "apartment"],
+      listing_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
