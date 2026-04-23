@@ -70,9 +70,31 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <SiteGate />
         <Toaster richColors position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+/**
+ * Globally enforces email verification: any signed-in user whose email is
+ * unverified is shown the verify-email screen and cannot browse the site.
+ * Auth routes (/auth/*) are exempt so they can complete sign-in/verification.
+ */
+function SiteGate() {
+  const { user, isVerified, loading } = useAuth();
+  const { pathname } = useLocation();
+
+  const isAuthRoute = pathname.startsWith("/auth");
+
+  if (!loading && user && !isVerified && !isAuthRoute) {
+    return (
+      <VerifyEmailGate requireAuth={false}>
+        <Outlet />
+      </VerifyEmailGate>
+    );
+  }
+
+  return <Outlet />;
 }
