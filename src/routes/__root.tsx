@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { VerifyEmailGate } from "@/components/VerifyEmailGate";
+import { BackButton } from "@/components/BackButton";
+import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 
 import appCss from "../styles.css?url";
 
@@ -71,6 +73,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SiteGate />
+        <BackButton />
+        <FloatingWhatsApp />
         <Toaster richColors position="top-center" />
       </AuthProvider>
     </QueryClientProvider>

@@ -171,3 +171,21 @@
     box-shadow: 0 0 0 12px color-mix(in oklab, var(--color-primary) 0%, transparent);
   }
 }
+
+/* Floating WhatsApp pulse */
+@keyframes wa-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 0 0 rgba(37, 211, 102, 0.55);
+  }
+  50% {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 0 14px rgba(37, 211, 102, 0);
+  }
+}
+.wa-pulse {
+  animation: wa-pulse 2.4s ease-out infinite;
+}
+
+/* Lock body scroll when drawer/modal is open */
+body.no-scroll {
+  overflow: hidden;
+}
