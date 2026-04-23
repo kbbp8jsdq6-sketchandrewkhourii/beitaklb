@@ -189,3 +189,13 @@
 body.no-scroll {
   overflow: hidden;
 }
+
+/* Announcement bar continuous scroll */
+@keyframes announcement-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.announcement-track {
+  animation: announcement-scroll 38s linear infinite;
+  width: max-content;
+}
