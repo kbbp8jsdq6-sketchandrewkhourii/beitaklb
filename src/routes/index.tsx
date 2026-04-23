@@ -10,7 +10,7 @@ import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { supabase } from "@/integrations/supabase/client";
-import aboutImage from "@/assets/about-beitak.jpg";
+import aboutImage from "@/assets/about-guesthouse.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -328,20 +328,20 @@ function HomePage() {
               Home is closer than you think
             </p>
           </div>
-          <div className="relative">
+          <div className="relative lg:scale-110 lg:-mx-6">
             <div className="relative overflow-hidden rounded-3xl">
               <img
                 src={aboutImage}
-                alt="Warm Lebanese stone home at golden hour"
+                alt="Lebanese guesthouse with pool surrounded by palms"
                 width={1024}
                 height={896}
                 loading="lazy"
                 className="h-full w-full object-cover"
                 style={{
                   WebkitMaskImage:
-                    "radial-gradient(ellipse at center, black 55%, transparent 100%)",
+                    "radial-gradient(ellipse at center, black 75%, transparent 100%)",
                   maskImage:
-                    "radial-gradient(ellipse at center, black 55%, transparent 100%)",
+                    "radial-gradient(ellipse at center, black 75%, transparent 100%)",
                 }}
               />
             </div>
