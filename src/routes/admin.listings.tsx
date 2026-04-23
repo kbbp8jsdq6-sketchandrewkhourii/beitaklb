@@ -32,6 +32,7 @@ type Category = "villa" | "cabin" | "apartment";
 function AdminListingsPage() {
   const { user } = useAuth();
   const [showNew, setShowNew] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [hostFilter, setHostFilter] = useState<string>("all");
