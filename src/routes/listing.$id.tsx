@@ -108,6 +108,15 @@ function ListingPage() {
   const [waLoading, setWaLoading] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
 
+  // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from("listing_views")
+      .insert({ listing_id: id })
+      .then(() => {});
+  }, [id]);
+
   const { favoriteIds, toggleFavorite } = useFavorites();
   const isFav = listing ? favoriteIds.has(listing.id) : false;
   const handleFavoriteClick = (e: React.MouseEvent) => {
