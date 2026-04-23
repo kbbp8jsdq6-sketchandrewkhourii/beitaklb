@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          message: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          message: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          message?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           check_in: string
@@ -64,6 +91,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: Database["public"]["Enums"]["contact_status"]
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["contact_status"]
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["contact_status"]
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       email_send_log: {
         Row: {
@@ -180,6 +243,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feedback: {
+        Row: {
+          author_name: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          message: string
+          rating: number
+          status: Database["public"]["Enums"]["feedback_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          author_name: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          message: string
+          rating: number
+          status?: Database["public"]["Enums"]["feedback_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          author_name?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          message?: string
+          rating?: number
+          status?: Database["public"]["Enums"]["feedback_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       listing_photos: {
         Row: {
@@ -392,6 +491,39 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          business_email: string | null
+          business_instagram: string | null
+          business_phone: string | null
+          business_whatsapp: string | null
+          id: number
+          maintenance_mode: boolean
+          terms_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_email?: string | null
+          business_instagram?: string | null
+          business_phone?: string | null
+          business_whatsapp?: string | null
+          id?: number
+          maintenance_mode?: boolean
+          terms_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_email?: string | null
+          business_instagram?: string | null
+          business_phone?: string | null
+          business_whatsapp?: string | null
+          id?: number
+          maintenance_mode?: boolean
+          terms_text?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -486,6 +618,8 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
+      contact_status: "unread" | "read" | "resolved"
+      feedback_status: "pending" | "approved" | "hidden"
       listing_category: "villa" | "cabin" | "apartment"
       listing_status: "pending" | "approved" | "rejected"
     }
@@ -617,6 +751,8 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
+      contact_status: ["unread", "read", "resolved"],
+      feedback_status: ["pending", "approved", "hidden"],
       listing_category: ["villa", "cabin", "apartment"],
       listing_status: ["pending", "approved", "rejected"],
     },

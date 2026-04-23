@@ -27,8 +27,12 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-passw
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
+import { Route as AdminContactRouteImport } from './routes/admin.contact'
 import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
+import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 import { Route as BookingsIdConfirmationRouteImport } from './routes/bookings.$id.confirmation'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
@@ -122,14 +126,34 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminListingsRoute = AdminListingsRouteImport.update({
   id: '/listings',
   path: '/listings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminContactRoute = AdminContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
   getParentRoute: () => AdminRoute,
 } as any)
 const BookingsIdConfirmationRoute = BookingsIdConfirmationRouteImport.update({
@@ -155,8 +179,12 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/contact': typeof AdminContactRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/listings': typeof AdminListingsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -178,8 +206,12 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/contact': typeof AdminContactRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/listings': typeof AdminListingsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -203,8 +235,12 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/contact': typeof AdminContactRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/listings': typeof AdminListingsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -229,8 +265,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/terms'
+    | '/admin/announcements'
     | '/admin/approvals'
+    | '/admin/contact'
+    | '/admin/feedback'
     | '/admin/listings'
+    | '/admin/settings'
     | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -252,8 +292,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/terms'
+    | '/admin/announcements'
     | '/admin/approvals'
+    | '/admin/contact'
+    | '/admin/feedback'
     | '/admin/listings'
+    | '/admin/settings'
     | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -276,8 +320,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/terms'
+    | '/admin/announcements'
     | '/admin/approvals'
+    | '/admin/contact'
+    | '/admin/feedback'
     | '/admin/listings'
+    | '/admin/settings'
     | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -439,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/listings': {
       id: '/admin/listings'
       path: '/listings'
@@ -446,11 +501,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/contact': {
+      id: '/admin/contact'
+      path: '/contact'
+      fullPath: '/admin/contact'
+      preLoaderRoute: typeof AdminContactRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/approvals': {
       id: '/admin/approvals'
       path: '/approvals'
       fullPath: '/admin/approvals'
       preLoaderRoute: typeof AdminApprovalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/announcements': {
+      id: '/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminAnnouncementsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/bookings/$id/confirmation': {
@@ -471,15 +547,23 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminApprovalsRoute: typeof AdminApprovalsRoute
+  AdminContactRoute: typeof AdminContactRoute
+  AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminListingsRoute: typeof AdminListingsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminApprovalsRoute: AdminApprovalsRoute,
+  AdminContactRoute: AdminContactRoute,
+  AdminFeedbackRoute: AdminFeedbackRoute,
   AdminListingsRoute: AdminListingsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
