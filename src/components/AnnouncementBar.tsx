@@ -22,7 +22,7 @@ export function AnnouncementBar() {
   return (
     <div
       className="relative w-full overflow-hidden"
-      style={{ backgroundColor: "#CC0000" }}
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
       role="region"
       aria-label="Announcements"
     >
