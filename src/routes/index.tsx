@@ -154,14 +154,14 @@ function HomePage() {
               Browse unique listings from trusted local hosts.
             </motion.p>
             <motion.div
-              className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+              className="mt-8 flex w-full max-w-md flex-row flex-wrap items-center justify-center gap-3 sm:max-w-none sm:w-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
             >
               <Link
                 to="/search"
-                className="inline-flex items-center justify-center rounded-md bg-primary px-7 py-3.5 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90"
+                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90 sm:px-7 sm:py-3.5 sm:text-base"
               >
                 Browse listings
               </Link>
@@ -169,7 +169,7 @@ function HomePage() {
                 href={`https://wa.me/96181160435?text=${encodeURIComponent("Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-md border-2 border-white bg-white/10 px-7 py-3.5 text-base font-bold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white hover:text-foreground"
+                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md border-2 border-white bg-white/10 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white hover:text-foreground sm:px-7 sm:py-3.5 sm:text-base"
               >
                 Become a host
               </a>
