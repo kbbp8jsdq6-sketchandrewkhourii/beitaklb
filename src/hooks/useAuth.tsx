@@ -7,6 +7,7 @@ interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  isVerified: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -61,8 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const isVerified = !!user?.email_confirmed_at || !!(user as any)?.confirmed_at;
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, isVerified, signOut }}>
       {children}
     </AuthContext.Provider>
   );

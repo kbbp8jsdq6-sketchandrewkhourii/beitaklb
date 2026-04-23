@@ -1,8 +1,9 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { VerifyEmailGate } from "@/components/VerifyEmailGate";
 
 import appCss from "../styles.css?url";
 
@@ -69,9 +70,31 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <SiteGate />
         <Toaster richColors position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+/**
+ * Globally enforces email verification: any signed-in user whose email is
+ * unverified is shown the verify-email screen and cannot browse the site.
+ * Auth routes (/auth/*) are exempt so they can complete sign-in/verification.
+ */
+function SiteGate() {
+  const { user, isVerified, loading } = useAuth();
+  const { pathname } = useLocation();
+
+  const isAuthRoute = pathname.startsWith("/auth");
+
+  if (!loading && user && !isVerified && !isAuthRoute) {
+    return (
+      <VerifyEmailGate requireAuth={false}>
+        <Outlet />
+      </VerifyEmailGate>
+    );
+  }
+
+  return <Outlet />;
 }
