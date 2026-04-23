@@ -329,7 +329,7 @@ function HomePage() {
             </p>
           </div>
           <div className="relative">
-            <div className="overflow-hidden rounded-3xl border-4 border-foreground shadow-2xl">
+            <div className="relative overflow-hidden rounded-3xl">
               <img
                 src={aboutImage}
                 alt="Warm Lebanese stone home at golden hour"
@@ -337,6 +337,12 @@ function HomePage() {
                 height={896}
                 loading="lazy"
                 className="h-full w-full object-cover"
+                style={{
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse at center, black 55%, transparent 100%)",
+                  maskImage:
+                    "radial-gradient(ellipse at center, black 55%, transparent 100%)",
+                }}
               />
             </div>
             <div className="absolute -bottom-5 -left-5 hidden rounded-2xl bg-primary px-6 py-4 text-primary-foreground shadow-xl sm:block opacity-0">
