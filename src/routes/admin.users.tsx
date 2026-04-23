@@ -24,7 +24,10 @@ export const Route = createFileRoute("/admin/users")({
   component: AdminUsersPage,
 });
 
-type Role = "admin" | "host" | "user";
+// app_role enum in the database only supports "admin" | "user".
+// "Host" is a display-only status inferred from owning at least one listing.
+type Role = "admin" | "user";
+type DisplayRole = Role | "host";
 
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
@@ -115,7 +118,7 @@ function AdminUsersPage() {
     }
   };
 
-  const inferRole = (u: (typeof filtered)[number]): Role => {
+  const inferRole = (u: (typeof filtered)[number]): DisplayRole => {
     const roles = (u.user_roles ?? []).map((r) => r.role);
     if (roles.includes("admin")) return "admin";
     if (hostsQ.data?.has(u.id)) return "host";
@@ -166,19 +169,25 @@ function AdminUsersPage() {
                     {u.phone ?? "—"}
                   </td>
                   <td className="p-3">
-                    <Select
-                      value={role}
-                      onValueChange={(v) => setRole(u.id, v as Role)}
-                    >
-                      <SelectTrigger className="h-8 w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">Guest</SelectItem>
-                        <SelectItem value="host">Host</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={role === "host" ? "user" : role}
+                        onValueChange={(v) => setRole(u.id, v as Role)}
+                      >
+                        <SelectTrigger className="h-8 w-28">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">Guest</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {role === "host" && (
+                        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold uppercase text-primary">
+                          Host
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-3">
                     {u.is_banned ? (
