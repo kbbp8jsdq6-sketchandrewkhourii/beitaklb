@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -75,6 +75,18 @@ export function HamburgerMenu() {
     setAboutOpen(false);
     setSocialsOpen(false);
   };
+
+  // Lock body scroll while drawer is open to prevent flicker / disappearing on scroll
+  useEffect(() => {
+    if (open) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [open]);
 
   return (
     <>
