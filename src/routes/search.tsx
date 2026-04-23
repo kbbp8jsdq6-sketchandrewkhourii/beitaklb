@@ -99,7 +99,7 @@ function SearchPage() {
         <div className="flex items-baseline justify-between">
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
             {category
-              ? CATEGORY_LABEL[category]
+              ? CATEGORY_LABEL[category as ListingCategory]
               : q
                 ? `Stays in ${q}`
                 : "All stays in Lebanon"}
