@@ -20,11 +20,15 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookingsIndexRouteImport } from './routes/bookings.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminListingsRouteImport } from './routes/admin.listings'
+import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
 import { Route as BookingsIdConfirmationRouteImport } from './routes/bookings.$id.confirmation'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
@@ -83,6 +87,11 @@ const BookingsIndexRoute = BookingsIndexRouteImport.update({
   path: '/bookings/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ListingIdRoute = ListingIdRouteImport.update({
   id: '/listing/$id',
   path: '/listing/$id',
@@ -108,6 +117,21 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminListingsRoute = AdminListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AdminRoute,
+} as any)
 const BookingsIdConfirmationRoute = BookingsIdConfirmationRouteImport.update({
   id: '/bookings/$id/confirmation',
   path: '/bookings/$id/confirmation',
@@ -123,7 +147,7 @@ const LovableEmailQueueProcessRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/become-a-host': typeof BecomeAHostRoute
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
@@ -131,11 +155,15 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/listing/$id': typeof ListingIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -143,7 +171,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/become-a-host': typeof BecomeAHostRoute
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
@@ -151,11 +178,15 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/listing/$id': typeof ListingIdRoute
+  '/admin': typeof AdminIndexRoute
   '/bookings': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -164,7 +195,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/become-a-host': typeof BecomeAHostRoute
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
@@ -172,11 +203,15 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/listings': typeof AdminListingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/listing/$id': typeof ListingIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -194,11 +229,15 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/terms'
+    | '/admin/approvals'
+    | '/admin/listings'
+    | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/listing/$id'
+    | '/admin/'
     | '/bookings/'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
@@ -206,7 +245,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/admin'
     | '/become-a-host'
     | '/contact'
     | '/favorites'
@@ -214,11 +252,15 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/terms'
+    | '/admin/approvals'
+    | '/admin/listings'
+    | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/listing/$id'
+    | '/admin'
     | '/bookings'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
@@ -234,11 +276,15 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/terms'
+    | '/admin/approvals'
+    | '/admin/listings'
+    | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/listing/$id'
+    | '/admin/'
     | '/bookings/'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
@@ -247,7 +293,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BecomeAHostRoute: typeof BecomeAHostRoute
   ContactRoute: typeof ContactRoute
   FavoritesRoute: typeof FavoritesRoute
@@ -344,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/listing/$id': {
       id: '/listing/$id'
       path: '/listing/$id'
@@ -379,6 +432,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/listings': {
+      id: '/admin/listings'
+      path: '/listings'
+      fullPath: '/admin/listings'
+      preLoaderRoute: typeof AdminListingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/approvals': {
+      id: '/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AdminApprovalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/bookings/$id/confirmation': {
       id: '/bookings/$id/confirmation'
       path: '/bookings/$id/confirmation'
@@ -396,10 +470,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminApprovalsRoute: typeof AdminApprovalsRoute
+  AdminListingsRoute: typeof AdminListingsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminApprovalsRoute: AdminApprovalsRoute,
+  AdminListingsRoute: AdminListingsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BecomeAHostRoute: BecomeAHostRoute,
   ContactRoute: ContactRoute,
   FavoritesRoute: FavoritesRoute,
