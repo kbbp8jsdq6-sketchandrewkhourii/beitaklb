@@ -27,6 +27,8 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ function SignupPage() {
     }
     setSubmitting(true);
     const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
@@ -50,8 +52,30 @@ function SignupPage() {
       toast.error(error.message);
       return;
     }
+    // If email confirmation is required, the user is NOT yet verified.
+    // Sign them out so they can't browse the site, and show a notice.
+    const needsConfirmation = !data.session || !data.user?.email_confirmed_at;
+    if (needsConfirmation) {
+      await supabase.auth.signOut();
+      setSentTo(parsed.data.email);
+      toast.success("Account created — please verify your email.");
+      return;
+    }
     toast.success("Welcome to BEITAK!");
     navigate({ to: "/" });
+  };
+
+  const handleResend = async () => {
+    if (!sentTo) return;
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: sentTo,
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    });
+    setResending(false);
+    if (error) toast.error(error.message);
+    else toast.success("Verification email resent.");
   };
 
   return (
@@ -62,29 +86,59 @@ function SignupPage() {
           <Link to="/"><Logo size="auth" /></Link>
         </div>
         <div className="rounded-3xl border border-border bg-white p-8 shadow-2xl ring-1 ring-black/5">
-          <h1 className="font-display text-3xl text-foreground">Create your account</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Start hosting or booking across Lebanon.</p>
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Layla Khoury" />
+          {sentTo ? (
+            <div className="text-center">
+              <h1 className="font-display text-3xl text-foreground">Check your email</h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                We sent a verification link to{" "}
+                <span className="font-semibold text-foreground">{sentTo}</span>. Click the link to
+                activate your account before logging in.
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Didn't get it? Check your spam folder.
+              </p>
+              <Button
+                onClick={handleResend}
+                disabled={resending}
+                variant="outline"
+                className="mt-5 w-full"
+              >
+                {resending ? "Sending…" : "Resend verification email"}
+              </Button>
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Already verified?{" "}
+                <Link to="/auth/login" className="font-semibold text-primary hover:underline">
+                  Log in
+                </Link>
+              </p>
             </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
-            </div>
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Creating…" : "Create account"}
-            </Button>
-          </form>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/auth/login" className="font-semibold text-primary hover:underline">Log in</Link>
-          </p>
+          ) : (
+            <>
+              <h1 className="font-display text-3xl text-foreground">Create your account</h1>
+              <p className="mt-1 text-sm text-muted-foreground">Start hosting or booking across Lebanon.</p>
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                <div>
+                  <Label htmlFor="name">Full name</Label>
+                  <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Layla Khoury" />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                </div>
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? "Creating…" : "Create account"}
+                </Button>
+              </form>
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link to="/auth/login" className="font-semibold text-primary hover:underline">Log in</Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
