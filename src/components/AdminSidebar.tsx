@@ -1,9 +1,27 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, Home as HomeIcon, Users, ClipboardCheck, ArrowLeft } from "lucide-react";
+import {
+  LayoutDashboard,
+  Home as HomeIcon,
+  Users,
+  ClipboardCheck,
+  ArrowLeft,
+  MessageCircle,
+  Mail,
+  Megaphone,
+  Settings,
+} from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
 type NavItem = {
-  to: "/admin" | "/admin/listings" | "/admin/users" | "/admin/approvals";
+  to:
+    | "/admin"
+    | "/admin/listings"
+    | "/admin/users"
+    | "/admin/approvals"
+    | "/admin/feedback"
+    | "/admin/contact"
+    | "/admin/announcements"
+    | "/admin/settings";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -14,6 +32,10 @@ const NAV: NavItem[] = [
   { to: "/admin/listings", label: "Listings", icon: HomeIcon },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck },
+  { to: "/admin/feedback", label: "Feedback", icon: MessageCircle },
+  { to: "/admin/contact", label: "Contact", icon: Mail },
+  { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
+  { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
