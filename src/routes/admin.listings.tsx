@@ -240,6 +240,13 @@ function AdminListingsPage() {
           adminUserId={user.id}
         />
       )}
+
+      <AdminListingEditForm
+        open={editingId !== null}
+        listingId={editingId}
+        onClose={() => setEditingId(null)}
+        onSaved={() => listingsQ.refetch()}
+      />
     </div>
   );
 }
