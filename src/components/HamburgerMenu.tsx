@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -76,6 +76,18 @@ export function HamburgerMenu() {
     setSocialsOpen(false);
   };
 
+  // Lock body scroll while drawer is open to prevent flicker / disappearing on scroll
+  useEffect(() => {
+    if (open) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [open]);
+
   return (
     <>
       <button
@@ -95,9 +107,9 @@ export function HamburgerMenu() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               onClick={close}
-              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[9998] bg-black/60"
             />
             <motion.aside
               key="drawer"
@@ -106,8 +118,8 @@ export function HamburgerMenu() {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-y-0 right-0 z-50 flex h-full w-[88vw] max-w-sm flex-col bg-background shadow-2xl"
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="fixed inset-y-0 right-0 z-[9999] flex h-screen w-[88vw] max-w-sm flex-col overflow-y-auto bg-background shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <p className="font-display text-xl tracking-wide text-foreground">
