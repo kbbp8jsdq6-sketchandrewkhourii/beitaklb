@@ -327,15 +327,6 @@ function HomePage() {
             <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
               Home is closer than you think
             </p>
-            <a
-              href="https://instagram.com/beitak.lb"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-[#E1306C]"
-            >
-              <Instagram className="h-5 w-5" />
-              instagram.com/beitak.lb
-            </a>
           </div>
           <div className="relative">
             <div className="overflow-hidden rounded-3xl border-4 border-foreground shadow-2xl">
