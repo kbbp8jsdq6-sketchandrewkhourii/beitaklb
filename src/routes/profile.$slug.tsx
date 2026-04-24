@@ -38,7 +38,9 @@ function StarRow({ rating }: { rating: number }) {
 }
 
 function PublicProfilePage() {
-  const { review } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const review = getStaticReviewBySlug(slug);
+  if (!review) return null;
 
   return (
     <div className="min-h-screen bg-background">
