@@ -8,7 +8,7 @@ import { Lightbox } from "@/components/Lightbox";
 import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
-import { buildListingWhatsAppHref } from "@/lib/whatsapp";
+import { buildListingWhatsAppHrefSync, buildListingWhatsAppHref } from "@/lib/whatsapp";
 import { toast } from "sonner";
 
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
