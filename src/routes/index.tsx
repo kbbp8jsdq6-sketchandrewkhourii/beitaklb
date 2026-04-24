@@ -11,6 +11,7 @@ import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
+import { PatternBackground } from "@/components/PatternBackground";
 
 export const Route = createFileRoute("/")({
   head: () => ({
