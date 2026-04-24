@@ -133,40 +133,26 @@ function HomePage() {
                 className="hero-logo-stage"
               >
                 <div className="hero-logo-spin">
-                  {/* Back depth layers — stacked behind to create extruded thickness */}
-                  {Array.from({ length: 14 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="hero-logo-layer"
-                      style={{
-                        transform: `translateZ(${-(i + 1) * 1.5}px)`,
-                        opacity: 0.55 - i * 0.025,
-                        filter: `brightness(${0.85 - i * 0.04})`,
-                      }}
-                      aria-hidden
-                    >
-                      <LogoTransparent size="hero" />
-                    </div>
-                  ))}
-                  {/* Front depth layers — stacked in front to thicken forward */}
-                  {Array.from({ length: 14 }).map((_, i) => (
-                    <div
-                      key={`f-${i}`}
-                      className="hero-logo-layer"
-                      style={{
-                        transform: `translateZ(${(i + 1) * 1.5}px)`,
-                        opacity: 0.55 - i * 0.025,
-                        filter: `brightness(${0.9 - i * 0.02})`,
-                      }}
-                      aria-hidden
-                    >
-                      <LogoTransparent size="hero" />
-                    </div>
-                  ))}
-                  {/* Front-facing crisp logo */}
-                  <div className="hero-logo-layer hero-logo-front">
-                    <LogoTransparent size="hero" />
-                  </div>
+                  {/* Solid extruded thickness layers — sharp duplicates with darker tint */}
+                  {Array.from({ length: 30 }).map((_, i) => {
+                    // Center the stack so the front face sits at the highest Z
+                    const z = (i - 29) * 1.2; // -34.8 → 0
+                    // Darker shade for back layers, full color near the front
+                    const darkness = 0.55 + (i / 29) * 0.45; // 0.55 → 1
+                    return (
+                      <div
+                        key={i}
+                        className="hero-logo-layer"
+                        style={{
+                          transform: `translateZ(${z}px)`,
+                          filter: `brightness(${darkness}) saturate(${0.7 + (i / 29) * 0.3})`,
+                        }}
+                        aria-hidden={i !== 29}
+                      >
+                        <LogoTransparent size="hero" />
+                      </div>
+                    );
+                  })}
                 </div>
               </motion.div>
             </motion.div>
