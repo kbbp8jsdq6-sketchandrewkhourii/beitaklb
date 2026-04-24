@@ -2,14 +2,13 @@ import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-rout
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Loader2, Coffee, Heart } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
-import { buildListingWhatsAppHrefSync, buildListingWhatsAppHref } from "@/lib/whatsapp";
-import { toast } from "sonner";
+import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 import beitakLogo from "@/assets/logo-new.png";
 
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
@@ -107,7 +106,6 @@ function ListingPage() {
   });
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [waLoading, setWaLoading] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [waHref, setWaHref] = useState<string | null>(null);
 
@@ -141,13 +139,6 @@ function ListingPage() {
   const openReserveModal = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     if (!listing) return;
-    const hostPhone = (listing.profiles as { phone?: string | null } | null)?.phone?.trim();
-    if (!hostPhone) {
-      toast.error(
-        "This host hasn't added a phone number yet. Please contact support to book this stay.",
-      );
-      return;
-    }
     const url = typeof window !== "undefined" ? window.location.href : "";
     const payload = {
       title: listing.title,
@@ -156,23 +147,8 @@ function ListingPage() {
       priceWeekend: Number(listing.price_weekend),
       url,
     };
-    // Build href SYNCHRONOUSLY first so the <a> in the modal has a working
-    // link immediately (no popup blocker risk).
-    const syncHref = buildListingWhatsAppHrefSync(payload, hostPhone);
-    setWaHref(syncHref);
+    setWaHref(buildListingWhatsAppHref(payload));
     setShowReserveModal(true);
-
-    // Try to upgrade to a shortened URL in the background (non-blocking).
-    // If TinyURL fails or is slow, the sync href above still works.
-    setWaLoading(true);
-    buildListingWhatsAppHref(payload, hostPhone)
-      .then((shortHref) => {
-        if (shortHref && shortHref !== syncHref) setWaHref(shortHref);
-      })
-      .catch(() => {
-        // Silently keep the sync href.
-      })
-      .finally(() => setWaLoading(false));
   };
 
   const closeReserveModal = () => {
@@ -407,20 +383,12 @@ function ListingPage() {
               <a
                 href="#"
                 onClick={openReserveModal}
-                aria-disabled={waLoading}
                 className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-70"
               >
-                {waLoading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Generating link...
-                  </>
-                ) : (
-                  <>
-                    <WhatsAppIcon className="h-5 w-5" />
-                    Reserve via WhatsApp
-                  </>
-                )}
+                <>
+                  <WhatsAppIcon className="h-5 w-5" />
+                  Reserve via WhatsApp
+                </>
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 Instant reply · No booking fees
@@ -444,7 +412,6 @@ function ListingPage() {
           <a
             href="#"
             onClick={openReserveModal}
-            aria-disabled={waLoading}
             className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             <WhatsAppIcon className="h-4 w-4" />
@@ -455,7 +422,6 @@ function ListingPage() {
 
       <WhatsAppReserveModal
         open={showReserveModal}
-        loading={waLoading}
         href={waHref ?? undefined}
         onCancel={closeReserveModal}
       />
