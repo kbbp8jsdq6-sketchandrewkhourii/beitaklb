@@ -73,7 +73,7 @@ async function fetchListing(id: string) {
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, category, host_id, created_at,
       listing_photos(id, photo_url, display_order),
-      profiles:host_id (full_name, avatar_url),
+      profiles:host_id (full_name, avatar_url, phone),
       reviews(id, rating, comment, created_at, reviewer_id, profiles:reviewer_id(full_name))
     `)
     .eq("id", id)
