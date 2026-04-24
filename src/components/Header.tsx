@@ -40,10 +40,8 @@ export function Header() {
   return (
     <>
     <header
-      className={`sticky top-0 z-40 border-b bg-background transition-all duration-300 ${
-        scrolled
-          ? "border-border shadow-md backdrop-blur-md"
-          : "border-border/60"
+      className={`glass-light sticky top-0 z-40 transition-all duration-300 ${
+        scrolled ? "shadow-md" : ""
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
