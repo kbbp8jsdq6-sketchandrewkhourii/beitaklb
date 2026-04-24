@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Home } from "lucide-react";
 
 /**
  * Custom luxury cursor — small red dot at exact pointer position
@@ -70,8 +71,16 @@ export function CustomCursor() {
       <div
         ref={dotRef}
         aria-hidden="true"
-        className={`custom-cursor-dot ${hovering ? "is-hover" : ""}`}
-      />
+        className={`custom-cursor-house ${hovering ? "is-hover" : ""}`}
+      >
+        <Home
+          size={22}
+          strokeWidth={2.25}
+          color="#CC0000"
+          fill="#CC0000"
+          fillOpacity={0.18}
+        />
+      </div>
     </>
   );
 }
