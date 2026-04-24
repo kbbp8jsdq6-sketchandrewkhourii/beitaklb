@@ -146,8 +146,8 @@ export function ListingQuickPreview({
       <WhatsAppReserveModal
         open={showConfirm}
         loading={waLoading}
-        onConfirm={handleReserve}
-        onCancel={() => setShowConfirm(false)}
+        href={waHref ?? undefined}
+        onCancel={closeConfirm}
       />
     </AnimatePresence>
   );
