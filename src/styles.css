@@ -393,3 +393,107 @@ body.no-scroll {
   .splash-wave-img { animation: none; }
 }
 
+/* ============================================================
+ * Premium listing-card hover effect (desktop / fine-pointer only).
+ * Card lifts + scales, photo zooms inside its frame, and a soft
+ * red gradient overlay deepens at the bottom of the cover photo.
+ * Mobile / touch devices get no hover effects whatsoever.
+ * ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+  /* Target the ListingCard root (.group) and animate its rounded photo
+     frame (.aspect-[4/3]) and the inner <img>. */
+  .group {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .group:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow:
+      0 24px 48px -16px rgba(0, 0, 0, 0.25),
+      0 12px 24px -12px rgba(204, 0, 0, 0.18);
+  }
+  /* Cover photo gentle zoom — overrides framer's group-hover:scale-105 with
+     a slower, more cinematic 1.08x. */
+  .group:hover .aspect-\[4\/3\] > img {
+    transform: scale(1.08);
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+  /* Red gradient overlay at bottom of the photo — sits inside the photo
+     frame, above the image, beneath any chips/heart. */
+  .aspect-\[4\/3\]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      rgba(204, 0, 0, 0.55) 0%,
+      rgba(204, 0, 0, 0.18) 35%,
+      rgba(204, 0, 0, 0) 60%
+    );
+    opacity: 0.35;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 1;
+  }
+  .group:hover .aspect-\[4\/3\]::after {
+    opacity: 0.85;
+  }
+}
+
+/* ============================================================
+ * Hero parallax — image moves slightly slower than the page scroll
+ * to create a deep, cinematic feel. Implemented with a CSS variable
+ * (`--hero-parallax`) updated from JS in the HomePage.
+ * ============================================================ */
+.hero-parallax {
+  transform: translate3d(0, var(--hero-parallax, 0px), 0);
+  will-change: transform;
+}
+
+/* ============================================================
+ * Custom luxury cursor
+ * ============================================================ */
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  border-radius: 9999px;
+  mix-blend-mode: normal;
+}
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #cc0000;
+  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+}
+.custom-cursor-dot.is-hover {
+  width: 12px;
+  height: 12px;
+}
+.custom-cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid rgba(204, 0, 0, 0.7);
+  background: transparent;
+  transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease,
+              background-color 0.25s ease;
+}
+.custom-cursor-ring.is-hover {
+  width: 56px;
+  height: 56px;
+  border-color: rgba(204, 0, 0, 0.95);
+  background-color: rgba(204, 0, 0, 0.08);
+}
+@media (pointer: coarse) {
+  .custom-cursor-dot,
+  .custom-cursor-ring { display: none !important; }
+}
+
