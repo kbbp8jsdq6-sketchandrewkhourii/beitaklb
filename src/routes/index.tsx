@@ -427,7 +427,7 @@ function HomePage() {
         <PatternBackground />
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
           <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
+            <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">About us</p>
             <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
               We're <span className="text-primary">BEITAK</span>
             </h2>
@@ -437,16 +437,16 @@ function HomePage() {
             </p>
 
             <div id="mission" className="mt-8 scroll-mt-24 rounded-2xl border-l-4 border-primary bg-primary/5 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Mission</p>
-              <p className="mt-2 text-base leading-relaxed text-foreground/80">
+              <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our MissioN</p>
+              <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
                 Make every Lebanese stay effortless — connecting travelers directly with curated
                 hosts, with no middlemen and no surprises.
               </p>
             </div>
 
             <div id="vision" className="mt-4 scroll-mt-24 rounded-2xl border-l-4 border-foreground bg-muted/40 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-foreground">Our Vision</p>
-              <p className="mt-2 text-base leading-relaxed text-foreground/80">
+              <p className="uppercase tracking-[0.3em] text-foreground font-extrabold text-base font-serif">Our Vision</p>
+              <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
                 To become Lebanon's most loved stays platform — where hosts thrive and travelers
                 fall in love with the country, one home at a time.
               </p>
