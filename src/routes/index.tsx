@@ -126,15 +126,16 @@ function HomePage() {
               <motion.div
                 animate={{
                   y: [0, -12, 0],
-                  rotate: [0, 1.5, 0, -1.5, 0],
                 }}
                 transition={{
                   y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                  rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" },
                 }}
                 className="drop-shadow-[0_15px_35px_rgba(230,48,48,0.45)]"
+                style={{ perspective: "1000px" }}
               >
-                <LogoTransparent size="hero" />
+                <div className="hero-logo-spin" style={{ transformStyle: "preserve-3d" }}>
+                  <LogoTransparent size="hero" />
+                </div>
               </motion.div>
             </motion.div>
             <motion.h1
