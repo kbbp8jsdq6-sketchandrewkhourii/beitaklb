@@ -64,7 +64,7 @@ export function ListingCard({
 
   return (
     <motion.div
-      className="group block"
+      className="listing-card group block"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.08, 0.6), ease: "easeOut" }}
