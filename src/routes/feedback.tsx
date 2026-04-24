@@ -247,7 +247,18 @@ function FeedbackPage() {
     },
   });
 
-  const reviews = reviewsQ.data ?? [];
+  // Curated static reviews shown first, then any approved real submissions.
+  const staticReviews: ApprovedReview[] = STATIC_REVIEWS.map((r) => ({
+    id: `static-${r.slug}`,
+    author_name: r.name,
+    rating: r.rating,
+    message: r.message,
+    is_pinned: false,
+    slug: r.slug,
+  }));
+  const dbReviews = reviewsQ.data ?? [];
+  const reviews: ApprovedReview[] = [...staticReviews, ...dbReviews];
+
   const variants: Array<"light" | "dark" | "outline"> = [
     "light", "outline", "light", "dark", "light", "outline",
     "dark", "light", "outline", "light", "dark", "outline",
@@ -282,6 +293,7 @@ function FeedbackPage() {
             Be the first to share your experience.
           </p>
         )}
+
 
         <FeedbackForm onSubmitted={() => reviewsQ.refetch()} />
       </section>
