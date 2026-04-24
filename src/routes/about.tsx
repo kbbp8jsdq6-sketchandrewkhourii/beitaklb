@@ -16,7 +16,7 @@ export const Route = createFileRoute("/about")({
       {
         property: "og:description",
         content:
-          "Our mission and vision — connecting travelers with the most unique homes across Lebanon.",
+          "Our MissioN and vision — connecting travelers with the most unique homes across Lebanon.",
       },
     ],
   }),
@@ -61,7 +61,7 @@ function AboutPage() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
                   <Target className="h-7 w-7" strokeWidth={1.6} />
                 </div>
-                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Mission</p>
+                <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our MissioN</p>
               </div>
               <h2 className="font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
                 Our<br />Mission
