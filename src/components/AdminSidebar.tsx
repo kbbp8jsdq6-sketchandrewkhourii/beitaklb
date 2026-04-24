@@ -40,7 +40,7 @@ const NAV: NavItem[] = [
 
 export function AdminSidebar() {
   return (
-    <aside className="hidden w-60 shrink-0 border-r border-border bg-card lg:block">
+    <aside className="glass hidden w-60 shrink-0 lg:block">
       <div className="sticky top-0 flex h-screen flex-col p-4">
         <Link to="/" className="mb-6 flex items-center gap-2">
           <LogoTransparent size="navbar" />
@@ -88,7 +88,7 @@ export function AdminSidebar() {
 export function AdminMobileNav() {
   return (
     <div className="lg:hidden">
-      <div className="flex gap-2 overflow-x-auto border-b border-border bg-card px-4 py-2 hide-scrollbar">
+      <div className="glass flex gap-2 overflow-x-auto px-4 py-2 hide-scrollbar">
         {NAV.map((item) => {
           const Icon = item.icon;
           return (
