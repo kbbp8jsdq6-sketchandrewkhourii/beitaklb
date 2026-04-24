@@ -427,7 +427,7 @@ function HomePage() {
         <PatternBackground />
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
           <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
+            <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">About us</p>
             <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
               We're <span className="text-primary">BEITAK</span>
             </h2>

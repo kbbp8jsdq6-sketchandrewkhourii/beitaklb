@@ -30,7 +30,7 @@ function AboutPage() {
 
       <section className="border-b border-border bg-gradient-to-b from-primary/5 to-background">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
+          <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">About us</p>
           <h1 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
             We're <span className="text-primary">BEITAK</span>
           </h1>
@@ -114,7 +114,7 @@ function AboutPage() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-primary bg-background text-primary shadow-lg">
                   <Eye className="h-7 w-7" strokeWidth={1.6} />
                 </div>
-                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Vision</p>
+                <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our Vision</p>
               </div>
               <h2 className="font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
                 Our<br />Vision
