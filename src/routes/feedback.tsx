@@ -89,7 +89,17 @@ function ReviewCard({
         </div>
         <div>
           <p className={`font-semibold ${isDark ? "text-background" : "text-foreground"}`}>
-            {review.author_name}
+            {review.slug ? (
+              <Link
+                to="/profile/$slug"
+                params={{ slug: review.slug }}
+                className="underline decoration-transparent underline-offset-4 transition hover:text-primary hover:decoration-primary"
+              >
+                {review.author_name}
+              </Link>
+            ) : (
+              review.author_name
+            )}
           </p>
           <StarRating rating={review.rating} />
         </div>
