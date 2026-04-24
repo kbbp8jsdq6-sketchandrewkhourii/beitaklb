@@ -9,6 +9,7 @@ import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import { buildListingWhatsAppHref } from "@/lib/whatsapp";
+import { toast } from "sonner";
 
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
@@ -73,7 +74,7 @@ async function fetchListing(id: string) {
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, category, host_id, created_at,
       listing_photos(id, photo_url, display_order),
-      profiles:host_id (full_name, avatar_url),
+      profiles:host_id (full_name, avatar_url, phone),
       reviews(id, rating, comment, created_at, reviewer_id, profiles:reviewer_id(full_name))
     `)
     .eq("id", id)
@@ -143,16 +144,27 @@ function ListingPage() {
 
   const handleConfirmReserve = async () => {
     if (!listing || waLoading) return;
+    const hostPhone = (listing.profiles as { phone?: string | null } | null)?.phone?.trim();
+    if (!hostPhone) {
+      toast.error(
+        "This host hasn't added a phone number yet. Please contact support to book this stay.",
+      );
+      setShowReserveModal(false);
+      return;
+    }
     setWaLoading(true);
     try {
       const url = typeof window !== "undefined" ? window.location.href : "";
-      const href = await buildListingWhatsAppHref({
-        title: listing.title,
-        location: `${listing.location}, Lebanon`,
-        priceWeekday: Number(listing.price_weekday),
-        priceWeekend: Number(listing.price_weekend),
-        url,
-      });
+      const href = await buildListingWhatsAppHref(
+        {
+          title: listing.title,
+          location: `${listing.location}, Lebanon`,
+          priceWeekday: Number(listing.price_weekday),
+          priceWeekend: Number(listing.price_weekend),
+          url,
+        },
+        hostPhone,
+      );
       window.open(href, "_blank", "noopener,noreferrer");
       setShowReserveModal(false);
     } finally {
