@@ -269,27 +269,6 @@ function HomePage() {
             >
               Browse unique listings from trusted local hosts.
             </motion.p>
-            <motion.div
-              className="mt-8 flex w-full max-w-md flex-row flex-wrap items-center justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-nowrap"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
-            >
-              <Link
-                to="/search"
-                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90 sm:px-7 sm:py-3.5 sm:text-base"
-              >
-                Browse listings
-              </Link>
-              <a
-                href={`https://wa.me/96181160435?text=${encodeURIComponent("Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md border-2 border-white bg-white/10 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white hover:text-foreground sm:px-7 sm:py-3.5 sm:text-base"
-              >
-                Become a host
-              </a>
-            </motion.div>
             <motion.p
               className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
               initial={{ opacity: 0, y: 20 }}
@@ -299,6 +278,26 @@ function HomePage() {
               Home is closer than you think
             </motion.p>
           </div>
+        </div>
+      </section>
+
+      {/* CTA BAR — sits below the hero so buttons are never cut off */}
+      <section className="relative bg-background">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-3 px-4 py-10 sm:flex-row sm:gap-4 sm:py-12">
+          <Link
+            to="/search"
+            className="inline-flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-primary px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90 sm:w-auto sm:text-base"
+          >
+            Browse listings
+          </Link>
+          <a
+            href={`https://wa.me/96181160435?text=${encodeURIComponent("Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-md border-2 border-foreground bg-transparent px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background sm:w-auto sm:text-base"
+          >
+            Become a host
+          </a>
         </div>
       </section>
 
