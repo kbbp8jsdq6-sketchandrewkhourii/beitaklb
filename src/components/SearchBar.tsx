@@ -88,7 +88,7 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
         variant === "hero" ? "max-w-2xl" : "max-w-xl"
       )}
     >
-      <div className="grid grid-cols-[1fr_auto] gap-px overflow-hidden rounded-3xl border border-border bg-card shadow-lg">
+      <div className="glass grid grid-cols-[1fr_auto] gap-px overflow-hidden rounded-3xl">
         <div className="relative flex items-center gap-3 px-5 py-3">
           <MapPin className="h-5 w-5 shrink-0 text-primary" />
           <div className="flex flex-1 flex-col">
@@ -112,7 +112,7 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
             />
           </div>
           {showDropdown && (
-            <div className="absolute left-0 top-full z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-xl border border-border bg-popover py-1 shadow-xl">
+            <div className="glass absolute left-0 top-full z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-xl py-1">
               {!hasResults && (
                 <p className="px-4 py-3 text-sm text-muted-foreground">No matches yet…</p>
               )}
@@ -174,7 +174,7 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-center bg-card p-2">
+        <div className="flex items-center justify-center p-2">
           <Button
             onClick={handleSearch}
             size="lg"
