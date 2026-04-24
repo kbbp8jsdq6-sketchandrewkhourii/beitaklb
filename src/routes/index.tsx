@@ -282,7 +282,7 @@ function HomePage() {
             {STEPS.map((s, i) => (
               <motion.div
                 key={s.title}
-                className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary"
+                className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary text-red-600"
                 initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
