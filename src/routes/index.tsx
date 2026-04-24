@@ -344,7 +344,7 @@ function HomePage() {
       <section className="relative bg-muted/30">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <Reveal className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Featured</p>
               <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
@@ -352,7 +352,7 @@ function HomePage() {
               </h2>
               <p className="mt-2 text-muted-foreground">Handpicked stays from across Lebanon</p>
             </div>
-          </div>
+          </Reveal>
 
           {isLoading ? (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -368,21 +368,25 @@ function HomePage() {
           ) : (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {featured.map((l, i) => (
-                <ListingCard key={l.id} listing={l} index={i} />
+                <Reveal key={l.id} delay={i * 110}>
+                  <ListingCard listing={l} index={i} />
+                </Reveal>
               ))}
             </div>
           )}
 
-          <div className="mt-10 flex justify-center">
+          <Reveal className="mt-10 flex justify-center" delay={150}>
             <Link
               to="/search"
               className="inline-flex items-center justify-center rounded-md border-2 border-foreground bg-transparent px-7 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
             >
               View all listings →
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-muted)" />
 
       {/* 4. REVIEWS */}
       <section className="relative border-y border-border bg-background">
