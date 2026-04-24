@@ -169,13 +169,15 @@ function HomePage() {
   // Hero parallax — translate the slideshow background slower than scroll
   // for a luxurious, cinematic depth effect. Updates a CSS var on the
   // element so the actual transform stays GPU-accelerated.
+  // Disabled on mobile / coarse pointers and when the user prefers reduced motion.
   const heroParallaxRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = heroParallaxRef.current;
     if (!el) return;
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Skip parallax on touch / mobile devices for performance.
+    if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) return;
     let raf = 0;
     const update = () => {
       const y = window.scrollY;
