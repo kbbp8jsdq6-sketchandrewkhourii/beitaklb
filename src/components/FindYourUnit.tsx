@@ -222,7 +222,7 @@ export function FindYourUnit() {
                           className="flex items-start gap-3 px-4 py-2.5 hover:bg-accent"
                         >
                           {u.image ? (
-                            <img src={u.image} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
+                            <img src={u.image} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" loading="lazy" decoding="async" />
                           ) : (
                             <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
                           )}

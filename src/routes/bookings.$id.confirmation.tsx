@@ -45,7 +45,7 @@ function ConfirmationPage() {
           <p className="mt-1 text-muted-foreground">Your stay in Lebanon is locked in. مبروك!</p>
 
           <div className="mt-6 overflow-hidden rounded-2xl border border-border text-left">
-            {cover && <img src={cover} alt="" className="aspect-[16/9] w-full object-cover" />}
+            {cover && <img src={cover} alt="" className="aspect-[16/9] w-full object-cover" loading="lazy" decoding="async" />}
             <div className="p-5">
               <h2 className="font-display text-2xl">{booking.listings?.title}</h2>
               <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-4 w-4" />{booking.listings?.location}</p>

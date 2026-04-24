@@ -83,7 +83,7 @@ export function ListingQuickPreview({
             </button>
             <div className="relative aspect-[4/3] w-full bg-muted">
               {listing.cover ? (
-                <img src={listing.cover} alt={listing.title} className="h-full w-full object-cover" />
+                <img src={listing.cover} alt={listing.title} className="h-full w-full object-cover" loading="lazy" decoding="async" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
                   <MapPin className="h-12 w-12 text-primary/40" />
