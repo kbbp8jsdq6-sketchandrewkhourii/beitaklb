@@ -53,40 +53,81 @@ function AboutPage() {
         id="mission"
         className="scroll-mt-20 border-b border-border bg-background"
       >
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-[auto_1fr] lg:px-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
-            <Target className="h-10 w-10" strokeWidth={1.6} />
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Mission</p>
-            <h2 className="mt-2 font-display text-4xl text-foreground sm:text-5xl">
-              Make every Lebanese stay effortless
-            </h2>
-            <p className="mt-4 text-lg leading-relaxed text-foreground/80">
-              We exist to remove the friction between travelers and the most beautiful homes in
-              Lebanon. From mountain cabins in Bcharre to seaside villas in Tyre, every BEITAK
-              listing is curated, every host is real, and every booking happens directly — no
-              middlemen, no surprises.
-            </p>
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+          <div className="grid grid-cols-12 items-center gap-6 md:gap-10">
+            {/* Text block — left aligned, ~60% width */}
+            <div className="col-span-12 md:col-span-7 md:col-start-1 border-l-4 border-primary pl-6 md:pl-8">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
+                  <Target className="h-7 w-7" strokeWidth={1.6} />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Mission</p>
+              </div>
+              <h2 className="font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
+                Our<br />Mission
+              </h2>
+              <p className="mt-6 font-display text-2xl leading-tight text-foreground sm:text-3xl">
+                Make every Lebanese stay effortless
+              </p>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+                We exist to remove the friction between travelers and the most beautiful homes in
+                Lebanon. From mountain cabins in Bcharre to seaside villas in Tyre, every BEITAK
+                listing is curated, every host is real, and every booking happens directly — no
+                middlemen, no surprises.
+              </p>
+            </div>
+
+            {/* Oversized decorative numeral */}
+            <div className="col-span-12 md:col-span-5 md:col-start-8 flex justify-center md:justify-end">
+              <span
+                aria-hidden="true"
+                className="select-none font-display text-[10rem] font-black leading-none tracking-tighter text-primary/10 sm:text-[14rem] md:text-[18rem] lg:text-[22rem]"
+              >
+                01
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Editorial divider */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <hr className="border-t border-foreground/15" />
+      </div>
+
       <section id="vision" className="scroll-mt-20 bg-muted/30">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-[auto_1fr] lg:px-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-primary bg-background text-primary shadow-lg">
-            <Eye className="h-10 w-10" strokeWidth={1.6} />
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Vision</p>
-            <h2 className="mt-2 font-display text-4xl text-foreground sm:text-5xl">
-              Lebanon's most loved stays platform
-            </h2>
-            <p className="mt-4 text-lg leading-relaxed text-foreground/80">
-              We see a future where Lebanese hospitality reaches every corner of the world — where
-              hosts thrive and travelers fall in love with the country one home at a time. BEITAK
-              is building the platform that makes that future inevitable.
-            </p>
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+          <div className="grid grid-cols-12 items-center gap-6 md:gap-10">
+            {/* Oversized decorative numeral on left (desktop) */}
+            <div className="order-2 col-span-12 md:order-1 md:col-span-5 md:col-start-1 flex justify-center md:justify-start">
+              <span
+                aria-hidden="true"
+                className="select-none font-display text-[10rem] font-black leading-none tracking-tighter text-primary/10 sm:text-[14rem] md:text-[18rem] lg:text-[22rem]"
+              >
+                02
+              </span>
+            </div>
+
+            {/* Text block — right aligned, ~60% width */}
+            <div className="order-1 col-span-12 md:order-2 md:col-span-7 md:col-start-6 border-l-4 border-primary pl-6 md:pl-8">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-primary bg-background text-primary shadow-lg">
+                  <Eye className="h-7 w-7" strokeWidth={1.6} />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Our Vision</p>
+              </div>
+              <h2 className="font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
+                Our<br />Vision
+              </h2>
+              <p className="mt-6 font-display text-2xl leading-tight text-foreground sm:text-3xl">
+                Lebanon's most loved stays platform
+              </p>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+                We see a future where Lebanese hospitality reaches every corner of the world — where
+                hosts thrive and travelers fall in love with the country one home at a time. BEITAK
+                is building the platform that makes that future inevitable.
+              </p>
+            </div>
           </div>
         </div>
       </section>
