@@ -199,10 +199,14 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO */}
+      {/* 1. HERO — full-screen cinematic with subtle parallax */}
       <section className="relative">
-        <div className="relative h-[88vh] min-h-[640px] w-full overflow-hidden">
-          <HeroSlideshow />
+        <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
+          <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
+            <HeroSlideshow />
+          </div>
+          {/* Extra premium dark gradient overlay for cinematic readability */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <div ref={magneticRef} style={{ willChange: "transform" }}>
