@@ -203,6 +203,7 @@ function ListingPage() {
               src={heroPhoto.photo_url}
               alt={listing.title}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              decoding="async"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             {photos.length > 1 && (
