@@ -445,8 +445,8 @@ function ListingPage() {
       <WhatsAppReserveModal
         open={showReserveModal}
         loading={waLoading}
-        onConfirm={handleConfirmReserve}
-        onCancel={() => setShowReserveModal(false)}
+        href={waHref ?? undefined}
+        onCancel={closeReserveModal}
       />
 
       {lightboxIdx !== null && (
