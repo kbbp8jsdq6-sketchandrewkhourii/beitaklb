@@ -488,12 +488,12 @@ function HomePage() {
       <section id="faq" className="relative border-t border-border bg-muted/30">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">FAQ</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
               Frequently asked
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-10 space-y-3">
             {FAQS.map((item, i) => {
               const open = openFaq === i;
