@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, MapPin, X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import { useState } from "react";
 import type { ListingCardData } from "./ListingCard";
-import { buildListingWhatsAppHref, buildListingWhatsAppHrefSync } from "@/lib/whatsapp";
+import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 import { WhatsAppReserveModal } from "./WhatsAppReserveModal";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -27,7 +27,6 @@ export function ListingQuickPreview({
   open: boolean;
   onClose: () => void;
 }) {
-  const [waLoading, setWaLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [waHref, setWaHref] = useState<string | null>(null);
 
@@ -42,19 +41,8 @@ export function ListingQuickPreview({
       priceWeekend: listing.price_weekend ?? listing.price_per_night,
       url,
     };
-    // Build sync first so the modal's <a> link works immediately.
-    const syncHref = buildListingWhatsAppHrefSync(payload);
-    setWaHref(syncHref);
+    setWaHref(buildListingWhatsAppHref(payload));
     setShowConfirm(true);
-
-    // Try shortened URL in the background, non-blocking.
-    setWaLoading(true);
-    buildListingWhatsAppHref(payload)
-      .then((short) => {
-        if (short && short !== syncHref) setWaHref(short);
-      })
-      .catch(() => {})
-      .finally(() => setWaLoading(false));
   };
 
   const closeConfirm = () => {
@@ -123,20 +111,12 @@ export function ListingQuickPreview({
                 <button
                   type="button"
                   onClick={openConfirm}
-                  disabled={waLoading}
                   className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
                 >
-                  {waLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      <WhatsAppIcon className="h-4 w-4" />
-                      Reserve
-                    </>
-                  )}
+                  <>
+                    <WhatsAppIcon className="h-4 w-4" />
+                    Reserve
+                  </>
                 </button>
               </div>
             </div>
@@ -145,7 +125,6 @@ export function ListingQuickPreview({
       )}
       <WhatsAppReserveModal
         open={showConfirm}
-        loading={waLoading}
         href={waHref ?? undefined}
         onCancel={closeConfirm}
       />
