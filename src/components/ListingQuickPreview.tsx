@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, X } from "lucide-react";
 import { useState } from "react";
 import type { ListingCardData } from "./ListingCard";
-import { buildListingWhatsAppHref } from "@/lib/whatsapp";
+import { buildListingWhatsAppHref, buildListingWhatsAppHrefSync } from "@/lib/whatsapp";
 import { WhatsAppReserveModal } from "./WhatsAppReserveModal";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -29,30 +29,37 @@ export function ListingQuickPreview({
 }) {
   const [waLoading, setWaLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [waHref, setWaHref] = useState<string | null>(null);
 
   const openConfirm = () => {
-    if (!listing || waLoading) return;
+    if (!listing) return;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const url = `${origin}/listing/${listing.id}`;
+    const payload = {
+      title: listing.title,
+      location: listing.location,
+      priceWeekday: listing.price_weekday ?? listing.price_per_night,
+      priceWeekend: listing.price_weekend ?? listing.price_per_night,
+      url,
+    };
+    // Build sync first so the modal's <a> link works immediately.
+    const syncHref = buildListingWhatsAppHrefSync(payload);
+    setWaHref(syncHref);
     setShowConfirm(true);
+
+    // Try shortened URL in the background, non-blocking.
+    setWaLoading(true);
+    buildListingWhatsAppHref(payload)
+      .then((short) => {
+        if (short && short !== syncHref) setWaHref(short);
+      })
+      .catch(() => {})
+      .finally(() => setWaLoading(false));
   };
 
-  const handleReserve = async () => {
-    if (!listing || waLoading) return;
-    setWaLoading(true);
-    try {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const url = `${origin}/listing/${listing.id}`;
-      const href = await buildListingWhatsAppHref({
-        title: listing.title,
-        location: listing.location,
-        priceWeekday: listing.price_weekday ?? listing.price_per_night,
-        priceWeekend: listing.price_weekend ?? listing.price_per_night,
-        url,
-      });
-      window.open(href, "_blank", "noopener,noreferrer");
-      setShowConfirm(false);
-    } finally {
-      setWaLoading(false);
-    }
+  const closeConfirm = () => {
+    setShowConfirm(false);
+    setWaHref(null);
   };
 
   return (
@@ -139,8 +146,8 @@ export function ListingQuickPreview({
       <WhatsAppReserveModal
         open={showConfirm}
         loading={waLoading}
-        onConfirm={handleReserve}
-        onCancel={() => setShowConfirm(false)}
+        href={waHref ?? undefined}
+        onCancel={closeConfirm}
       />
     </AnimatePresence>
   );

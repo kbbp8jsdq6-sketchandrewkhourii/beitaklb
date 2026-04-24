@@ -4,11 +4,23 @@ import { Loader2 } from "lucide-react";
 interface Props {
   open: boolean;
   loading?: boolean;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel: () => void;
+  /**
+   * Optional pre-built WhatsApp href. When provided, the confirm control
+   * renders as a real <a target="_blank">, which preserves the user gesture
+   * and avoids popup blockers (Safari/Chrome will block window.open after
+   * an awaited async call).
+   */
+  href?: string;
 }
 
-export function WhatsAppReserveModal({ open, loading = false, onConfirm, onCancel }: Props) {
+export function WhatsAppReserveModal({ open, loading = false, onConfirm, onCancel, href }: Props) {
+  const handleAnchorClick = () => {
+    // Close modal after user activates the link.
+    setTimeout(() => onCancel(), 0);
+  };
+
   return (
     <AnimatePresence>
       {open && (
@@ -42,21 +54,34 @@ export function WhatsAppReserveModal({ open, loading = false, onConfirm, onCance
                 ✅ Final price is confirmed after inquiry with the host
               </li>
             </ul>
-            <button
-              type="button"
-              onClick={onConfirm}
-              disabled={loading}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Continue to WhatsApp"
-              )}
-            </button>
+
+            {href ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleAnchorClick}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90"
+              >
+                Continue to WhatsApp
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={onConfirm}
+                disabled={loading}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Continue to WhatsApp"
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={onCancel}

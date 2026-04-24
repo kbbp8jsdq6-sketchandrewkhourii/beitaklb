@@ -83,6 +83,21 @@ export async function buildListingWhatsAppHref(
 }
 
 /**
+ * Synchronous version: builds the WhatsApp href immediately using the
+ * full (non-shortened) URL. Use this to attach to <a href> so the click
+ * is treated as a direct user gesture (no popup blocker issues).
+ */
+export function buildListingWhatsAppHrefSync(
+  payload: WhatsAppListingMessage,
+  phoneNumber?: string,
+): string {
+  const message = phoneNumber
+    ? buildHostListingMessage(payload)
+    : buildListingMessage(payload);
+  return buildWhatsAppHref(message, phoneNumber);
+}
+
+/**
  * Friendly host-targeted message: "Hi! I am interested in booking [title]
  * located in [location] for [price] per night..."
  */
