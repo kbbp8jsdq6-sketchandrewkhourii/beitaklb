@@ -200,14 +200,33 @@ body.no-scroll {
   width: max-content;
 }
 
-/* Hero logo continuous 3D Y-axis rotation */
+/* Hero logo continuous 3D Y-axis rotation with extruded depth */
 @keyframes hero-logo-spin-y {
   0% { transform: rotateY(0deg); }
   100% { transform: rotateY(360deg); }
 }
+.hero-logo-stage {
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 25px 45px rgba(230, 48, 48, 0.45));
+}
 .hero-logo-spin {
+  position: relative;
   animation: hero-logo-spin-y 8s linear infinite;
   transform-style: preserve-3d;
   will-change: transform;
+}
+.hero-logo-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  pointer-events: none;
+}
+.hero-logo-front {
+  position: relative;
+  transform: translateZ(22px);
+  opacity: 1;
 }
 
