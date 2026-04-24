@@ -392,16 +392,18 @@ function HomePage() {
       <section className="relative border-y border-border bg-background">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Reviews</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
               Loved by guests
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-12 -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 hide-scrollbar">
-            {REVIEWS.map((r) => (
-              <figure
+            {REVIEWS.map((r, i) => (
+              <Reveal
                 key={r.name}
+                delay={i * 130}
+                as="figure"
                 className="w-[85%] shrink-0 snap-center rounded-2xl border border-border bg-card p-7 sm:w-auto sm:shrink"
               >
                 <div className="flex gap-1 text-primary">
@@ -413,11 +415,13 @@ function HomePage() {
                 <figcaption className="mt-5 text-sm font-semibold text-foreground">
                   — {r.name}, <span className="text-muted-foreground">{r.city}</span>
                 </figcaption>
-              </figure>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-background)" flip />
 
       {/* 5. ABOUT */}
       <section id="about" className="relative bg-background scroll-mt-20">
