@@ -59,7 +59,7 @@ function AboutPage() {
             {/* Mission card */}
             <article
               id="mission"
-              className="group relative scroll-mt-20 overflow-hidden rounded-2xl border-l-[5px] border-primary bg-white/15 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-[12px] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18),0_0_24px_rgba(204,0,0,0.35)] sm:p-10"
+              className="group relative scroll-mt-20 overflow-hidden rounded-2xl border-l-[5px] border-primary bg-white/15 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-[12px] transition-[transform,box-shadow] duration-300 ease-out will-change-transform hover:-translate-y-1.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18),0_0_24px_rgba(204,0,0,0.35)] sm:p-10"
               style={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}
             >
               {/* Faded watermark icon */}
@@ -87,7 +87,7 @@ function AboutPage() {
             {/* Vision card */}
             <article
               id="vision"
-              className="group relative scroll-mt-20 overflow-hidden rounded-2xl border-l-[5px] border-primary bg-white/15 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-[12px] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18),0_0_24px_rgba(204,0,0,0.35)] sm:p-10"
+              className="group relative scroll-mt-20 overflow-hidden rounded-2xl border-l-[5px] border-primary bg-white/15 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-[12px] transition-[transform,box-shadow] duration-300 ease-out will-change-transform hover:-translate-y-1.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18),0_0_24px_rgba(204,0,0,0.35)] sm:p-10"
               style={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}
             >
               {/* Faded watermark icon */}
