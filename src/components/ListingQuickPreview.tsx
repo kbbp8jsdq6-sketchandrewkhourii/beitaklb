@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, X } from "lucide-react";
 import { useState } from "react";
 import type { ListingCardData } from "./ListingCard";
-import { buildListingWhatsAppHref } from "@/lib/whatsapp";
+import { buildListingWhatsAppHref, buildListingWhatsAppHrefSync } from "@/lib/whatsapp";
 import { WhatsAppReserveModal } from "./WhatsAppReserveModal";
 
 function WhatsAppIcon({ className }: { className?: string }) {
