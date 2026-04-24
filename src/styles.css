@@ -273,3 +273,71 @@ body.no-scroll {
   .dark .glass-light { background-color: rgba(20, 20, 22, 0.85); }
 }
 
+/* ============================================================
+ * Flowing red liquid wave — used at the bottom of the footer.
+ * Three stacked SVG layers at slightly different speeds + a
+ * subtle highlight stripe to fake light reflecting off liquid.
+ * ============================================================ */
+@keyframes liquid-wave-slide {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes liquid-wave-slide-reverse {
+  0%   { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+@keyframes liquid-shine {
+  0%, 100% { opacity: 0.35; transform: translateX(-10%); }
+  50%      { opacity: 0.7;  transform: translateX(10%); }
+}
+
+.liquid-wave {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 110px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+.liquid-wave svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+  display: block;
+  will-change: transform;
+}
+.liquid-wave .wave-back {
+  animation: liquid-wave-slide 14s linear infinite;
+  opacity: 0.55;
+}
+.liquid-wave .wave-mid {
+  animation: liquid-wave-slide-reverse 9s linear infinite;
+  opacity: 0.75;
+}
+.liquid-wave .wave-front {
+  animation: liquid-wave-slide 6s linear infinite;
+  opacity: 1;
+}
+.liquid-wave .wave-shine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 38px;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  filter: blur(2px);
+  animation: liquid-shine 4s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+
+
