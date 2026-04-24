@@ -421,7 +421,7 @@ Could you help me with availability and booking?`;
 
       <WhatsAppReserveModal
         open={showReserveModal}
-        href={waHref ?? undefined}
+        href={whatsappURL}
         onCancel={closeReserveModal}
       />
 
