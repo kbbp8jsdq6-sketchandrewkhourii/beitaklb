@@ -130,11 +130,43 @@ function HomePage() {
                 transition={{
                   y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
                 }}
-                className="drop-shadow-[0_15px_35px_rgba(230,48,48,0.45)]"
-                style={{ perspective: "1000px" }}
+                className="hero-logo-stage"
               >
-                <div className="hero-logo-spin" style={{ transformStyle: "preserve-3d" }}>
-                  <LogoTransparent size="hero" />
+                <div className="hero-logo-spin">
+                  {/* Back depth layers — stacked behind to create extruded thickness */}
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="hero-logo-layer"
+                      style={{
+                        transform: `translateZ(${-(i + 1) * 1.5}px)`,
+                        opacity: 0.55 - i * 0.025,
+                        filter: `brightness(${0.85 - i * 0.04})`,
+                      }}
+                      aria-hidden
+                    >
+                      <LogoTransparent size="hero" />
+                    </div>
+                  ))}
+                  {/* Front depth layers — stacked in front to thicken forward */}
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <div
+                      key={`f-${i}`}
+                      className="hero-logo-layer"
+                      style={{
+                        transform: `translateZ(${(i + 1) * 1.5}px)`,
+                        opacity: 0.55 - i * 0.025,
+                        filter: `brightness(${0.9 - i * 0.02})`,
+                      }}
+                      aria-hidden
+                    >
+                      <LogoTransparent size="hero" />
+                    </div>
+                  ))}
+                  {/* Front-facing crisp logo */}
+                  <div className="hero-logo-layer hero-logo-front">
+                    <LogoTransparent size="hero" />
+                  </div>
                 </div>
               </motion.div>
             </motion.div>
