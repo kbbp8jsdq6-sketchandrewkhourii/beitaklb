@@ -10,6 +10,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import { buildListingWhatsAppHrefSync, buildListingWhatsAppHref } from "@/lib/whatsapp";
 import { toast } from "sonner";
+import beitakLogo from "@/assets/logo-new.png";
 
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
@@ -315,8 +316,18 @@ function ListingPage() {
           {/* Left */}
           <section>
             <div className="border-b border-border pb-6">
-              <h2 className="font-display text-2xl">
-                Hosted by {listing.profiles?.full_name ?? "Host"}
+              <h2 className="flex items-center gap-2 font-display text-2xl">
+                <span>Hosted by {listing.profiles?.full_name ?? "Host"}</span>
+                <img
+                  src={beitakLogo}
+                  alt="Beitak"
+                  width={60}
+                  height={60}
+                  loading="lazy"
+                  decoding="async"
+                  style={{ mixBlendMode: "multiply" }}
+                  className="inline-block h-auto w-[60px] shrink-0 object-contain"
+                />
               </h2>
               <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Users className="h-4 w-4" /> {listing.max_guests} guests</span>
