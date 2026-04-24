@@ -464,6 +464,14 @@ body.no-scroll {
   transform: translate3d(0, var(--hero-parallax, 0px), 0);
   will-change: transform;
 }
+/* Disable parallax transform on mobile — JS already skips updating it,
+   but this guarantees no transform is applied if the var is leftover. */
+@media (max-width: 768px) {
+  .hero-parallax {
+    transform: none;
+    will-change: auto;
+  }
+}
 
 /* ============================================================
  * Custom luxury cursor
