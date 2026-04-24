@@ -64,7 +64,7 @@ function AboutPage() {
                 <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our MissioN</p>
               </div>
               <h2 className="font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
-                Our<br />Mission
+                Our<br />MissioN
               </h2>
               <p className="mt-6 font-display text-2xl leading-tight text-foreground sm:text-3xl">
                 Make every Lebanese stay effortless
