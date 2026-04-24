@@ -11,6 +11,7 @@ import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
+import { PatternBackground } from "@/components/PatternBackground";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -270,8 +271,9 @@ function HomePage() {
       <FindYourUnit />
 
       {/* 2. HOW IT WORKS */}
-      <section className="border-b border-border bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative border-b border-border bg-background">
+        <PatternBackground />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
@@ -303,8 +305,9 @@ function HomePage() {
       </section>
 
       {/* 3. FEATURED LISTINGS */}
-      <section className="bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative bg-muted/30">
+        <PatternBackground />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Featured</p>
@@ -346,8 +349,9 @@ function HomePage() {
       </section>
 
       {/* 4. REVIEWS */}
-      <section className="border-y border-border bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative border-y border-border bg-background">
+        <PatternBackground />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Reviews</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
@@ -376,8 +380,9 @@ function HomePage() {
       </section>
 
       {/* 5. ABOUT */}
-      <section id="about" className="bg-background scroll-mt-20">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+      <section id="about" className="relative bg-background scroll-mt-20">
+        <PatternBackground />
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
             <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
@@ -434,8 +439,9 @@ function HomePage() {
       </section>
 
       {/* 6. FAQ */}
-      <section id="faq" className="border-t border-border bg-muted/30">
-        <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
+      <section id="faq" className="relative border-t border-border bg-muted/30">
+        <PatternBackground />
+        <div className="relative z-10 mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">FAQ</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">

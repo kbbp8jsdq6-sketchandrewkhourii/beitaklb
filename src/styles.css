@@ -339,5 +339,57 @@ body.no-scroll {
   mix-blend-mode: screen;
 }
 
-
+/* ============================================================
+ * Realistic red liquid splash at the bottom of the page.
+ * Uses a high-resolution PNG with a transparent (formerly black)
+ * background so the splash silhouette is naturally jagged and
+ * organic. Below the splash sits a solid red bar so the area
+ * under the liquid reads as continuous red liquid.
+ * ============================================================ */
+.splash-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 220px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+@media (min-width: 768px) {
+  .splash-wave { height: 280px; }
+}
+.splash-wave-img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: bottom;
+  display: block;
+  /* Subtle gentle bob — extremely slow so it doesn't distract */
+  animation: splash-bob 9s ease-in-out infinite;
+  will-change: transform;
+}
+/* Solid red base extending below the splash image to ensure
+   the very bottom of the page reads as continuous liquid even
+   if the image's transparent edges show through. */
+.splash-wave-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  background-color: #cc0000;
+}
+@keyframes splash-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-wave-img { animation: none; }
+}
 

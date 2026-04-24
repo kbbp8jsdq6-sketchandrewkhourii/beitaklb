@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Mail } from "lucide-react";
 import { Logo } from "./Logo";
+import { PatternBackground } from "./PatternBackground";
+import redSplash from "@/assets/red-liquid-splash.png";
 
 const BECOME_HOST_MESSAGE = "Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?";
 const WHATSAPP_URL = `https://wa.me/96181160435?text=${encodeURIComponent(BECOME_HOST_MESSAGE)}`;
@@ -16,34 +18,35 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/10 bg-black text-secondary-foreground">
-      <div className="glass-light">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 text-black">
+    <footer className="relative border-t border-border bg-white text-foreground">
+      <PatternBackground />
+      <div className="relative z-10">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 text-foreground">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           {/* Brand */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
             <div className="flex justify-center md:justify-start">
               <Logo size="lg" />
             </div>
-            <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] shadow-md opacity-70 text-base">
+            <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] opacity-70 text-base">
               {" "}
             </p>
-            <p className="mt-3 max-w-xs text-sm text-secondary-foreground/70">
+            <p className="mt-3 max-w-xs text-sm text-foreground/70">
               Discover unique stays across Lebanon — from coastal villas to mountain retreats.
             </p>
           </div>
 
           {/* Quick links */}
           <div>
-            <h3 className="font-display text-xl tracking-wider text-white">Quick links</h3>
+            <h3 className="font-display text-xl tracking-wider text-foreground">Quick links</h3>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link to="/" className="text-secondary-foreground/80 transition hover:text-primary">
+                <Link to="/" className="text-foreground/80 transition hover:text-primary">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/search" className="text-secondary-foreground/80 transition hover:text-primary">
+                <Link to="/search" className="text-foreground/80 transition hover:text-primary">
                   Browse listings
                 </Link>
               </li>
@@ -52,13 +55,13 @@ export function Footer() {
                   href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-secondary-foreground/80 transition hover:text-primary"
+                  className="text-foreground/80 transition hover:text-primary"
                 >
                   Become a host
                 </a>
               </li>
               <li>
-                <a href="#faq" className="text-secondary-foreground/80 transition hover:text-primary">
+                <a href="#faq" className="text-foreground/80 transition hover:text-primary">
                   FAQ
                 </a>
               </li>
@@ -67,14 +70,14 @@ export function Footer() {
 
           {/* Connect */}
           <div>
-            <h3 className="font-display text-xl tracking-wider text-white">Connect</h3>
+            <h3 className="font-display text-xl tracking-wider text-foreground">Connect</h3>
             <div className="mt-4 flex items-center gap-3">
               <a
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow @beitak.lb on Instagram"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-[#E1306C] hover:bg-[#E1306C] hover:text-white"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-foreground/20 text-foreground transition hover:border-[#E1306C] hover:bg-[#E1306C] hover:text-white"
               >
                 <Instagram className="h-5 w-5" />
               </a>
@@ -83,12 +86,12 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat with us on WhatsApp"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-[#25D366] hover:bg-[#25D366] hover:text-white"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-foreground/20 text-foreground transition hover:border-[#25D366] hover:bg-[#25D366] hover:text-white"
               >
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
             </div>
-            <div className="mt-3 space-y-1.5 text-sm text-secondary-foreground/70">
+            <div className="mt-3 space-y-1.5 text-sm text-foreground/70">
               <p>@Beitak.lb</p>
               <p className="flex items-center gap-2">
                 <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
@@ -102,45 +105,23 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 pb-24 text-center text-xs text-secondary-foreground/60">
+        <div className="mt-10 border-t border-foreground/10 pt-6 pb-24 text-center text-xs text-foreground/60">
           © {new Date().getFullYear()} BEITAK. All rights reserved.
         </div>
       </div>
       </div>
 
-      {/* Flowing red liquid wave at the very bottom */}
-      <div className="liquid-wave" aria-hidden="true">
-        <svg
-          className="wave-back"
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,60 C150,100 350,20 600,60 C850,100 1050,20 1200,60 L1200,120 L0,120 Z M1200,60 C1350,100 1550,20 1800,60 C2050,100 2250,20 2400,60 L2400,120 L1200,120 Z"
-            fill="#7a0000"
-          />
-        </svg>
-        <svg
-          className="wave-mid"
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,70 C200,30 400,110 600,70 C800,30 1000,110 1200,70 L1200,120 L0,120 Z M1200,70 C1400,30 1600,110 1800,70 C2000,30 2200,110 2400,70 L2400,120 L1200,120 Z"
-            fill="#a30000"
-          />
-        </svg>
-        <svg
-          className="wave-front"
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,80 C150,50 350,110 600,80 C850,50 1050,110 1200,80 L1200,120 L0,120 Z M1200,80 C1350,50 1550,110 1800,80 C2050,50 2250,110 2400,80 L2400,120 L1200,120 Z"
-            fill="#cc0000"
-          />
-        </svg>
-        <span className="wave-shine" />
+      {/* Realistic red liquid splash at the very bottom.
+          The splash PNG sits on top, and the area below the splash
+          is filled with solid Beitak red (#CC0000). */}
+      <div className="splash-wave" aria-hidden="true">
+        <img
+          src={redSplash}
+          alt=""
+          className="splash-wave-img"
+          loading="lazy"
+        />
+        <div className="splash-wave-base" />
       </div>
     </footer>
   );

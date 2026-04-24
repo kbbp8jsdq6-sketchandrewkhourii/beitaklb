@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { PatternBackground } from "@/components/PatternBackground";
 
 type AnyOption = "Any" | "1" | "2" | "3" | "4" | "5" | "5+";
 
@@ -173,13 +174,14 @@ export function FindYourUnit() {
   return (
     <section
       id="find-your-unit"
-      className="border-b border-border"
+      className="relative border-b border-border"
       style={{
         background:
           "linear-gradient(180deg, color-mix(in oklab, var(--color-primary) 7%, white) 0%, color-mix(in oklab, var(--color-primary) 3%, white) 100%)",
       }}
     >
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <PatternBackground />
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Search</p>
           <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl md:text-6xl font-serif font-medium">
