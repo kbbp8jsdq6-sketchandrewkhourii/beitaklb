@@ -74,7 +74,7 @@ export function CustomCursor() {
         className={`custom-cursor-house ${hovering ? "is-hover" : ""}`}
       >
         <Home
-          size={22}
+          size={14}
           strokeWidth={2.25}
           color="#CC0000"
           fill="#CC0000"

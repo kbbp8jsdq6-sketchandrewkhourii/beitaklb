@@ -466,8 +466,8 @@ body.no-scroll {
    set from JS centers it on the cursor; the inner scale is what changes
    on hover so the centering stays accurate. */
 .custom-cursor-house {
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -483,17 +483,17 @@ body.no-scroll {
 }
 /* Trailing hollow ring */
 .custom-cursor-ring {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
   border-radius: 9999px;
-  border: 1.5px solid rgba(204, 0, 0, 0.7);
+  border: 1.25px solid rgba(204, 0, 0, 0.7);
   background: transparent;
   transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease,
               background-color 0.25s ease;
 }
 .custom-cursor-ring.is-hover {
-  width: 56px;
-  height: 56px;
+  width: 40px;
+  height: 40px;
   border-color: rgba(204, 0, 0, 0.95);
   background-color: rgba(204, 0, 0, 0.08);
 }
