@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
-import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import beitakLogo from "@/assets/logo-new.png";
@@ -105,7 +104,6 @@ function ListingPage() {
   });
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [showReserveModal, setShowReserveModal] = useState(false);
 
   // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
   useEffect(() => {
@@ -133,15 +131,6 @@ function ListingPage() {
     if (!listing?.reviews?.length) return null;
     return listing.reviews.reduce((s, r) => s + r.rating, 0) / listing.reviews.length;
   }, [listing]);
-
-  const openReserveModal = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setShowReserveModal(true);
-  };
-
-  const closeReserveModal = () => {
-    setShowReserveModal(false);
-  };
 
   if (isLoading) {
     return (
@@ -380,8 +369,9 @@ Could you help me with availability and booking?`;
                 </div>
               </div>
               <a
-                href="#"
-                onClick={openReserveModal}
+                href={whatsappURL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-70"
               >
                 <>
@@ -389,6 +379,10 @@ Could you help me with availability and booking?`;
                   Reserve via WhatsApp
                 </>
               </a>
+              <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+                <p>⚠️ Prices may vary on public holidays and special occasions</p>
+                <p>✅ Final price is confirmed after inquiry with the host</p>
+              </div>
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 Instant reply · No booking fees
               </p>
@@ -409,21 +403,20 @@ Could you help me with availability and booking?`;
             <p className="mt-0.5 text-[11px] text-muted-foreground">Up to {listing.max_guests} guests</p>
           </div>
           <a
-            href="#"
-            onClick={openReserveModal}
+            href={whatsappURL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             <WhatsAppIcon className="h-4 w-4" />
             Reserve
           </a>
         </div>
+        <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
+          <p>⚠️ Prices may vary on public holidays and special occasions</p>
+          <p>✅ Final price is confirmed after inquiry with the host</p>
+        </div>
       </div>
-
-      <WhatsAppReserveModal
-        open={showReserveModal}
-        href={whatsappURL}
-        onCancel={closeReserveModal}
-      />
 
       {lightboxIdx !== null && (
         <Lightbox
