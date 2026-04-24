@@ -400,28 +400,23 @@ body.no-scroll {
  * Mobile / touch devices get no hover effects whatsoever.
  * ============================================================ */
 @media (hover: hover) and (pointer: fine) {
-  /* Target the ListingCard root (.group) and animate its rounded photo
-     frame (.aspect-[4/3]) and the inner <img>. */
-  .group {
+  /* Scoped to listing cards only (avoids affecting other Tailwind .group elements). */
+  .listing-card {
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
                 box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
-  .group:hover {
+  .listing-card:hover {
     transform: translateY(-4px) scale(1.03);
     box-shadow:
       0 24px 48px -16px rgba(0, 0, 0, 0.25),
       0 12px 24px -12px rgba(204, 0, 0, 0.18);
   }
-  /* Cover photo gentle zoom — overrides framer's group-hover:scale-105 with
-     a slower, more cinematic 1.08x. */
-  .group:hover .aspect-\[4\/3\] > img {
+  .listing-card:hover .aspect-\[4\/3\] > img {
     transform: scale(1.08);
     transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) !important;
   }
-  /* Red gradient overlay at bottom of the photo — sits inside the photo
-     frame, above the image, beneath any chips/heart. */
-  .aspect-\[4\/3\]::after {
+  .listing-card .aspect-\[4\/3\]::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -436,7 +431,7 @@ body.no-scroll {
     transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     z-index: 1;
   }
-  .group:hover .aspect-\[4\/3\]::after {
+  .listing-card:hover .aspect-\[4\/3\]::after {
     opacity: 0.85;
   }
 }
