@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MessageCircle, Sparkles, Star, Instagram, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -104,6 +104,65 @@ function HomePage() {
   });
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
+  const magneticRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = magneticRef.current;
+    if (!el) return;
+    const RANGE = 150; // px
+    const STRENGTH = 0.25; // how strongly the logo follows the cursor
+    let rafId = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const animate = () => {
+      // Smooth easing toward target
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
+      el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      if (Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        rafId = 0;
+      }
+    };
+
+    const handleMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < RANGE) {
+        // Inside range — fall-off so closer pulls more
+        const falloff = 1 - dist / RANGE;
+        targetX = dx * STRENGTH * falloff;
+        targetY = dy * STRENGTH * falloff;
+      } else {
+        targetX = 0;
+        targetY = 0;
+      }
+      if (!rafId) rafId = requestAnimationFrame(animate);
+    };
+
+    const handleLeave = () => {
+      targetX = 0;
+      targetY = 0;
+      if (!rafId) rafId = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseleave", handleLeave);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseleave", handleLeave);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -114,48 +173,50 @@ function HomePage() {
           <HeroSlideshow />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
-              transition={{
-                duration: 0.9,
-                ease: [0.22, 1, 0.36, 1],
-                scale: { type: "spring", stiffness: 120, damping: 12 },
-              }}
-            >
+            <div ref={magneticRef} style={{ willChange: "transform" }}>
               <motion.div
-                animate={{
-                  y: [0, -12, 0],
-                }}
+                initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
                 transition={{
-                  y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                  duration: 0.9,
+                  ease: [0.22, 1, 0.36, 1],
+                  scale: { type: "spring", stiffness: 120, damping: 12 },
                 }}
-                className="hero-logo-stage"
               >
-                <div className="hero-logo-spin">
-                  {/* Solid extruded thickness layers — sharp duplicates with darker tint */}
-                  {Array.from({ length: 30 }).map((_, i) => {
-                    // Center the stack so the front face sits at the highest Z
-                    const z = (i - 29) * 1.2; // -34.8 → 0
-                    // Darker shade for back layers, full color near the front
-                    const darkness = 0.55 + (i / 29) * 0.45; // 0.55 → 1
-                    return (
-                      <div
-                        key={i}
-                        className="hero-logo-layer"
-                        style={{
-                          transform: `translateZ(${z}px)`,
-                          filter: `brightness(${darkness}) saturate(${0.7 + (i / 29) * 0.3})`,
-                        }}
-                        aria-hidden={i !== 29}
-                      >
-                        <LogoTransparent size="hero" />
-                      </div>
-                    );
-                  })}
-                </div>
+                <motion.div
+                  animate={{
+                    y: [0, -12, 0],
+                  }}
+                  transition={{
+                    y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                  }}
+                  className="hero-logo-stage"
+                >
+                  <div className="hero-logo-spin">
+                    {/* Solid extruded thickness layers — sharp duplicates with darker tint */}
+                    {Array.from({ length: 30 }).map((_, i) => {
+                      // Center the stack so the front face sits at the highest Z
+                      const z = (i - 29) * 1.2; // -34.8 → 0
+                      // Darker shade for back layers, full color near the front
+                      const darkness = 0.55 + (i / 29) * 0.45; // 0.55 → 1
+                      return (
+                        <div
+                          key={i}
+                          className="hero-logo-layer"
+                          style={{
+                            transform: `translateZ(${z}px)`,
+                            filter: `brightness(${darkness}) saturate(${0.7 + (i / 29) * 0.3})`,
+                          }}
+                          aria-hidden={i !== 29}
+                        >
+                          <LogoTransparent size="hero" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
             <motion.h1
               className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
               initial={{ opacity: 0, y: 20 }}
