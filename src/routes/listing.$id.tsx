@@ -10,6 +10,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import { buildListingWhatsAppHrefSync, buildListingWhatsAppHref } from "@/lib/whatsapp";
 import { toast } from "sonner";
+import beitakLogo from "@/assets/logo-new.png";
 
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
