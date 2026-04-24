@@ -21,6 +21,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookingsIndexRouteImport } from './routes/bookings.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ProfileSlugRouteImport } from './routes/profile.$slug'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
@@ -95,6 +96,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const ProfileSlugRoute = ProfileSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const ListingIdRoute = ListingIdRouteImport.update({
   id: '/listing/$id',
@@ -176,7 +182,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
   '/feedback': typeof FeedbackRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/listing/$id': typeof ListingIdRoute
+  '/profile/$slug': typeof ProfileSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
@@ -203,7 +210,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
   '/feedback': typeof FeedbackRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/listing/$id': typeof ListingIdRoute
+  '/profile/$slug': typeof ProfileSlugRoute
   '/admin': typeof AdminIndexRoute
   '/bookings': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
@@ -232,7 +240,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/favorites': typeof FavoritesRoute
   '/feedback': typeof FeedbackRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/listing/$id': typeof ListingIdRoute
+  '/profile/$slug': typeof ProfileSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/listing/$id'
+    | '/profile/$slug'
     | '/admin/'
     | '/bookings/'
     | '/bookings/$id/confirmation'
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/listing/$id'
+    | '/profile/$slug'
     | '/admin'
     | '/bookings'
     | '/bookings/$id/confirmation'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/listing/$id'
+    | '/profile/$slug'
     | '/admin/'
     | '/bookings/'
     | '/bookings/$id/confirmation'
@@ -346,7 +358,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   FavoritesRoute: typeof FavoritesRoute
   FeedbackRoute: typeof FeedbackRoute
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   SearchRoute: typeof SearchRoute
   TermsRoute: typeof TermsRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
@@ -444,6 +456,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/profile/$slug': {
+      id: '/profile/$slug'
+      path: '/$slug'
+      fullPath: '/profile/$slug'
+      preLoaderRoute: typeof ProfileSlugRouteImport
+      parentRoute: typeof ProfileRoute
     }
     '/listing/$id': {
       id: '/listing/$id'
@@ -570,6 +589,17 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface ProfileRouteChildren {
+  ProfileSlugRoute: typeof ProfileSlugRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileSlugRoute: ProfileSlugRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -578,7 +608,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   FavoritesRoute: FavoritesRoute,
   FeedbackRoute: FeedbackRoute,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   SearchRoute: SearchRoute,
   TermsRoute: TermsRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
