@@ -12,6 +12,8 @@ import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
+import { Reveal } from "@/components/Reveal";
+import { SectionDivider } from "@/components/SectionDivider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -164,14 +166,47 @@ function HomePage() {
     };
   }, []);
 
+  // Hero parallax — translate the slideshow background slower than scroll
+  // for a luxurious, cinematic depth effect. Updates a CSS var on the
+  // element so the actual transform stays GPU-accelerated.
+  const heroParallaxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = heroParallaxRef.current;
+    if (!el) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    let raf = 0;
+    const update = () => {
+      const y = window.scrollY;
+      // Move at 35% of scroll speed — subtle but noticeable.
+      el.style.setProperty("--hero-parallax", `${y * 0.35}px`);
+      raf = 0;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO */}
+      {/* 1. HERO — full-screen cinematic with subtle parallax */}
       <section className="relative">
-        <div className="relative h-[88vh] min-h-[640px] w-full overflow-hidden">
-          <HeroSlideshow />
+        <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
+          <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
+            <HeroSlideshow />
+          </div>
+          {/* Extra premium dark gradient overlay for cinematic readability */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <div ref={magneticRef} style={{ willChange: "transform" }}>
@@ -270,25 +305,24 @@ function HomePage() {
       {/* 1.5 FIND YOUR UNIT */}
       <FindYourUnit />
 
+      <SectionDivider fill="var(--color-muted)" />
+
       {/* 2. HOW IT WORKS */}
       <section className="relative border-b border-border bg-background">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
               Three steps to your stay
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
             {STEPS.map((s, i) => (
-              <motion.div
+              <Reveal
                 key={s.title}
+                delay={i * 120}
                 className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary text-red-600"
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: i * 0.15, ease: "easeOut" }}
               >
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
                   <s.icon className="h-7 w-7" strokeWidth={1.75} />
@@ -298,17 +332,19 @@ function HomePage() {
                 </p>
                 <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </motion.div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
+      <SectionDivider fill="var(--color-background)" flip />
+
       {/* 3. FEATURED LISTINGS */}
       <section className="relative bg-muted/30">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <Reveal className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Featured</p>
               <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
@@ -316,7 +352,7 @@ function HomePage() {
               </h2>
               <p className="mt-2 text-muted-foreground">Handpicked stays from across Lebanon</p>
             </div>
-          </div>
+          </Reveal>
 
           {isLoading ? (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -332,36 +368,42 @@ function HomePage() {
           ) : (
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {featured.map((l, i) => (
-                <ListingCard key={l.id} listing={l} index={i} />
+                <Reveal key={l.id} delay={i * 110}>
+                  <ListingCard listing={l} index={i} />
+                </Reveal>
               ))}
             </div>
           )}
 
-          <div className="mt-10 flex justify-center">
+          <Reveal className="mt-10 flex justify-center" delay={150}>
             <Link
               to="/search"
               className="inline-flex items-center justify-center rounded-md border-2 border-foreground bg-transparent px-7 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
             >
               View all listings →
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-muted)" />
 
       {/* 4. REVIEWS */}
       <section className="relative border-y border-border bg-background">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Reviews</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
               Loved by guests
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-12 -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 hide-scrollbar">
-            {REVIEWS.map((r) => (
-              <figure
+            {REVIEWS.map((r, i) => (
+              <Reveal
                 key={r.name}
+                delay={i * 130}
+                as="figure"
                 className="w-[85%] shrink-0 snap-center rounded-2xl border border-border bg-card p-7 sm:w-auto sm:shrink"
               >
                 <div className="flex gap-1 text-primary">
@@ -373,17 +415,19 @@ function HomePage() {
                 <figcaption className="mt-5 text-sm font-semibold text-foreground">
                   — {r.name}, <span className="text-muted-foreground">{r.city}</span>
                 </figcaption>
-              </figure>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
+      <SectionDivider fill="var(--color-background)" flip />
+
       {/* 5. ABOUT */}
       <section id="about" className="relative bg-background scroll-mt-20">
         <PatternBackground />
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-          <div>
+          <Reveal>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
             <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
               We're <span className="text-primary">BEITAK</span>
@@ -412,8 +456,8 @@ function HomePage() {
             <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
               Home is closer than you think
             </p>
-          </div>
-          <div className="relative lg:scale-110 lg:-mx-6">
+          </Reveal>
+          <Reveal delay={150} className="relative lg:scale-110 lg:-mx-6">
             <div className="relative overflow-hidden rounded-3xl">
               <img
                 src={aboutImage}
@@ -434,26 +478,29 @@ function HomePage() {
               <p className="font-display text-2xl tracking-wider">BEITAK</p>
               <p className="text-[10px] uppercase tracking-[0.3em]">Lebanon stays</p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-background)" />
 
       {/* 6. FAQ */}
       <section id="faq" className="relative border-t border-border bg-muted/30">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">FAQ</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
               Frequently asked
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-10 space-y-3">
             {FAQS.map((item, i) => {
               const open = openFaq === i;
               return (
-                <div
+                <Reveal
                   key={item.q}
+                  delay={i * 90}
                   className="overflow-hidden rounded-xl border border-border bg-background transition hover:border-primary/50"
                 >
                   <button
@@ -474,7 +521,7 @@ function HomePage() {
                       {item.a}
                     </div>
                   )}
-                </div>
+                </Reveal>
               );
             })}
           </div>
