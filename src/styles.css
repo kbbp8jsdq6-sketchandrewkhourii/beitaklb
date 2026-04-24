@@ -199,3 +199,15 @@ body.no-scroll {
   animation: announcement-scroll 38s linear infinite;
   width: max-content;
 }
+
+/* Hero logo continuous 3D Y-axis rotation */
+@keyframes hero-logo-spin-y {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+.hero-logo-spin {
+  animation: hero-logo-spin-y 8s linear infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
