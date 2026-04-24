@@ -43,12 +43,12 @@ export function AnnouncementBar() {
 
   return (
     <div
-      className="relative w-full overflow-hidden"
-      style={{ backgroundColor: "#CC0000" }}
+      className="relative w-full overflow-hidden backdrop-blur-sm"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.45)" }}
       role="region"
       aria-label="Announcements"
     >
-      <div className="flex py-3 font-serif text-sm leading-relaxed tracking-wide text-white announcement-track">
+      <div className="flex py-3 font-serif text-sm font-bold leading-relaxed tracking-wide text-white announcement-track">
         {/* Two copies for seamless loop */}
         <LoopContent items={items} />
         <LoopContent items={items} />
