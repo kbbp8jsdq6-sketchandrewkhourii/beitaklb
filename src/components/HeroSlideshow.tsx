@@ -38,7 +38,10 @@ export function HeroSlideshow() {
             src={SLIDES[index]}
             alt=""
             aria-hidden="true"
+            decoding="async"
+            fetchPriority={index === 0 ? "high" : "low"}
             className="absolute inset-0 h-full w-full object-cover"
+            style={{ willChange: "transform, opacity" }}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}

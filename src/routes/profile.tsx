@@ -139,7 +139,7 @@ function ProfilePage() {
                   <li key={l.id} className="flex items-center gap-4 rounded-xl border border-border p-3">
                     <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">
                       {cover ? (
-                        <img src={cover} alt="" className="h-full w-full object-cover" />
+                        <img src={cover} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
                       ) : (
                         <div className="flex h-full items-center justify-center"><MapPin className="h-5 w-5 text-primary/30" /></div>
                       )}

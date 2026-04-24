@@ -76,7 +76,7 @@ function BookingsPage() {
                   >
                     <div className="aspect-[16/9] sm:aspect-auto sm:w-56 sm:shrink-0">
                       {cover ? (
-                        <img src={cover} alt={b.listings?.title} className="h-full w-full object-cover" />
+                        <img src={cover} alt={b.listings?.title} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-muted">
                           <MapPin className="h-10 w-10 text-primary/30" />
