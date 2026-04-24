@@ -427,7 +427,7 @@ function HomePage() {
       <section id="about" className="relative bg-background scroll-mt-20">
         <PatternBackground />
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-          <div>
+          <Reveal>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">About us</p>
             <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
               We're <span className="text-primary">BEITAK</span>
@@ -456,8 +456,8 @@ function HomePage() {
             <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
               Home is closer than you think
             </p>
-          </div>
-          <div className="relative lg:scale-110 lg:-mx-6">
+          </Reveal>
+          <Reveal delay={150} className="relative lg:scale-110 lg:-mx-6">
             <div className="relative overflow-hidden rounded-3xl">
               <img
                 src={aboutImage}
@@ -478,9 +478,11 @@ function HomePage() {
               <p className="font-display text-2xl tracking-wider">BEITAK</p>
               <p className="text-[10px] uppercase tracking-[0.3em]">Lebanon stays</p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-background)" />
 
       {/* 6. FAQ */}
       <section id="faq" className="relative border-t border-border bg-muted/30">
