@@ -28,25 +28,25 @@ export function Footer() {
             <div className="flex justify-center md:justify-start">
               <Logo size="lg" />
             </div>
-            <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] shadow-md opacity-70 text-base">
+            <p className="mt-4 uppercase tracking-[0.25em] text-primary font-serif my-[8px] opacity-70 text-base">
               {" "}
             </p>
-            <p className="mt-3 max-w-xs text-sm text-secondary-foreground/70">
+            <p className="mt-3 max-w-xs text-sm text-foreground/70">
               Discover unique stays across Lebanon — from coastal villas to mountain retreats.
             </p>
           </div>
 
           {/* Quick links */}
           <div>
-            <h3 className="font-display text-xl tracking-wider text-white">Quick links</h3>
+            <h3 className="font-display text-xl tracking-wider text-foreground">Quick links</h3>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link to="/" className="text-secondary-foreground/80 transition hover:text-primary">
+                <Link to="/" className="text-foreground/80 transition hover:text-primary">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/search" className="text-secondary-foreground/80 transition hover:text-primary">
+                <Link to="/search" className="text-foreground/80 transition hover:text-primary">
                   Browse listings
                 </Link>
               </li>
@@ -55,13 +55,13 @@ export function Footer() {
                   href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-secondary-foreground/80 transition hover:text-primary"
+                  className="text-foreground/80 transition hover:text-primary"
                 >
                   Become a host
                 </a>
               </li>
               <li>
-                <a href="#faq" className="text-secondary-foreground/80 transition hover:text-primary">
+                <a href="#faq" className="text-foreground/80 transition hover:text-primary">
                   FAQ
                 </a>
               </li>
@@ -70,14 +70,14 @@ export function Footer() {
 
           {/* Connect */}
           <div>
-            <h3 className="font-display text-xl tracking-wider text-white">Connect</h3>
+            <h3 className="font-display text-xl tracking-wider text-foreground">Connect</h3>
             <div className="mt-4 flex items-center gap-3">
               <a
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow @beitak.lb on Instagram"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-[#E1306C] hover:bg-[#E1306C] hover:text-white"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-foreground/20 text-foreground transition hover:border-[#E1306C] hover:bg-[#E1306C] hover:text-white"
               >
                 <Instagram className="h-5 w-5" />
               </a>
@@ -86,12 +86,12 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat with us on WhatsApp"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white transition hover:border-[#25D366] hover:bg-[#25D366] hover:text-white"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-foreground/20 text-foreground transition hover:border-[#25D366] hover:bg-[#25D366] hover:text-white"
               >
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
             </div>
-            <div className="mt-3 space-y-1.5 text-sm text-secondary-foreground/70">
+            <div className="mt-3 space-y-1.5 text-sm text-foreground/70">
               <p>@Beitak.lb</p>
               <p className="flex items-center gap-2">
                 <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
@@ -105,7 +105,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 pb-24 text-center text-xs text-secondary-foreground/60">
+        <div className="mt-10 border-t border-foreground/10 pt-6 pb-24 text-center text-xs text-foreground/60">
           © {new Date().getFullYear()} BEITAK. All rights reserved.
         </div>
       </div>
