@@ -104,6 +104,65 @@ function HomePage() {
   });
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
+  const magneticRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = magneticRef.current;
+    if (!el) return;
+    const RANGE = 150; // px
+    const STRENGTH = 0.25; // how strongly the logo follows the cursor
+    let rafId = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const animate = () => {
+      // Smooth easing toward target
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
+      el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      if (Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        rafId = 0;
+      }
+    };
+
+    const handleMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < RANGE) {
+        // Inside range — fall-off so closer pulls more
+        const falloff = 1 - dist / RANGE;
+        targetX = dx * STRENGTH * falloff;
+        targetY = dy * STRENGTH * falloff;
+      } else {
+        targetX = 0;
+        targetY = 0;
+      }
+      if (!rafId) rafId = requestAnimationFrame(animate);
+    };
+
+    const handleLeave = () => {
+      targetX = 0;
+      targetY = 0;
+      if (!rafId) rafId = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseleave", handleLeave);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseleave", handleLeave);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
