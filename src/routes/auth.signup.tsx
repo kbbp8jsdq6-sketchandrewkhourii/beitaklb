@@ -87,7 +87,7 @@ function SignupPage() {
             <img
               src={authLogoBlack}
               alt="BEITAK — Home is closer than you think"
-              className="w-[150px] h-auto object-contain"
+              className="w-[240px] h-auto object-contain"
             />
           </Link>
         </div>
