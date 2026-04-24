@@ -8,12 +8,42 @@ const FALLBACK_ITEMS = [
   "✅ 0% Service Fees",
 ];
 
+// Render text with emojis swapped for high-quality Twemoji SVGs (Apple/Google style smoothness).
+function renderWithTwemoji(text: string) {
+  // Match emoji clusters (covers most pictographs + ZWJ sequences + variation selectors)
+  const regex =
+    /(\p{Extended_Pictographic}(?:\u200D\p{Extended_Pictographic})*\uFE0F?)/gu;
+  const parts = text.split(regex);
+  return parts.map((part, idx) => {
+    if (regex.test(part)) {
+      // Reset regex state since we used .test() with /g
+      regex.lastIndex = 0;
+      // Convert to hex codepoints for jsdelivr Twemoji CDN (skip variation selector FE0F where appropriate)
+      const codepoints = Array.from(part)
+        .map((c) => c.codePointAt(0)!.toString(16))
+        .filter((cp) => cp !== "fe0f")
+        .join("-");
+      return (
+        <img
+          key={idx}
+          src={`https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/${codepoints}.svg`}
+          alt=""
+          aria-hidden="true"
+          className="inline-block h-[1.1em] w-[1.1em] align-[-0.15em]"
+          loading="lazy"
+        />
+      );
+    }
+    return <span key={idx}>{part}</span>;
+  });
+}
+
 function LoopContent({ items }: { items: string[] }) {
   return (
     <div className="flex shrink-0 items-center gap-6 pr-6">
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-6 whitespace-nowrap">
-          <span>{item}</span>
+          <span className="inline-flex items-center gap-1.5">{renderWithTwemoji(item)}</span>
           <span aria-hidden className="text-white/80">⬥</span>
         </span>
       ))}
