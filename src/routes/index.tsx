@@ -75,11 +75,11 @@ const STEPS = [
   },
 ];
 
-const REVIEWS = [
-  { quote: "Amazing place, super clean and the host was incredible!", name: "Sarah", city: "Beirut" },
-  { quote: "Best mountain view in Lebanon. We're already planning to come back.", name: "Karim", city: "Bcharre" },
-  { quote: "Booking via WhatsApp made it so easy. Highly recommend!", name: "Nour", city: "Byblos" },
-];
+import { STATIC_REVIEWS, HOME_REVIEW_SLUGS } from "@/lib/static-reviews";
+
+const HOME_REVIEWS = HOME_REVIEW_SLUGS
+  .map((slug) => STATIC_REVIEWS.find((r) => r.slug === slug)!)
+  .filter(Boolean);
 
 const FAQS = [
   {
