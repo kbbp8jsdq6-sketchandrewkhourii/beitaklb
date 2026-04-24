@@ -173,48 +173,50 @@ function HomePage() {
           <HeroSlideshow />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
-              transition={{
-                duration: 0.9,
-                ease: [0.22, 1, 0.36, 1],
-                scale: { type: "spring", stiffness: 120, damping: 12 },
-              }}
-            >
+            <div ref={magneticRef} style={{ willChange: "transform" }}>
               <motion.div
-                animate={{
-                  y: [0, -12, 0],
-                }}
+                initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
                 transition={{
-                  y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                  duration: 0.9,
+                  ease: [0.22, 1, 0.36, 1],
+                  scale: { type: "spring", stiffness: 120, damping: 12 },
                 }}
-                className="hero-logo-stage"
               >
-                <div className="hero-logo-spin">
-                  {/* Solid extruded thickness layers — sharp duplicates with darker tint */}
-                  {Array.from({ length: 30 }).map((_, i) => {
-                    // Center the stack so the front face sits at the highest Z
-                    const z = (i - 29) * 1.2; // -34.8 → 0
-                    // Darker shade for back layers, full color near the front
-                    const darkness = 0.55 + (i / 29) * 0.45; // 0.55 → 1
-                    return (
-                      <div
-                        key={i}
-                        className="hero-logo-layer"
-                        style={{
-                          transform: `translateZ(${z}px)`,
-                          filter: `brightness(${darkness}) saturate(${0.7 + (i / 29) * 0.3})`,
-                        }}
-                        aria-hidden={i !== 29}
-                      >
-                        <LogoTransparent size="hero" />
-                      </div>
-                    );
-                  })}
-                </div>
+                <motion.div
+                  animate={{
+                    y: [0, -12, 0],
+                  }}
+                  transition={{
+                    y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                  }}
+                  className="hero-logo-stage"
+                >
+                  <div className="hero-logo-spin">
+                    {/* Solid extruded thickness layers — sharp duplicates with darker tint */}
+                    {Array.from({ length: 30 }).map((_, i) => {
+                      // Center the stack so the front face sits at the highest Z
+                      const z = (i - 29) * 1.2; // -34.8 → 0
+                      // Darker shade for back layers, full color near the front
+                      const darkness = 0.55 + (i / 29) * 0.45; // 0.55 → 1
+                      return (
+                        <div
+                          key={i}
+                          className="hero-logo-layer"
+                          style={{
+                            transform: `translateZ(${z}px)`,
+                            filter: `brightness(${darkness}) saturate(${0.7 + (i / 29) * 0.3})`,
+                          }}
+                          aria-hidden={i !== 29}
+                        >
+                          <LogoTransparent size="hero" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
             <motion.h1
               className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
               initial={{ opacity: 0, y: 20 }}
