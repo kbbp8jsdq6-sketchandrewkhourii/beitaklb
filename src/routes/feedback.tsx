@@ -50,6 +50,7 @@ interface ApprovedReview {
   rating: number;
   message: string;
   is_pinned: boolean;
+  slug?: string; // when set, the name links to /profile/$slug
 }
 
 function ReviewCard({
