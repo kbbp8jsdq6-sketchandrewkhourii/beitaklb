@@ -498,8 +498,9 @@ function HomePage() {
             {FAQS.map((item, i) => {
               const open = openFaq === i;
               return (
-                <div
+                <Reveal
                   key={item.q}
+                  delay={i * 90}
                   className="overflow-hidden rounded-xl border border-border bg-background transition hover:border-primary/50"
                 >
                   <button
@@ -520,7 +521,7 @@ function HomePage() {
                       {item.a}
                     </div>
                   )}
-                </div>
+                </Reveal>
               );
             })}
           </div>
