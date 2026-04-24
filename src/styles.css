@@ -229,3 +229,47 @@ body.no-scroll {
   position: relative;
 }
 
+/* ============================================================
+ * Glassmorphism utility — Apple iOS-inspired frosted glass.
+ * Apply via the `.glass` class on cards, panels, navbars, modals,
+ * dropdowns, sidebars, etc. Tuned for both light and dark modes.
+ * ============================================================ */
+.glass {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Lighter, more transparent variant for headers/overlays where the
+   underlying content (hero imagery etc.) should bleed through more. */
+.glass-light {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark-mode tuning for both variants */
+.dark .glass {
+  background-color: rgba(20, 20, 22, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+.dark .glass-light {
+  background-color: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* When backdrop-filter is unsupported, fall back to a solid-ish color
+   so the surfaces never become unreadable. */
+@supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+  .glass { background-color: rgba(255, 255, 255, 0.92); }
+  .glass-light { background-color: rgba(255, 255, 255, 0.85); }
+  .dark .glass { background-color: rgba(20, 20, 22, 0.92); }
+  .dark .glass-light { background-color: rgba(20, 20, 22, 0.85); }
+}
+
