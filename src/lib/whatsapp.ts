@@ -1,23 +1,8 @@
 /**
  * WhatsApp helpers for BEITAK.
- * Uses TinyURL's free API to shorten listing URLs so messages stay clean.
  */
 
 export const WHATSAPP_NUMBER = "96181160435";
-
-export async function shortenUrl(longUrl: string): Promise<string> {
-  try {
-    const res = await fetch(
-      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`,
-    );
-    if (!res.ok) return longUrl;
-    const text = (await res.text()).trim();
-    if (text.startsWith("http")) return text;
-    return longUrl;
-  } catch {
-    return longUrl;
-  }
-}
 
 export interface WhatsAppListingMessage {
   title: string;
@@ -66,28 +51,9 @@ export function buildWhatsAppHref(message: string, phoneNumber?: string): string
 }
 
 /**
- * Build a WhatsApp link for a listing using a TinyURL-shortened URL.
- * Falls back to the original URL if shortening fails.
- * If `phoneNumber` is provided, the link targets that number (e.g. host).
- * When a host phone is provided, a friendlier host-style message is used.
+ * Builds the WhatsApp href immediately using the full listing URL.
  */
-export async function buildListingWhatsAppHref(
-  payload: WhatsAppListingMessage,
-  phoneNumber?: string,
-): Promise<string> {
-  const shortUrl = await shortenUrl(payload.url);
-  const message = phoneNumber
-    ? buildHostListingMessage({ ...payload, url: shortUrl })
-    : buildListingMessage({ ...payload, url: shortUrl });
-  return buildWhatsAppHref(message, phoneNumber);
-}
-
-/**
- * Synchronous version: builds the WhatsApp href immediately using the
- * full (non-shortened) URL. Use this to attach to <a href> so the click
- * is treated as a direct user gesture (no popup blocker issues).
- */
-export function buildListingWhatsAppHrefSync(
+export function buildListingWhatsAppHref(
   payload: WhatsAppListingMessage,
   phoneNumber?: string,
 ): string {
