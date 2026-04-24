@@ -139,38 +139,44 @@ function ListingPage() {
 
   const openReserveModal = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if (!listing || waLoading) return;
-    setShowReserveModal(true);
-  };
-
-  const handleConfirmReserve = async () => {
-    if (!listing || waLoading) return;
+    if (!listing) return;
     const hostPhone = (listing.profiles as { phone?: string | null } | null)?.phone?.trim();
     if (!hostPhone) {
       toast.error(
         "This host hasn't added a phone number yet. Please contact support to book this stay.",
       );
-      setShowReserveModal(false);
       return;
     }
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const payload = {
+      title: listing.title,
+      location: `${listing.location}, Lebanon`,
+      priceWeekday: Number(listing.price_weekday),
+      priceWeekend: Number(listing.price_weekend),
+      url,
+    };
+    // Build href SYNCHRONOUSLY first so the <a> in the modal has a working
+    // link immediately (no popup blocker risk).
+    const syncHref = buildListingWhatsAppHrefSync(payload, hostPhone);
+    setWaHref(syncHref);
+    setShowReserveModal(true);
+
+    // Try to upgrade to a shortened URL in the background (non-blocking).
+    // If TinyURL fails or is slow, the sync href above still works.
     setWaLoading(true);
-    try {
-      const url = typeof window !== "undefined" ? window.location.href : "";
-      const href = await buildListingWhatsAppHref(
-        {
-          title: listing.title,
-          location: `${listing.location}, Lebanon`,
-          priceWeekday: Number(listing.price_weekday),
-          priceWeekend: Number(listing.price_weekend),
-          url,
-        },
-        hostPhone,
-      );
-      window.open(href, "_blank", "noopener,noreferrer");
-      setShowReserveModal(false);
-    } finally {
-      setWaLoading(false);
-    }
+    buildListingWhatsAppHref(payload, hostPhone)
+      .then((shortHref) => {
+        if (shortHref && shortHref !== syncHref) setWaHref(shortHref);
+      })
+      .catch(() => {
+        // Silently keep the sync href.
+      })
+      .finally(() => setWaLoading(false));
+  };
+
+  const closeReserveModal = () => {
+    setShowReserveModal(false);
+    setWaHref(null);
   };
 
   if (isLoading) {
