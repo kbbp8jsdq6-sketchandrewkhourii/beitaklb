@@ -166,6 +166,35 @@ function HomePage() {
     };
   }, []);
 
+  // Hero parallax — translate the slideshow background slower than scroll
+  // for a luxurious, cinematic depth effect. Updates a CSS var on the
+  // element so the actual transform stays GPU-accelerated.
+  const heroParallaxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = heroParallaxRef.current;
+    if (!el) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    let raf = 0;
+    const update = () => {
+      const y = window.scrollY;
+      // Move at 35% of scroll speed — subtle but noticeable.
+      el.style.setProperty("--hero-parallax", `${y * 0.35}px`);
+      raf = 0;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
