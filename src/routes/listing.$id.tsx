@@ -108,6 +108,7 @@ function ListingPage() {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [waLoading, setWaLoading] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
+  const [waHref, setWaHref] = useState<string | null>(null);
 
   // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
   useEffect(() => {
