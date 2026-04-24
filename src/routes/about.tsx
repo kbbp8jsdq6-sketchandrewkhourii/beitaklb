@@ -69,16 +69,13 @@ function AboutPage() {
                 className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-56 text-[#CC0000] opacity-20 sm:h-72 sm:w-72"
               />
               <div className="relative">
-                <p className="font-serif text-base font-extrabold uppercase tracking-[0.3em] text-[#CC0000]">
+                <p className="font-serif text-sm font-extrabold uppercase tracking-[0.35em] text-[#CC0000]">
                   Our MissioN
                 </p>
-                <h2 className="mt-5 font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl">
-                  Our<br />MissioN
-                </h2>
-                <p className="mt-6 font-display text-2xl leading-tight text-foreground sm:text-3xl">
+                <h2 className="mt-4 font-display text-3xl leading-tight text-foreground sm:text-4xl">
                   Make every Lebanese stay effortless
-                </p>
-                <p className="mt-4 max-w-xl text-base leading-relaxed text-neutral-900 sm:text-lg">
+                </h2>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-neutral-900 sm:text-lg">
                   We exist to remove the friction between travelers and the most beautiful homes in
                   Lebanon. From mountain cabins in Bcharre to seaside villas in Tyre, every BEITAK
                   listing is curated, every host is real, and every booking happens directly — no
@@ -100,16 +97,13 @@ function AboutPage() {
                 className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-56 text-[#CC0000] opacity-20 sm:h-72 sm:w-72"
               />
               <div className="relative">
-                <p className="font-serif text-base font-extrabold uppercase tracking-[0.3em] text-[#CC0000]">
+                <p className="font-serif text-sm font-extrabold uppercase tracking-[0.35em] text-[#CC0000]">
                   Our Vision
                 </p>
-                <h2 className="mt-5 font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl">
-                  Our<br />Vision
-                </h2>
-                <p className="mt-6 font-display text-2xl leading-tight text-foreground sm:text-3xl">
+                <h2 className="mt-4 font-display text-3xl leading-tight text-foreground sm:text-4xl">
                   Lebanon's most loved stays platform
-                </p>
-                <p className="mt-4 max-w-xl text-base leading-relaxed text-neutral-900 sm:text-lg">
+                </h2>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-neutral-900 sm:text-lg">
                   We see a future where Lebanese hospitality reaches every corner of the world — where
                   hosts thrive and travelers fall in love with the country one home at a time. BEITAK
                   is building the platform that makes that future inevitable.
