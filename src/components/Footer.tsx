@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Mail } from "lucide-react";
 import { Logo } from "./Logo";
+import { PatternBackground } from "./PatternBackground";
+import redSplash from "@/assets/red-liquid-splash.png";
 
 const BECOME_HOST_MESSAGE = "Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?";
 const WHATSAPP_URL = `https://wa.me/96181160435?text=${encodeURIComponent(BECOME_HOST_MESSAGE)}`;
@@ -16,9 +18,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/10 bg-black text-secondary-foreground">
-      <div className="glass-light">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 text-black">
+    <footer className="relative border-t border-border bg-white text-foreground">
+      <PatternBackground />
+      <div className="relative z-10">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 text-foreground">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           {/* Brand */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
