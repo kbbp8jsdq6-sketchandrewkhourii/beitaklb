@@ -264,6 +264,25 @@ body.no-scroll {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
+/* Reduce backdrop-filter blur on mobile for better performance.
+   Backdrop-filter is one of the most expensive CSS effects on mobile GPUs. */
+@media (max-width: 768px) {
+  .glass,
+  .glass-light {
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
+  }
+  /* Also dial back any Tailwind backdrop-blur utility on mobile.
+     Tailwind's .backdrop-blur defaults to 8px, .backdrop-blur-sm to 4px,
+     .backdrop-blur-md to 12px — clamp the larger ones down. */
+  .backdrop-blur,
+  .backdrop-blur-md,
+  .backdrop-blur-\[12px\] {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
 /* When backdrop-filter is unsupported, fall back to a solid-ish color
    so the surfaces never become unreadable. */
 @supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
