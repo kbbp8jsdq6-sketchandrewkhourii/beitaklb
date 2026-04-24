@@ -305,25 +305,24 @@ function HomePage() {
       {/* 1.5 FIND YOUR UNIT */}
       <FindYourUnit />
 
+      <SectionDivider fill="var(--color-muted)" />
+
       {/* 2. HOW IT WORKS */}
       <section className="relative border-b border-border bg-background">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <Reveal className="text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
             <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
               Three steps to your stay
             </h2>
-          </div>
+          </Reveal>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
             {STEPS.map((s, i) => (
-              <motion.div
+              <Reveal
                 key={s.title}
+                delay={i * 120}
                 className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary text-red-600"
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: i * 0.15, ease: "easeOut" }}
               >
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
                   <s.icon className="h-7 w-7" strokeWidth={1.75} />
@@ -333,11 +332,13 @@ function HomePage() {
                 </p>
                 <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </motion.div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-background)" flip />
 
       {/* 3. FEATURED LISTINGS */}
       <section className="relative bg-muted/30">
