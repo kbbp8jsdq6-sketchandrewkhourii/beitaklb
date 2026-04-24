@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { STATIC_REVIEWS } from "@/lib/static-reviews";
 
 export const Route = createFileRoute("/feedback")({
   head: () => ({
@@ -49,6 +50,7 @@ interface ApprovedReview {
   rating: number;
   message: string;
   is_pinned: boolean;
+  slug?: string; // when set, the name links to /profile/$slug
 }
 
 function ReviewCard({
@@ -87,7 +89,17 @@ function ReviewCard({
         </div>
         <div>
           <p className={`font-semibold ${isDark ? "text-background" : "text-foreground"}`}>
-            {review.author_name}
+            {review.slug ? (
+              <Link
+                to="/profile/$slug"
+                params={{ slug: review.slug }}
+                className="underline decoration-transparent underline-offset-4 transition hover:text-primary hover:decoration-primary"
+              >
+                {review.author_name}
+              </Link>
+            ) : (
+              review.author_name
+            )}
           </p>
           <StarRating rating={review.rating} />
         </div>
@@ -235,7 +247,18 @@ function FeedbackPage() {
     },
   });
 
-  const reviews = reviewsQ.data ?? [];
+  // Curated static reviews shown first, then any approved real submissions.
+  const staticReviews: ApprovedReview[] = STATIC_REVIEWS.map((r) => ({
+    id: `static-${r.slug}`,
+    author_name: r.name,
+    rating: r.rating,
+    message: r.message,
+    is_pinned: false,
+    slug: r.slug,
+  }));
+  const dbReviews = reviewsQ.data ?? [];
+  const reviews: ApprovedReview[] = [...staticReviews, ...dbReviews];
+
   const variants: Array<"light" | "dark" | "outline"> = [
     "light", "outline", "light", "dark", "light", "outline",
     "dark", "light", "outline", "light", "dark", "outline",
@@ -270,6 +293,7 @@ function FeedbackPage() {
             Be the first to share your experience.
           </p>
         )}
+
 
         <FeedbackForm onSubmitted={() => reviewsQ.refetch()} />
       </section>
