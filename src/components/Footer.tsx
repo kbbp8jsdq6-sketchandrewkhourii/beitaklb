@@ -102,9 +102,45 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-secondary-foreground/60">
+        <div className="mt-10 border-t border-white/10 pt-6 pb-24 text-center text-xs text-secondary-foreground/60">
           © {new Date().getFullYear()} BEITAK. All rights reserved.
         </div>
+      </div>
+      </div>
+
+      {/* Flowing red liquid wave at the very bottom */}
+      <div className="liquid-wave" aria-hidden="true">
+        <svg
+          className="wave-back"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,60 C150,100 350,20 600,60 C850,100 1050,20 1200,60 L1200,120 L0,120 Z M1200,60 C1350,100 1550,20 1800,60 C2050,100 2250,20 2400,60 L2400,120 L1200,120 Z"
+            fill="#7a0000"
+          />
+        </svg>
+        <svg
+          className="wave-mid"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,70 C200,30 400,110 600,70 C800,30 1000,110 1200,70 L1200,120 L0,120 Z M1200,70 C1400,30 1600,110 1800,70 C2000,30 2200,110 2400,70 L2400,120 L1200,120 Z"
+            fill="#a30000"
+          />
+        </svg>
+        <svg
+          className="wave-front"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,80 C150,50 350,110 600,80 C850,50 1050,110 1200,80 L1200,120 L0,120 Z M1200,80 C1350,50 1550,110 1800,80 C2050,50 2250,110 2400,80 L2400,120 L1200,120 Z"
+            fill="#cc0000"
+          />
+        </svg>
+        <span className="wave-shine" />
       </div>
     </footer>
   );
