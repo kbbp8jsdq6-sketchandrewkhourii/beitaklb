@@ -432,6 +432,7 @@ export function FindYourUnit() {
                           src={u.image}
                           alt={u.name}
                           loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                       ) : (
