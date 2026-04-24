@@ -8,7 +8,6 @@ import { Lightbox } from "@/components/Lightbox";
 import { WhatsAppReserveModal } from "@/components/WhatsAppReserveModal";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
-import { buildListingWhatsAppHref } from "@/lib/whatsapp";
 import beitakLogo from "@/assets/logo-new.png";
 
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
@@ -107,7 +106,6 @@ function ListingPage() {
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [showReserveModal, setShowReserveModal] = useState(false);
-  const [waHref, setWaHref] = useState<string | null>(null);
 
   // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
   useEffect(() => {
@@ -138,22 +136,11 @@ function ListingPage() {
 
   const openReserveModal = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if (!listing) return;
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    const payload = {
-      title: listing.title,
-      location: `${listing.location}, Lebanon`,
-      priceWeekday: Number(listing.price_weekday),
-      priceWeekend: Number(listing.price_weekend),
-      url,
-    };
-    setWaHref(buildListingWhatsAppHref(payload));
     setShowReserveModal(true);
   };
 
   const closeReserveModal = () => {
     setShowReserveModal(false);
-    setWaHref(null);
   };
 
   if (isLoading) {
@@ -170,6 +157,18 @@ function ListingPage() {
 
   const heroPhoto = photos[0];
   const restPhotos = photos.slice(1);
+  const message = `Hi Beitak! 👋
+
+I'm interested in the following listing:
+
+🏠 *${listing.title}*
+📍 *${listing.location}*
+💰 Weekday: $${listing.price_weekday} / night | Weekend: $${listing.price_weekend} / night
+
+⚠️ I understand prices may vary on public holidays and that the final price is confirmed after inquiry.
+
+Could you help me with availability and booking?`;
+  const whatsappURL = `https://wa.me/96181160435?text=${encodeURIComponent(message)}`;
 
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
@@ -422,7 +421,7 @@ function ListingPage() {
 
       <WhatsAppReserveModal
         open={showReserveModal}
-        href={waHref ?? undefined}
+        href={whatsappURL}
         onCancel={closeReserveModal}
       />
 

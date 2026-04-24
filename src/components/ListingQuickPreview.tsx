@@ -125,7 +125,7 @@ export function ListingQuickPreview({
       )}
       <WhatsAppReserveModal
         open={showConfirm}
-        href={waHref ?? undefined}
+        href={waHref ?? "https://wa.me/96181160435"}
         onCancel={closeConfirm}
       />
     </AnimatePresence>
