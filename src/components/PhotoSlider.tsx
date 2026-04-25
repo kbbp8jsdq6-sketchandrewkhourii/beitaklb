@@ -18,7 +18,14 @@ export function PhotoSlider({
   className,
   overlayChildren,
 }: PhotoSliderProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: photos.length > 1, align: "start" });
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: photos.length > 1,
+    align: "start",
+    duration: 22, // ~0.35s at 60fps, natural easing
+    dragFree: false,
+    skipSnaps: false,
+    containScroll: "trimSnaps",
+  });
   const [selected, setSelected] = useState(0);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -41,6 +48,18 @@ export function PhotoSlider({
     };
   }, [emblaApi, onSelect]);
 
+  // Preload neighboring images so sliding never waits on network
+  useEffect(() => {
+    if (photos.length <= 1) return;
+    const next = (selected + 1) % photos.length;
+    const prev = (selected - 1 + photos.length) % photos.length;
+    [next, prev].forEach((i) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = photos[i].photo_url;
+    });
+  }, [selected, photos]);
+
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
@@ -50,11 +69,19 @@ export function PhotoSlider({
   return (
     <div className={cn("relative h-[50vh] w-full overflow-hidden bg-muted", className)}>
       <div className="h-full w-full overflow-hidden" ref={emblaRef}>
-        <div className="flex h-full touch-pan-y">
+        <div
+          className="flex h-full touch-pan-y"
+          style={{
+            willChange: "transform",
+            transform: "translate3d(0,0,0)",
+            backfaceVisibility: "hidden",
+          }}
+        >
           {photos.map((p, i) => (
             <div
               key={p.id ?? i}
               className="relative h-full w-full min-w-0 shrink-0 grow-0 basis-full"
+              style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
             >
               <button
                 type="button"
@@ -70,6 +97,7 @@ export function PhotoSlider({
                   decoding="async"
                   loading={i === 0 ? "eager" : "lazy"}
                   fetchPriority={i === 0 ? "high" : "auto"}
+                  style={{ willChange: "transform" }}
                 />
               </button>
             </div>
