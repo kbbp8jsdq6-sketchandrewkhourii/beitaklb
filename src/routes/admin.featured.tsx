@@ -101,7 +101,7 @@ function AdminFeaturedPage() {
       </header>
 
       {featuredCount >= MAX_FEATURED && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground">
           You've reached the maximum of {MAX_FEATURED} featured listings. Unfeature one to feature another.
         </div>
       )}
