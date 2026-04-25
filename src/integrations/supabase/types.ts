@@ -343,6 +343,7 @@ export type Database = {
           category: Database["public"]["Enums"]["listing_category"]
           created_at: string
           description: string
+          featured: boolean
           host_id: string
           id: string
           is_active: boolean
@@ -367,6 +368,7 @@ export type Database = {
           category: Database["public"]["Enums"]["listing_category"]
           created_at?: string
           description: string
+          featured?: boolean
           host_id: string
           id?: string
           is_active?: boolean
@@ -391,6 +393,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["listing_category"]
           created_at?: string
           description?: string
+          featured?: boolean
           host_id?: string
           id?: string
           is_active?: boolean
