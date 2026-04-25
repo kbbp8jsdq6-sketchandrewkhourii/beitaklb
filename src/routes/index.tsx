@@ -108,12 +108,29 @@ function HomePage() {
     queryFn: fetchFeatured,
   });
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  // Detect mobile to render a static single-layer logo instead of the
+  // expensive 30-layer 3D extrusion. Defaults to false so SSR matches desktop.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px), (pointer: coarse)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
+  // Disabled on touch / mobile devices for performance.
   const magneticRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = magneticRef.current;
     if (!el) return;
+    if (typeof window === "undefined") return;
+    // Skip magnetic effect entirely on coarse pointer (mobile/tablet) devices.
+    if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const RANGE = 150; // px
     const STRENGTH = 0.25; // how strongly the logo follows the cursor
     let rafId = 0;
@@ -159,8 +176,8 @@ function HomePage() {
       if (!rafId) rafId = requestAnimationFrame(animate);
     };
 
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseleave", handleLeave);
+    window.addEventListener("mousemove", handleMove, { passive: true });
+    window.addEventListener("mouseleave", handleLeave, { passive: true });
     return () => {
       window.removeEventListener("mousemove", handleMove);
       window.removeEventListener("mouseleave", handleLeave);
@@ -233,21 +250,25 @@ function HomePage() {
                   className="hero-logo-stage"
                 >
                   <div className="hero-logo-spin">
-                    {/* Solid extruded thickness layers — sharp duplicates with darker tint */}
-                    {Array.from({ length: 30 }).map((_, i) => {
+                    {/* Solid extruded thickness layers — sharp duplicates with darker tint.
+                        On mobile, only render the single front layer to skip the expensive
+                        30-layer GPU extrusion entirely. */}
+                    {Array.from({ length: isMobile ? 1 : 30 }).map((_, i) => {
+                      const total = isMobile ? 1 : 30;
                       // Center the stack so the front face sits at the highest Z
-                      const z = (i - 29) * 1.2; // -34.8 → 0
+                      const z = (i - (total - 1)) * 1.2;
                       // Darker shade for back layers, full color near the front
-                      const darkness = 0.55 + (i / 29) * 0.45; // 0.55 → 1
+                      const darkness = total === 1 ? 1 : 0.55 + (i / (total - 1)) * 0.45;
+                      const sat = total === 1 ? 1 : 0.7 + (i / (total - 1)) * 0.3;
                       return (
                         <div
                           key={i}
                           className="hero-logo-layer"
                           style={{
                             transform: `translateZ(${z}px)`,
-                            filter: `brightness(${darkness}) saturate(${0.7 + (i / 29) * 0.3})`,
+                            filter: `brightness(${darkness}) saturate(${sat})`,
                           }}
-                          aria-hidden={i !== 29}
+                          aria-hidden={i !== total - 1}
                         >
                           <LogoTransparent size="hero" />
                         </div>

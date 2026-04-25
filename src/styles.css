@@ -265,12 +265,13 @@ body.no-scroll {
 }
 
 /* Reduce backdrop-filter blur on mobile for better performance.
-   Backdrop-filter is one of the most expensive CSS effects on mobile GPUs. */
+   Backdrop-filter is one of the most expensive CSS effects on mobile GPUs.
+   Aggressively dialed down to 6px on mobile per perf guidelines. */
 @media (max-width: 768px) {
   .glass,
   .glass-light {
-    backdrop-filter: blur(8px) saturate(150%);
-    -webkit-backdrop-filter: blur(8px) saturate(150%);
+    backdrop-filter: blur(6px) saturate(140%);
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
   }
   /* Also dial back any Tailwind backdrop-blur utility on mobile.
      Tailwind's .backdrop-blur defaults to 8px, .backdrop-blur-sm to 4px,
@@ -278,8 +279,23 @@ body.no-scroll {
   .backdrop-blur,
   .backdrop-blur-md,
   .backdrop-blur-\[12px\] {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  /* Disable the heavy 3D extruded hero logo spin on mobile —
+     30 stacked layers with filters is extremely expensive on mobile GPUs.
+     The logo stays visible (front layer only) but no rotation. */
+  .hero-logo-spin {
+    animation: none !important;
+    transform: none !important;
+  }
+  .hero-logo-stage {
+    filter: none !important;
+  }
+  /* Hide all but the front-most extruded layer on mobile */
+  .hero-logo-layer:not(:last-child) {
+    display: none !important;
   }
 }
 
