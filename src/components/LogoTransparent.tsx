@@ -34,7 +34,7 @@ export function LogoTransparent({ size = "navbar", className }: LogoTransparentP
       decoding="async"
       loading={isHero ? "eager" : "eager"}
       fetchPriority={isHero ? "high" : "auto"}
-      className={cn(sizeMap[size], "h-auto object-contain")}
+      className={cn(sizeMap[size], "h-auto object-contain", className)}
       style={
         isHero
           ? { background: "transparent" }
