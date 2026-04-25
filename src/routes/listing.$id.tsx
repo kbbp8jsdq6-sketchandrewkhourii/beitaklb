@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
+import { PhotoSlider } from "@/components/PhotoSlider";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import beitakLogo from "@/assets/logo-new.png";
