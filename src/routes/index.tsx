@@ -39,8 +39,9 @@ async function fetchFeatured() {
     .from("listings")
     .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
     .eq("is_active", true)
+    .eq("featured", true)
     .order("created_at", { ascending: false })
-    .limit(4);
+    .limit(6);
   if (error) throw error;
   return (data ?? []).map((l) => {
     const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);

@@ -31,6 +31,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
+import { Route as AdminFeaturedRouteImport } from './routes/admin.featured'
 import { Route as AdminContactRouteImport } from './routes/admin.contact'
 import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
@@ -147,6 +148,11 @@ const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFeaturedRoute = AdminFeaturedRouteImport.update({
+  id: '/featured',
+  path: '/featured',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminContactRoute = AdminContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/contact': typeof AdminContactRoute
+  '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -216,6 +223,7 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/contact': typeof AdminContactRoute
+  '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/contact': typeof AdminContactRoute
+  '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/contact'
+    | '/admin/featured'
     | '/admin/feedback'
     | '/admin/listings'
     | '/admin/settings'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/contact'
+    | '/admin/featured'
     | '/admin/feedback'
     | '/admin/listings'
     | '/admin/settings'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/approvals'
     | '/admin/contact'
+    | '/admin/featured'
     | '/admin/feedback'
     | '/admin/listings'
     | '/admin/settings'
@@ -527,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/featured': {
+      id: '/admin/featured'
+      path: '/featured'
+      fullPath: '/admin/featured'
+      preLoaderRoute: typeof AdminFeaturedRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/contact': {
       id: '/admin/contact'
       path: '/contact'
@@ -569,6 +588,7 @@ interface AdminRouteChildren {
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminApprovalsRoute: typeof AdminApprovalsRoute
   AdminContactRoute: typeof AdminContactRoute
+  AdminFeaturedRoute: typeof AdminFeaturedRoute
   AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminListingsRoute: typeof AdminListingsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -580,6 +600,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminApprovalsRoute: AdminApprovalsRoute,
   AdminContactRoute: AdminContactRoute,
+  AdminFeaturedRoute: AdminFeaturedRoute,
   AdminFeedbackRoute: AdminFeedbackRoute,
   AdminListingsRoute: AdminListingsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
