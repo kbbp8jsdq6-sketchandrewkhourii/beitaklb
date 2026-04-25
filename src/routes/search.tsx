@@ -76,6 +76,7 @@ function SearchPage() {
           amenities: l.amenities ?? [],
           category: l.category as ListingCategory,
           cover: photos[0]?.photo_url ?? null,
+          photos: photos.map((p) => p.photo_url),
         };
       });
     },
