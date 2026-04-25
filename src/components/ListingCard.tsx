@@ -64,8 +64,8 @@ export function ListingCard({
 
   const goTo = (i: number) => {
     if (photos.length === 0) return;
-    const wrapped = ((i % photos.length) + photos.length) % photos.length;
-    setCurrent(wrapped);
+    const clamped = Math.max(0, Math.min(photos.length - 1, i));
+    setCurrent(clamped);
   };
 
   const handleArrow = (e: React.MouseEvent, dir: -1 | 1) => {
