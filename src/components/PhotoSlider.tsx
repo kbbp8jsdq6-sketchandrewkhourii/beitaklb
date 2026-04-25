@@ -18,7 +18,14 @@ export function PhotoSlider({
   className,
   overlayChildren,
 }: PhotoSliderProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: photos.length > 1, align: "start" });
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: photos.length > 1,
+    align: "start",
+    duration: 22, // ~0.35s at 60fps, natural easing
+    dragFree: false,
+    skipSnaps: false,
+    containScroll: "trimSnaps",
+  });
   const [selected, setSelected] = useState(0);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -40,6 +47,18 @@ export function PhotoSlider({
       emblaApi.off("reInit", onSelect);
     };
   }, [emblaApi, onSelect]);
+
+  // Preload neighboring images so sliding never waits on network
+  useEffect(() => {
+    if (photos.length <= 1) return;
+    const next = (selected + 1) % photos.length;
+    const prev = (selected - 1 + photos.length) % photos.length;
+    [next, prev].forEach((i) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = photos[i].photo_url;
+    });
+  }, [selected, photos]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
