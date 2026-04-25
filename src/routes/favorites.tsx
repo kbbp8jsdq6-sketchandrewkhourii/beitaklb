@@ -46,6 +46,7 @@ function FavoritesPage() {
             price_weekend: Number(l.price_weekend),
             amenities: l.amenities ?? [],
             cover: photos[0]?.photo_url ?? null,
+            photos: photos.map((p) => p.photo_url),
           };
         });
     },
