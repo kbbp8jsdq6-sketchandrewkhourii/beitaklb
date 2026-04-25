@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ interface Unit {
   baths: number;
   amenities: string[];
   image: string | null;
+  photos: string[];
 }
 
 function countMatch(value: number, selected: AnyOption): boolean {
@@ -83,6 +85,7 @@ async function fetchAllUnits(): Promise<Unit[]> {
       baths: Number(l.bathrooms ?? 0),
       amenities: l.amenities ?? [],
       image: photos[0]?.photo_url ?? null,
+      photos: photos.map((p) => p.photo_url),
     };
   });
 }
@@ -427,24 +430,20 @@ export function FindYourUnit() {
                 >
                   <Link to="/listing/$id" params={{ id: u.id }} className="block">
                     <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      {u.image ? (
-                        <img
-                          src={u.image}
-                          alt={u.name}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                          No photo
-                        </div>
-                      )}
-                      <div className="absolute right-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
+                      <CardPhotoSlider
+                        photos={u.photos}
+                        alt={u.name}
+                        fallback={
+                          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                            No photo
+                          </div>
+                        }
+                      />
+                      <div className="absolute right-3 top-3 z-[3] rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
                         From ${Math.min(u.priceWeekday, u.priceWeekend).toLocaleString()}/night
                       </div>
                       {u.amenities.some((a) => a.toLowerCase() === "breakfast included") && (
-                        <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
+                        <div className="absolute left-3 top-3 z-[3] inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
                           ☕ Breakfast
                         </div>
                       )}
