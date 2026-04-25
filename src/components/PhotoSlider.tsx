@@ -69,11 +69,19 @@ export function PhotoSlider({
   return (
     <div className={cn("relative h-[50vh] w-full overflow-hidden bg-muted", className)}>
       <div className="h-full w-full overflow-hidden" ref={emblaRef}>
-        <div className="flex h-full touch-pan-y">
+        <div
+          className="flex h-full touch-pan-y"
+          style={{
+            willChange: "transform",
+            transform: "translate3d(0,0,0)",
+            backfaceVisibility: "hidden",
+          }}
+        >
           {photos.map((p, i) => (
             <div
               key={p.id ?? i}
               className="relative h-full w-full min-w-0 shrink-0 grow-0 basis-full"
+              style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
             >
               <button
                 type="button"
@@ -89,6 +97,7 @@ export function PhotoSlider({
                   decoding="async"
                   loading={i === 0 ? "eager" : "lazy"}
                   fetchPriority={i === 0 ? "high" : "auto"}
+                  style={{ willChange: "transform" }}
                 />
               </button>
             </div>
