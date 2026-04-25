@@ -197,7 +197,9 @@ export function ListingCard({
                 type="button"
                 onClick={(e) => handleArrow(e, -1)}
                 aria-label="Previous photo"
-                className="absolute left-2 top-1/2 z-[2] hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground opacity-0 shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white group-hover:opacity-100 md:inline-flex"
+                className={`absolute left-2 top-1/2 z-[2] h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100 ${
+                  current === 0 ? "hidden md:inline-flex" : "inline-flex"
+                }`}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -205,7 +207,9 @@ export function ListingCard({
                 type="button"
                 onClick={(e) => handleArrow(e, 1)}
                 aria-label="Next photo"
-                className="absolute right-2 top-1/2 z-[2] hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground opacity-0 shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white group-hover:opacity-100 md:inline-flex"
+                className={`absolute right-2 top-1/2 z-[2] h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100 ${
+                  current === photos.length - 1 ? "hidden md:inline-flex" : "inline-flex"
+                }`}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
