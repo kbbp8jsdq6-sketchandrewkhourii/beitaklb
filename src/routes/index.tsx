@@ -110,10 +110,16 @@ function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
+  // Disabled on touch / mobile devices for performance.
   const magneticRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = magneticRef.current;
     if (!el) return;
+    if (typeof window === "undefined") return;
+    // Skip magnetic effect entirely on coarse pointer (mobile/tablet) devices.
+    if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const RANGE = 150; // px
     const STRENGTH = 0.25; // how strongly the logo follows the cursor
     let rafId = 0;
@@ -159,8 +165,8 @@ function HomePage() {
       if (!rafId) rafId = requestAnimationFrame(animate);
     };
 
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseleave", handleLeave);
+    window.addEventListener("mousemove", handleMove, { passive: true });
+    window.addEventListener("mouseleave", handleLeave, { passive: true });
     return () => {
       window.removeEventListener("mousemove", handleMove);
       window.removeEventListener("mouseleave", handleLeave);
