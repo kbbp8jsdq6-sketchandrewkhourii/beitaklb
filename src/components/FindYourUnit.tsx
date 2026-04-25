@@ -457,7 +457,7 @@ export function FindYourUnit() {
                       <div className="mt-3 flex items-center gap-4 text-sm text-foreground">
                         <span className="inline-flex items-center gap-1.5">
                           <Bed className="h-4 w-4 text-primary" />
-                          {u.beds} bed{u.beds !== 1 ? "s" : ""}
+                          {u.beds} bedroom{u.beds !== 1 ? "s" : ""}
                         </span>
                         <span className="inline-flex items-center gap-1.5">
                           <Bath className="h-4 w-4 text-primary" />
