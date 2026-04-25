@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ interface Unit {
   baths: number;
   amenities: string[];
   image: string | null;
+  photos: string[];
 }
 
 function countMatch(value: number, selected: AnyOption): boolean {
@@ -83,6 +85,7 @@ async function fetchAllUnits(): Promise<Unit[]> {
       baths: Number(l.bathrooms ?? 0),
       amenities: l.amenities ?? [],
       image: photos[0]?.photo_url ?? null,
+      photos: photos.map((p) => p.photo_url),
     };
   });
 }
