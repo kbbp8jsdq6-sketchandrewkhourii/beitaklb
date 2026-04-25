@@ -166,25 +166,23 @@ Could you help me with availability and booking?`;
 
       {/* Hero gallery */}
       <section className="relative w-full">
-        {heroPhoto ? (
-          <button
-            onClick={() => setLightboxIdx(0)}
-            className="group relative block h-[50vh] w-full overflow-hidden bg-muted"
-            aria-label="Open photo viewer"
-          >
-            <img
-              src={heroPhoto.photo_url}
-              alt={listing.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-              decoding="async"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-            {photos.length > 1 && (
-              <span className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
-                View all {photos.length} photos
-              </span>
-            )}
-          </button>
+        {photos.length > 0 ? (
+          <PhotoSlider
+            photos={photos}
+            alt={listing.title}
+            onPhotoClick={(i) => setLightboxIdx(i)}
+            overlayChildren={
+              photos.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setLightboxIdx(0)}
+                  className="absolute bottom-4 left-4 z-10 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-black/85 md:left-1/2 md:-translate-x-1/2 md:bottom-14"
+                >
+                  View all {photos.length} photos
+                </button>
+              ) : null
+            }
+          />
         ) : (
           <div className="flex h-[50vh] w-full items-center justify-center bg-muted">
             <MapPin className="h-16 w-16 text-primary/30" />
