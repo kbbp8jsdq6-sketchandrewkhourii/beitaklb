@@ -244,6 +244,11 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 );
               })}
             </div>
+            <CustomAmenityInput
+              defaultOptions={AMENITY_OPTIONS}
+              value={amenities}
+              onChange={setAmenities}
+            />
           </div>
 
           <div>
