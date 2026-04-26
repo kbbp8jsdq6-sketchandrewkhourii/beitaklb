@@ -368,6 +368,11 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   );
                 })}
               </div>
+              <CustomAmenityInput
+                defaultOptions={AMENITY_OPTIONS}
+                value={amenities}
+                onChange={setAmenities}
+              />
             </div>
 
             <div>
