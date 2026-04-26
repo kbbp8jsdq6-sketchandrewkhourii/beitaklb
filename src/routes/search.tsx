@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 import { supabase } from "@/integrations/supabase/client";
+import { SlidersHorizontal, X } from "lucide-react";
 
 const searchSchema = z.object({
   q: z.string().optional().catch(undefined),
@@ -44,6 +45,8 @@ function SearchPage() {
   const { q, category } = Route.useSearch();
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [showAllAmenities, setShowAllAmenities] = useState(false);
 
   const { data: results = [], isLoading } = useQuery<SearchListing[]>({
     queryKey: ["search-listings", q, category],
@@ -82,8 +85,48 @@ function SearchPage() {
     },
   });
 
+  // Aggregate every unique amenity across every active listing — pulls live from Supabase
+  // so any new custom amenity added by a host or admin shows up here automatically.
+  const { data: allAmenities = [] } = useQuery<string[]>({
+    queryKey: ["all-amenities"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("amenities")
+        .eq("is_active", true);
+      if (error) throw error;
+      const set = new Map<string, string>(); // lowercase key -> display label (first seen)
+      (data ?? []).forEach((row) => {
+        (row.amenities ?? []).forEach((a) => {
+          const key = a.trim().toLowerCase();
+          if (!key) return;
+          if (!set.has(key)) set.set(key, a.trim());
+        });
+      });
+      return [...set.values()].sort((a, b) => a.localeCompare(b));
+    },
+  });
+
+  const toggleAmenity = (a: string) =>
+    setSelectedAmenities((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
+    );
+
+  // Client-side intersection filter: a listing must have every selected amenity (case-insensitive).
+  const filteredResults = useMemo(() => {
+    if (selectedAmenities.length === 0) return results;
+    const wanted = selectedAmenities.map((a) => a.toLowerCase());
+    return results.filter((l) => {
+      const have = (l.amenities ?? []).map((a) => a.toLowerCase());
+      return wanted.every((w) => have.includes(w));
+    });
+  }, [results, selectedAmenities]);
+
+  const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
+
   const openPreview = (listing: ListingCardData) => {
-    const full = results.find((r) => r.id === listing.id);
+    const full = filteredResults.find((r) => r.id === listing.id);
     setPreview(full ?? listing);
     setPreviewOpen(true);
   };
@@ -106,9 +149,61 @@ function SearchPage() {
                 : "All stays in Lebanon"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isLoading ? "Searching…" : `${results.length} result${results.length === 1 ? "" : "s"}`}
+            {isLoading ? "Searching…" : `${filteredResults.length} result${filteredResults.length === 1 ? "" : "s"}`}
           </p>
         </div>
+
+        {/* Amenities filter — auto-populated from every listing in real time */}
+        {allAmenities.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-semibold text-foreground">Filter by amenities</h2>
+              </div>
+              {selectedAmenities.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedAmenities([])}
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  Clear ({selectedAmenities.length})
+                </button>
+              )}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {visibleAmenities.map((a) => {
+                const active = selectedAmenities.some(
+                  (s) => s.toLowerCase() === a.toLowerCase(),
+                );
+                return (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => toggleAmenity(a)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary"
+                    }`}
+                  >
+                    {a}
+                    {active && <X className="h-3 w-3" />}
+                  </button>
+                );
+              })}
+              {allAmenities.length > 14 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllAmenities((v) => !v)}
+                  className="rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary"
+                >
+                  {showAllAmenities ? "Show less" : `+${allAmenities.length - 14} more`}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -116,11 +211,13 @@ function SearchPage() {
               <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
-        ) : results.length === 0 ? (
+        ) : filteredResults.length === 0 ? (
           <div className="mt-12 rounded-3xl border border-dashed border-border bg-muted/40 p-12 text-center">
             <p className="font-display text-2xl text-foreground">No stays found</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Try a different village, city, or keyword.
+              {selectedAmenities.length > 0
+                ? "Try removing some amenity filters."
+                : "Try a different village, city, or keyword."}
             </p>
             <Link
               to="/"
@@ -131,7 +228,7 @@ function SearchPage() {
           </div>
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {results.map((l, i) => (
+            {filteredResults.map((l, i) => (
               <ListingCard key={l.id} listing={l} index={i} onQuickPreview={openPreview} />
             ))}
           </div>
