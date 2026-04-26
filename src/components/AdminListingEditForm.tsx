@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, X, ImagePlus, Loader2 } from "lucide-react";
+import { CustomAmenityInput } from "@/components/CustomAmenityInput";
 
 const AMENITY_OPTIONS = [
   "Pool",
@@ -367,6 +368,11 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   );
                 })}
               </div>
+              <CustomAmenityInput
+                defaultOptions={AMENITY_OPTIONS}
+                value={amenities}
+                onChange={setAmenities}
+              />
             </div>
 
             <div>
