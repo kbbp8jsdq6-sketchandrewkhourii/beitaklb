@@ -1,7 +1,7 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
@@ -50,22 +50,92 @@ interface Unit {
   photos: string[];
 }
 
-function countMatch(value: number, selected: AnyOption): boolean {
-  if (selected === "Any") return true;
-  if (selected === "5+") return value >= 5;
-  return value === Number(selected);
+/** Page size — load fewer cards on mobile to stay snappy on slower connections. */
+function usePageSize(): number {
+  const [size, setSize] = useState(8);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setSize(mq.matches ? 4 : 8);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return size;
 }
 
-async function fetchAllUnits(): Promise<Unit[]> {
-  const { data, error } = await supabase
+interface AppliedFilters {
+  keyword: string;
+  city: string;
+  bed: AnyOption;
+  bath: AnyOption;
+  maxBudget: number;
+  amenities: string[];
+  submitted: boolean;
+}
+
+interface PageResult {
+  units: Unit[];
+  nextOffset: number | null;
+}
+
+/**
+ * Server-side paginated fetch. Pushes every filter into the SQL query so we
+ * never load all rows in memory. Returns `nextOffset = null` when there are
+ * no more rows.
+ */
+async function fetchUnitsPage(
+  applied: AppliedFilters,
+  offset: number,
+  pageSize: number,
+): Promise<PageResult> {
+  let query = supabase
     .from("listings")
     .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)"
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)",
     )
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
+    .eq("is_active", true);
+
+  // City — match anything before the first comma in `location` (e.g. "Beirut, Lebanon")
+  if (applied.city !== "All Cities") {
+    query = query.ilike("location", `${applied.city}%`);
+  }
+
+  // Bedrooms / bathrooms
+  if (applied.bed !== "Any") {
+    if (applied.bed === "5+") query = query.gte("bedrooms", 5);
+    else query = query.eq("bedrooms", Number(applied.bed));
+  }
+  if (applied.bath !== "Any") {
+    if (applied.bath === "5+") query = query.gte("bathrooms", 5);
+    else query = query.eq("bathrooms", Number(applied.bath));
+  }
+
+  // Budget — compare against the lower of weekday/weekend
+  query = query.lte("price_weekday", applied.maxBudget);
+
+  // Amenities — array contains all selected
+  if (applied.amenities.length > 0) {
+    query = query.contains("amenities", applied.amenities);
+  }
+
+  // Keyword — title / description / location
+  const k = applied.keyword.trim();
+  if (k) {
+    const term = k.replace(/[%,]/g, " ");
+    query = query.or(
+      `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%`,
+    );
+  }
+
+  // Sort + paginate
+  const { data, error } = await query
+    .order("created_at", { ascending: false })
+    .range(offset, offset + pageSize - 1);
+
   if (error) throw error;
-  return (data ?? []).map((l) => {
+  const rows = data ?? [];
+  const units: Unit[] = rows.map((l) => {
     const photos = (l.listing_photos ?? [])
       .slice()
       .sort((a, b) => a.display_order - b.display_order);
@@ -78,7 +148,7 @@ async function fetchAllUnits(): Promise<Unit[]> {
       city,
       location: l.location,
       description: l.description ?? "",
-      price: weekday, // base reference for filter & "from $X" display
+      price: weekday,
       priceWeekday: weekday,
       priceWeekend: weekend,
       beds: l.bedrooms ?? 0,
@@ -88,23 +158,43 @@ async function fetchAllUnits(): Promise<Unit[]> {
       photos: photos.map((p) => p.photo_url),
     };
   });
+  return {
+    units,
+    nextOffset: rows.length < pageSize ? null : offset + pageSize,
+  };
+}
+
+/** Lightweight query — pulls only city + amenities for typeahead suggestions.
+ *  Limited to 200 rows so it never explodes for 100+ listings. */
+async function fetchSuggestionPool(): Promise<
+  Pick<Unit, "id" | "name" | "location" | "city" | "image" | "amenities">[]
+> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select("id, title, location, listing_photos(photo_url, display_order), amenities")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return (data ?? []).map((l) => {
+    const photos = (l.listing_photos ?? [])
+      .slice()
+      .sort((a, b) => a.display_order - b.display_order);
+    return {
+      id: l.id,
+      name: l.title,
+      location: l.location,
+      city: (l.location ?? "").split(",")[0].trim(),
+      image: photos[0]?.photo_url ?? null,
+      amenities: l.amenities ?? [],
+    };
+  });
 }
 
 export function FindYourUnit() {
-  const { data: UNITS = [], isLoading } = useQuery({
-    queryKey: ["find-your-unit-listings"],
-    queryFn: fetchAllUnits,
-    staleTime: 30_000,
-  });
+  const pageSize = usePageSize();
 
-  const cities = useMemo(
-    () => Array.from(new Set(UNITS.map((u) => u.city).filter(Boolean))).sort(),
-    [UNITS]
-  );
-
-  // Price ceiling fixed at $3,000 (per spec)
   const maxPrice = 3000;
-
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
@@ -113,21 +203,53 @@ export function FindYourUnit() {
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
 
-  // Keep budget in sync when listings load and bump the ceiling
-  useEffect(() => {
-    setMaxBudget(maxPrice);
-    setApplied((prev) => ({ ...prev, maxBudget: maxPrice }));
-  }, [maxPrice]);
-
-  const [applied, setApplied] = useState({
+  const [applied, setApplied] = useState<AppliedFilters>({
     keyword: "",
     city: "All Cities",
-    bed: "Any" as AnyOption,
-    bath: "Any" as AnyOption,
-    maxBudget: 3000,
-    amenities: [] as string[],
+    bed: "Any",
+    bath: "Any",
+    maxBudget,
+    amenities: [],
     submitted: false,
   });
+
+  // Suggestion pool — small static-ish snapshot used for the typeahead and
+  // the city dropdown. Cached for 5 minutes.
+  const { data: suggestionPool = [] } = useQuery({
+    queryKey: ["unit-suggestion-pool"],
+    queryFn: fetchSuggestionPool,
+    staleTime: 5 * 60_000,
+  });
+
+  const cities = useMemo(
+    () => Array.from(new Set(suggestionPool.map((u) => u.city).filter(Boolean))).sort(),
+    [suggestionPool],
+  );
+
+  // Paginated infinite query — every page is a fresh DB call with .range().
+  // queryKey includes every applied filter so changing a filter starts a new
+  // sequence (and TanStack caches each filter combo independently).
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["find-your-unit-listings", applied, pageSize],
+    queryFn: ({ pageParam = 0 }) => fetchUnitsPage(applied, pageParam, pageSize),
+    getNextPageParam: (lastPage) => lastPage.nextOffset,
+    initialPageParam: 0,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+
+  const displayed = useMemo(
+    () => (data?.pages ?? []).flatMap((p) => p.units),
+    [data],
+  );
+
+  const totalLoaded = displayed.length;
 
   const toggleAmenity = (a: string) =>
     setAmenities((prev) =>
@@ -145,34 +267,17 @@ export function FindYourUnit() {
     });
   };
 
-  // Live suggestions as user types in the keyword field
+  // Live suggestions filtered from the small cached pool — never hits the DB.
   const suggestions = useMemo(() => {
     const k = keyword.trim().toLowerCase();
     if (!k) return [];
-    return UNITS.filter((u) => {
-      const hay = `${u.name} ${u.location} ${u.city} ${u.description} ${u.amenities.join(" ")}`.toLowerCase();
-      return hay.includes(k);
-    }).slice(0, 6);
-  }, [keyword, UNITS]);
-
-  const results = useMemo(() => {
-    const k = applied.keyword.trim().toLowerCase();
-    return UNITS.filter((u) => {
-      if (applied.city !== "All Cities" && u.city !== applied.city) return false;
-      if (!countMatch(u.beds, applied.bed)) return false;
-      if (!countMatch(u.baths, applied.bath)) return false;
-      if (u.price > applied.maxBudget) return false;
-      if (!applied.amenities.every((a) => u.amenities.includes(a))) return false;
-      if (k) {
-        const haystack = `${u.name} ${u.location} ${u.city} ${u.description} ${u.amenities.join(" ")}`.toLowerCase();
-        if (!haystack.includes(k)) return false;
-      }
-      return true;
-    });
-  }, [applied, UNITS]);
-
-  // Until the user submits, show all available units
-  const displayed = applied.submitted ? results : UNITS;
+    return suggestionPool
+      .filter((u) => {
+        const hay = `${u.name} ${u.location} ${u.city} ${u.amenities.join(" ")}`.toLowerCase();
+        return hay.includes(k);
+      })
+      .slice(0, 6);
+  }, [keyword, suggestionPool]);
 
   return (
     <section
@@ -225,7 +330,7 @@ export function FindYourUnit() {
                           className="flex items-start gap-3 px-4 py-2.5 hover:bg-accent"
                         >
                           {u.image ? (
-                            <img src={u.image} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" loading="lazy" decoding="async" />
+                            <img src={u.image} alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-md object-cover" loading="lazy" decoding="async" />
                           ) : (
                             <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
                           )}
@@ -400,7 +505,7 @@ export function FindYourUnit() {
           <div className="flex items-end justify-between">
             <h3 className="font-display text-3xl text-foreground sm:text-4xl">
               {applied.submitted
-                ? `${results.length} ${results.length === 1 ? "unit" : "units"} found`
+                ? `${totalLoaded}${hasNextPage ? "+" : ""} ${totalLoaded === 1 ? "unit" : "units"} found`
                 : "Available units"}
             </h3>
           </div>
@@ -419,68 +524,83 @@ export function FindYourUnit() {
               </p>
             </div>
           ) : (
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {displayed.map((u, i) => (
-                <motion.article
-                  key={u.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.05, ease: "easeOut" }}
-                  className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
-                >
-                  <Link to="/listing/$id" params={{ id: u.id }} className="block">
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      <CardPhotoSlider
-                        photos={u.photos}
-                        alt={u.name}
-                        fallback={
-                          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                            No photo
+            <>
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {displayed.map((u, i) => (
+                  <motion.article
+                    key={u.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: Math.min(i, 8) * 0.04, ease: "easeOut" }}
+                    className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
+                  >
+                    <Link to="/listing/$id" params={{ id: u.id }} className="block">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        <CardPhotoSlider
+                          photos={u.photos}
+                          alt={u.name}
+                          fallback={
+                            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                              No photo
+                            </div>
+                          }
+                        />
+                        <div className="absolute right-3 top-3 z-[3] rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
+                          From ${Math.min(u.priceWeekday, u.priceWeekend).toLocaleString()}/night
+                        </div>
+                        {u.amenities.some((a) => a.toLowerCase() === "breakfast included") && (
+                          <div className="absolute left-3 top-3 z-[3] inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
+                            ☕ Breakfast
                           </div>
-                        }
-                      />
-                      <div className="absolute right-3 top-3 z-[3] rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
-                        From ${Math.min(u.priceWeekday, u.priceWeekend).toLocaleString()}/night
+                        )}
                       </div>
-                      {u.amenities.some((a) => a.toLowerCase() === "breakfast included") && (
-                        <div className="absolute left-3 top-3 z-[3] inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
-                          ☕ Breakfast
+                      <div className="p-5">
+                        <h4 className="font-display text-xl text-foreground">{u.name}</h4>
+                        <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {u.location}
+                        </p>
+                        <div className="mt-3 flex items-center gap-4 text-sm text-foreground">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Bed className="h-4 w-4 text-primary" />
+                            {u.beds} bedroom{u.beds !== 1 ? "s" : ""}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Bath className="h-4 w-4 text-primary" />
+                            {u.baths} bath{u.baths !== 1 ? "s" : ""}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <h4 className="font-display text-xl text-foreground">{u.name}</h4>
-                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {u.location}
-                      </p>
-                      <div className="mt-3 flex items-center gap-4 text-sm text-foreground">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Bed className="h-4 w-4 text-primary" />
-                          {u.beds} bedroom{u.beds !== 1 ? "s" : ""}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Bath className="h-4 w-4 text-primary" />
-                          {u.baths} bath{u.baths !== 1 ? "s" : ""}
-                        </span>
+                        {u.amenities.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-1.5">
+                            {u.amenities.slice(0, 6).map((a) => (
+                              <span
+                                key={a}
+                                className="rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
+                              >
+                                {a}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      {u.amenities.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-1.5">
-                          {u.amenities.slice(0, 6).map((a) => (
-                            <span
-                              key={a}
-                              className="rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
-                            >
-                              {a}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                </motion.article>
-              ))}
-            </div>
+                    </Link>
+                  </motion.article>
+                ))}
+              </div>
+
+              {hasNextPage && (
+                <div className="mt-10 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    className="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-transparent px-8 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background disabled:opacity-60"
+                  >
+                    {isFetchingNextPage ? "Loading…" : "Load more"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

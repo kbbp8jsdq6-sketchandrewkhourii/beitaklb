@@ -266,12 +266,12 @@ body.no-scroll {
 
 /* Reduce backdrop-filter blur on mobile for better performance.
    Backdrop-filter is one of the most expensive CSS effects on mobile GPUs.
-   Aggressively dialed down to 6px on mobile per perf guidelines. */
+   Aggressively dialed down to 4px on mobile per perf guidelines. */
 @media (max-width: 768px) {
   .glass,
   .glass-light {
-    backdrop-filter: blur(6px) saturate(140%);
-    -webkit-backdrop-filter: blur(6px) saturate(140%);
+    backdrop-filter: blur(4px) saturate(140%);
+    -webkit-backdrop-filter: blur(4px) saturate(140%);
   }
   /* Also dial back any Tailwind backdrop-blur utility on mobile.
      Tailwind's .backdrop-blur defaults to 8px, .backdrop-blur-sm to 4px,
@@ -279,8 +279,8 @@ body.no-scroll {
   .backdrop-blur,
   .backdrop-blur-md,
   .backdrop-blur-\[12px\] {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   /* Disable the heavy 3D extruded hero logo spin on mobile —

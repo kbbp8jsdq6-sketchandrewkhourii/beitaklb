@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
@@ -41,62 +41,122 @@ type SearchListing = ListingCardData & {
   category?: ListingCategory;
 };
 
+interface PageResult {
+  results: SearchListing[];
+  nextOffset: number | null;
+}
+
+function usePageSize(): number {
+  const [size, setSize] = useState(8);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setSize(mq.matches ? 4 : 8);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return size;
+}
+
+async function fetchSearchPage(
+  q: string | undefined,
+  category: ListingCategory | undefined,
+  selectedAmenities: string[],
+  offset: number,
+  pageSize: number,
+): Promise<PageResult> {
+  let query = supabase
+    .from("listings")
+    .select(
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, listing_photos(photo_url, display_order)",
+    )
+    .eq("is_active", true);
+
+  if (category) query = query.eq("category", category);
+  if (q) {
+    const term = q.replace(/[%,]/g, " ");
+    query = query.or(
+      `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`,
+    );
+  }
+  if (selectedAmenities.length > 0) {
+    query = query.contains("amenities", selectedAmenities);
+  }
+
+  const { data, error } = await query
+    .order("created_at", { ascending: false })
+    .range(offset, offset + pageSize - 1);
+  if (error) throw error;
+
+  const rows = data ?? [];
+  const results: SearchListing[] = rows.map((l) => {
+    const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
+    return {
+      id: l.id,
+      title: l.title,
+      description: l.description,
+      location: l.location,
+      price_per_night: Number(l.price_per_night),
+      price_weekday: Number(l.price_weekday),
+      price_weekend: Number(l.price_weekend),
+      amenities: l.amenities ?? [],
+      category: l.category as ListingCategory,
+      cover: photos[0]?.photo_url ?? null,
+      photos: photos.map((p) => p.photo_url),
+    };
+  });
+
+  return {
+    results,
+    nextOffset: rows.length < pageSize ? null : offset + pageSize,
+  };
+}
+
 function SearchPage() {
   const { q, category } = Route.useSearch();
+  const pageSize = usePageSize();
+
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
 
-  const { data: results = [], isLoading } = useQuery<SearchListing[]>({
-    queryKey: ["search-listings", q, category],
-    queryFn: async () => {
-      let query = supabase
-        .from("listings")
-        .select("id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, listing_photos(photo_url, display_order)")
-        .eq("is_active", true);
-      if (category) {
-        query = query.eq("category", category);
-      }
-      if (q) {
-        const term = q.replace(/[%,]/g, " ");
-        query = query.or(
-          `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`
-        );
-      }
-      const { data, error } = await query.order("created_at", { ascending: false }).limit(60);
-      if (error) throw error;
-      return (data ?? []).map((l) => {
-        const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
-        return {
-          id: l.id,
-          title: l.title,
-          description: l.description,
-          location: l.location,
-          price_per_night: Number(l.price_per_night),
-          price_weekday: Number(l.price_weekday),
-          price_weekend: Number(l.price_weekend),
-          amenities: l.amenities ?? [],
-          category: l.category as ListingCategory,
-          cover: photos[0]?.photo_url ?? null,
-          photos: photos.map((p) => p.photo_url),
-        };
-      });
-    },
+  // Paginated, server-side filtered query.
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["search-listings", q, category, selectedAmenities, pageSize],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchSearchPage(q, category, selectedAmenities, pageParam, pageSize),
+    getNextPageParam: (lastPage) => lastPage.nextOffset,
+    initialPageParam: 0,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 
-  // Aggregate every unique amenity across every active listing — pulls live from Supabase
-  // so any new custom amenity added by a host or admin shows up here automatically.
+  const filteredResults = useMemo(
+    () => (data?.pages ?? []).flatMap((p) => p.results),
+    [data],
+  );
+
+  // Aggregate every unique amenity across active listings — capped to 200
+  // listings so we never download 100+ rows for the filter chips.
   const { data: allAmenities = [] } = useQuery<string[]>({
     queryKey: ["all-amenities"],
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("listings")
         .select("amenities")
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .limit(200);
       if (error) throw error;
-      const set = new Map<string, string>(); // lowercase key -> display label (first seen)
+      const set = new Map<string, string>();
       (data ?? []).forEach((row) => {
         (row.amenities ?? []).forEach((a) => {
           const key = a.trim().toLowerCase();
@@ -113,16 +173,6 @@ function SearchPage() {
       prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
     );
 
-  // Client-side intersection filter: a listing must have every selected amenity (case-insensitive).
-  const filteredResults = useMemo(() => {
-    if (selectedAmenities.length === 0) return results;
-    const wanted = selectedAmenities.map((a) => a.toLowerCase());
-    return results.filter((l) => {
-      const have = (l.amenities ?? []).map((a) => a.toLowerCase());
-      return wanted.every((w) => have.includes(w));
-    });
-  }, [results, selectedAmenities]);
-
   const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
 
   const openPreview = (listing: ListingCardData) => {
@@ -130,6 +180,8 @@ function SearchPage() {
     setPreview(full ?? listing);
     setPreviewOpen(true);
   };
+
+  const totalLoaded = filteredResults.length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,11 +201,13 @@ function SearchPage() {
                 : "All stays in Lebanon"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isLoading ? "Searching…" : `${filteredResults.length} result${filteredResults.length === 1 ? "" : "s"}`}
+            {isLoading
+              ? "Searching…"
+              : `${totalLoaded}${hasNextPage ? "+" : ""} result${totalLoaded === 1 ? "" : "s"}`}
           </p>
         </div>
 
-        {/* Amenities filter — auto-populated from every listing in real time */}
+        {/* Amenities filter — capped pool, server-side filtered when toggled */}
         {allAmenities.length > 0 && (
           <div className="mt-6 rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
@@ -207,7 +261,7 @@ function SearchPage() {
 
         {isLoading ? (
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: pageSize }).map((_, i) => (
               <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
@@ -227,11 +281,26 @@ function SearchPage() {
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredResults.map((l, i) => (
-              <ListingCard key={l.id} listing={l} index={i} onQuickPreview={openPreview} />
-            ))}
-          </div>
+          <>
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredResults.map((l, i) => (
+                <ListingCard key={l.id} listing={l} index={Math.min(i, 8)} onQuickPreview={openPreview} />
+              ))}
+            </div>
+
+            {hasNextPage && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-transparent px-8 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background disabled:opacity-60"
+                >
+                  {isFetchingNextPage ? "Loading…" : "Load more"}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
