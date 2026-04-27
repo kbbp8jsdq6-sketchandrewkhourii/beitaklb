@@ -480,7 +480,7 @@ function HomePage() {
             </p>
 
             <div id="mission" className="mt-8 scroll-mt-24 rounded-2xl border-l-4 border-primary bg-primary/5 p-5">
-              <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our MissioN</p>
+              <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our Mission</p>
               <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
                 Make every Lebanese stay effortless — connecting travelers directly with curated
                 hosts, with no middlemen and no surprises.

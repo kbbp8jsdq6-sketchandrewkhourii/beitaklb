@@ -227,7 +227,7 @@ export function HamburgerMenu() {
                         onClick={close}
                         className="block rounded-lg px-3 py-2 text-sm text-foreground transition hover:bg-primary/10 hover:text-primary"
                       >
-                        Our MissioN
+                        Our Mission
                       </Link>
                       <Link
                         to="/about"

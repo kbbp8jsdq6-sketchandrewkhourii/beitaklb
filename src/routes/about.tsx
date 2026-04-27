@@ -16,7 +16,7 @@ export const Route = createFileRoute("/about")({
       {
         property: "og:description",
         content:
-          "Our MissioN and vision — connecting travelers with the most unique homes across Lebanon.",
+          "Our Mission and vision — connecting travelers with the most unique homes across Lebanon.",
       },
     ],
   }),
@@ -70,7 +70,7 @@ function AboutPage() {
               />
               <div className="relative">
                 <p className="font-serif text-sm font-extrabold uppercase tracking-[0.35em] text-[#CC0000]">
-                  Our MissioN
+                  Our Mission
                 </p>
                 <h2 className="mt-4 font-display text-3xl leading-tight text-foreground sm:text-4xl">
                   Make every Lebanese stay effortless
