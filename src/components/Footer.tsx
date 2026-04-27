@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, Mail } from "lucide-react";
 import { Logo } from "./Logo";
 import { PatternBackground } from "./PatternBackground";
-import redSplash from "@/assets/red-liquid-splash.png";
 
 const BECOME_HOST_MESSAGE = "Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?";
 const WHATSAPP_URL = `https://wa.me/96181160435?text=${encodeURIComponent(BECOME_HOST_MESSAGE)}`;
@@ -105,23 +104,36 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-foreground/10 pt-6 pb-24 text-center text-xs text-foreground/60">
+        <div className="mt-10 border-t border-foreground/10 pt-6 pb-6 text-center text-xs text-foreground/60">
           © {new Date().getFullYear()} BEITAK. All rights reserved.
         </div>
       </div>
       </div>
 
-      {/* Realistic red liquid splash at the very bottom.
-          The splash PNG sits on top, and the area below the splash
-          is filled with solid Beitak red (#CC0000). */}
-      <div className="splash-wave" aria-hidden="true">
-        <img
-          src={redSplash}
-          alt=""
-          className="splash-wave-img"
-          loading="lazy"
-        />
-        <div className="splash-wave-base" />
+      {/* Red liquid wave — last element on the page. Sits in normal
+          document flow so nothing can overlap footer content above. */}
+      <div className="footer-wave" aria-hidden="true">
+        {/* Back layer — slowest, most transparent (hidden on mobile) */}
+        <svg className="fw-back" viewBox="0 0 2880 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill="#ffffff"
+            d="M0,60 C240,10 480,110 720,70 C960,30 1200,100 1440,60 C1680,20 1920,110 2160,70 C2400,30 2640,100 2880,60 L2880,0 L0,0 Z"
+          />
+        </svg>
+        {/* Mid layer */}
+        <svg className="fw-mid" viewBox="0 0 2880 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill="#ffffff"
+            d="M0,40 C300,90 600,0 900,50 C1200,100 1500,10 1800,50 C2100,90 2400,0 2700,50 C2820,70 2880,40 2880,40 L2880,0 L0,0 Z"
+          />
+        </svg>
+        {/* Front layer — sharpest, opaque, defines the white→red transition */}
+        <svg className="fw-front" viewBox="0 0 2880 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill="#ffffff"
+            d="M0,30 C180,80 420,0 660,40 C900,80 1140,10 1380,50 C1620,90 1860,20 2100,50 C2340,80 2580,20 2880,50 L2880,0 L0,0 Z"
+          />
+        </svg>
       </div>
     </footer>
   );

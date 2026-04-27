@@ -375,57 +375,65 @@ body.no-scroll {
 }
 
 /* ============================================================
- * Realistic red liquid splash at the bottom of the page.
- * Uses a high-resolution PNG with a transparent (formerly black)
- * background so the splash silhouette is naturally jagged and
- * organic. Below the splash sits a solid red bar so the area
- * under the liquid reads as continuous red liquid.
+ * Footer red liquid wave — sits in normal document flow as the
+ * last element on the page (no absolute positioning, so nothing
+ * can ever overlap footer content). Multiple SVG layers slide at
+ * different speeds for a deep, fluid liquid effect. CSS-only,
+ * fully GPU accelerated.
  * ============================================================ */
-.splash-wave {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.footer-wave {
+  position: relative;
   width: 100%;
-  height: 220px;
-  pointer-events: none;
+  height: 140px;
   overflow: hidden;
-  z-index: 5;
+  pointer-events: none;
+  background-color: #cc0000;
+  /* Avoid layout shift / repaint on parents */
+  contain: layout paint;
 }
 @media (min-width: 768px) {
-  .splash-wave { height: 280px; }
+  .footer-wave { height: 180px; }
 }
-.splash-wave-img {
+.footer-wave svg {
   position: absolute;
   left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
+  top: 0;
+  width: 200%;
   height: 100%;
-  object-fit: cover;
-  object-position: bottom;
   display: block;
-  /* Subtle gentle bob — extremely slow so it doesn't distract */
-  animation: splash-bob 9s ease-in-out infinite;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
-/* Solid red base extending below the splash image to ensure
-   the very bottom of the page reads as continuous liquid even
-   if the image's transparent edges show through. */
-.splash-wave-base {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 30%;
-  background-color: #cc0000;
+.footer-wave .fw-back {
+  animation: footer-wave-slide 18s linear infinite;
+  opacity: 0.45;
 }
-@keyframes splash-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(4px); }
+.footer-wave .fw-mid {
+  animation: footer-wave-slide-reverse 12s linear infinite;
+  opacity: 0.7;
+}
+.footer-wave .fw-front {
+  animation: footer-wave-slide 8s linear infinite;
+  opacity: 1;
+}
+@keyframes footer-wave-slide {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes footer-wave-slide-reverse {
+  0%   { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+/* Mobile: drop the slowest back layer for performance, keep two layers */
+@media (max-width: 768px) {
+  .footer-wave { height: 110px; }
+  .footer-wave .fw-back { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .splash-wave-img { animation: none; }
+  .footer-wave .fw-back,
+  .footer-wave .fw-mid,
+  .footer-wave .fw-front { animation: none; }
 }
 
 /* ============================================================
