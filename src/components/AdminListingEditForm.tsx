@@ -154,21 +154,36 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!listingId) return;
-    if (!title || !description || !location || !priceWeekday || !priceWeekend) {
-      toast.error("Fill all required fields");
+    if (submitting) return;
+
+    const cleanTitle = sanitizeLine(title);
+    const cleanDesc = stripHtml(description);
+    const cleanLoc = sanitizeLine(location);
+    const wd = Number(priceWeekday);
+    const we = Number(priceWeekend);
+
+    const parsed = listingSchema.safeParse({
+      title: cleanTitle,
+      description: cleanDesc,
+      location: cleanLoc,
+      priceWeekday: wd,
+      priceWeekend: we,
+    });
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
+      toast.error("Please fix the highlighted fields");
       return;
     }
+    setErrors({});
+
     setSubmitting(true);
     try {
-      const wd = Number(priceWeekday);
-      const we = Number(priceWeekend);
-
       const { error: uErr } = await supabase
         .from("listings")
         .update({
-          title: title.trim(),
-          description: description.trim(),
-          location,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          location: parsed.data.location,
           category,
           price_weekday: wd,
           price_weekend: we,
