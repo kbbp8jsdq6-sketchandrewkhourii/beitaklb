@@ -175,11 +175,26 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
     <form
       onSubmit={submit}
       className="mx-auto mt-10 max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-sm"
+      noValidate
     >
       <h2 className="font-display text-2xl text-foreground">Share your experience</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Reviews are moderated before appearing on the site.
       </p>
+
+      {/* Honeypot — hidden from real users */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+        <label>
+          Website
+          <input
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </label>
+      </div>
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -193,7 +208,9 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
             placeholder="Lara Haddad"
             className="mt-1"
             required
+            aria-invalid={!!errors.name}
           />
+          <FieldError message={errors.name} />
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -217,6 +234,7 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
               </button>
             ))}
           </div>
+          <FieldError message={errors.rating} />
         </div>
       </div>
 
@@ -227,13 +245,15 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
         <Textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          maxLength={1000}
+          maxLength={500}
           placeholder="Tell us about your stay…"
           className="mt-1 min-h-28"
           required
+          aria-invalid={!!errors.message}
         />
+        <FieldError message={errors.message} />
         <p className="mt-1 text-right text-xs text-muted-foreground">
-          {message.length}/1000
+          {message.length}/500
         </p>
       </div>
 
