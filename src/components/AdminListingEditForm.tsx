@@ -231,7 +231,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
       onSaved();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update listing");
+      toast.error(friendlyError(err, "Failed to update listing"));
     } finally {
       setSubmitting(false);
     }
