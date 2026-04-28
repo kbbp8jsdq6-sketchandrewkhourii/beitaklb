@@ -240,6 +240,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                 <Input id="pwe" type="number" min="1" max="3000" step="1" value={priceWeekend} onChange={(e) => setPriceWeekend(e.target.value)} placeholder="180" className="pl-7" aria-invalid={!!errors.priceWeekend} />
               </div>
+              <FieldError message={errors.priceWeekend} />
             </div>
           </div>
 
