@@ -45,10 +45,10 @@ export function HeroSlideshow() {
             height={1280}
             className="absolute inset-0 h-full w-full object-cover"
             style={{ willChange: "transform, opacity" }}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 1 }}
+            animate={{ opacity: 1, scale: 1.1 }}
             exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 1.4, ease: "easeInOut" }, scale: { duration: 6, ease: "linear" } }}
+            transition={{ opacity: { duration: 1.4, ease: "easeInOut" }, scale: { duration: 8, ease: "easeOut" } }}
           />
         </AnimatePresence>
         {/* Soft dark overlay for readable text */}
