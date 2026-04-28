@@ -6,18 +6,20 @@ import { Home, Eye, Instagram } from "lucide-react";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About us — BEITAK" },
+      { title: "About Beitak | The Lebanese Home Rental Platform" },
       {
         name: "description",
         content:
-          "Learn about BEITAK's mission and vision: making it effortless to discover unique stays across Lebanon.",
+          "Learn about Beitak's mission and vision: making it effortless to discover unique stays across Lebanon.",
       },
-      { property: "og:title", content: "About BEITAK" },
+      { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "About Beitak | The Lebanese Home Rental Platform" },
       {
         property: "og:description",
         content:
-          "Our Mission and vision — connecting travelers with the most unique homes across Lebanon.",
+          "Our mission and vision — connecting travelers with the most unique homes across Lebanon.",
       },
+      { property: "og:url", content: "https://beitaklb.lovable.app/about" },
     ],
   }),
   component: AboutPage,

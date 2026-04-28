@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as FeedbackRouteImport } from './routes/feedback'
@@ -41,6 +42,11 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -190,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof FeedbackRoute
   '/profile': typeof ProfileRouteWithChildren
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/feedback': typeof FeedbackRoute
   '/profile': typeof ProfileRouteWithChildren
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/feedback': typeof FeedbackRoute
   '/profile': typeof ProfileRouteWithChildren
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/profile'
     | '/search'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
     | '/admin/approvals'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/profile'
     | '/search'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
     | '/admin/approvals'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/profile'
     | '/search'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/announcements'
     | '/admin/approvals'
@@ -372,6 +384,7 @@ export interface RootRouteChildren {
   FeedbackRoute: typeof FeedbackRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   SearchRoute: typeof SearchRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -631,6 +651,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackRoute: FeedbackRoute,
   ProfileRoute: ProfileRouteWithChildren,
   SearchRoute: SearchRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,

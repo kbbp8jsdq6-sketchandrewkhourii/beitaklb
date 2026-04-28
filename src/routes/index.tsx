@@ -18,17 +18,20 @@ import { SectionDivider } from "@/components/SectionDivider";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BEITAK — Find your perfect stay in Lebanon" },
+      { title: "Beitak — Find Your Perfect Stay in Lebanon | Home is Closer Than You Think" },
       {
         name: "description",
         content:
           "Browse unique listings from trusted local hosts across Lebanon. Reserve via WhatsApp and discover stays in Beirut, Byblos, Bcharre and beyond.",
       },
-      { property: "og:title", content: "BEITAK — Find your perfect stay in Lebanon" },
+      { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "Beitak — Find Your Perfect Stay in Lebanon" },
       {
         property: "og:description",
-        content: "Unique stays across Lebanon. Home is closer than you think.",
+        content: "Browse unique listings from trusted local hosts across Lebanon.",
       },
+      { property: "og:url", content: "https://beitaklb.lovable.app/" },
+      { property: "og:image", content: "https://beitaklb.lovable.app/og-image.jpg" },
     ],
   }),
   component: HomePage,

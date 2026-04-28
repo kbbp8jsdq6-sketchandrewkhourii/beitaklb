@@ -25,10 +25,12 @@ const CATEGORY_LABEL: Record<ListingCategory, string> = {
 export const Route = createFileRoute("/search")({
   head: () => ({
     meta: [
-      { title: "Search Stays in Lebanon — BEITAK" },
-      { name: "description", content: "Browse and search unique guesthouses, villas and apartments across Lebanon. Filter by city to find your perfect Lebanese stay." },
-      { property: "og:title", content: "Search Stays in Lebanon — BEITAK" },
+      { title: "Browse Listings in Lebanon | Villas, Cabins & Apartments | Beitak" },
+      { name: "description", content: "Browse unique guesthouses, villas, cabins and apartments across Lebanon. Filter by city to find your perfect Lebanese stay." },
+      { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "Browse Listings in Lebanon | Beitak" },
       { property: "og:description", content: "Browse unique stays across Lebanon — from Beirut to Bcharre." },
+      { property: "og:url", content: "https://beitaklb.lovable.app/search" },
     ],
     links: [{ rel: "canonical", href: "https://beitaklb.lovable.app/search" }],
   }),

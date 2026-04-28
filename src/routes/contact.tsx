@@ -15,10 +15,12 @@ import { contactSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError } fr
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact us — BEITAK" },
-      { name: "description", content: "Get in touch with BEITAK. We're here to help." },
-      { property: "og:title", content: "Contact BEITAK" },
-      { property: "og:description", content: "Get in touch with the BEITAK team." },
+      { title: "Contact Beitak | Get in Touch" },
+      { name: "description", content: "Get in touch with the Beitak team. We're here to help with your Lebanese stay." },
+      { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "Contact Beitak | Get in Touch" },
+      { property: "og:description", content: "Get in touch with the Beitak team." },
+      { property: "og:url", content: "https://beitaklb.lovable.app/contact" },
     ],
   }),
   component: ContactPage,
