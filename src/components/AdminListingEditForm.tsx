@@ -322,12 +322,16 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   <Input
                     id="pwd"
                     type="number"
-                    min="0"
+                    min="1"
+                    max="3000"
+                    step="1"
                     value={priceWeekday}
                     onChange={(e) => setPriceWeekday(e.target.value)}
                     className="pl-7"
+                    aria-invalid={!!errors.priceWeekday}
                   />
                 </div>
+                <FieldError message={errors.priceWeekday} />
               </div>
               <div>
                 <Label htmlFor="pwe">Weekend price (USD) *</Label>
@@ -338,12 +342,16 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   <Input
                     id="pwe"
                     type="number"
-                    min="0"
+                    min="1"
+                    max="3000"
+                    step="1"
                     value={priceWeekend}
                     onChange={(e) => setPriceWeekend(e.target.value)}
                     className="pl-7"
+                    aria-invalid={!!errors.priceWeekend}
                   />
                 </div>
+                <FieldError message={errors.priceWeekend} />
               </div>
             </div>
 
