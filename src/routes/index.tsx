@@ -5,11 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-
+import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
-import { BeitakLogo3D } from "@/components/BeitakLogo3D";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
@@ -238,10 +237,10 @@ function HomePage() {
               <div className="hero-particles" aria-hidden="true">
                 {Array.from({ length: isMobile ? 4 : 10 }).map((_, i) => {
                   const isRed = i % 2 === 0;
-                  const size = 4 + ((i * 3) % 5);
+                  const size = 4 + ((i * 3) % 5); // 4..8px
                   const left = (i * 97) % 100;
                   const delay = (i * 0.7) % 6;
-                  const duration = 5 + ((i * 1.3) % 4);
+                  const duration = 5 + ((i * 1.3) % 4); // 5..9s
                   return (
                     <span
                       key={i}
@@ -262,20 +261,42 @@ function HomePage() {
                 })}
               </div>
               <motion.div
-                className="relative z-10"
-                initial={{ opacity: 0, scale: 0.5, y: -30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
                 transition={{
                   duration: 0.9,
                   ease: [0.22, 1, 0.36, 1],
                   scale: { type: "spring", stiffness: 120, damping: 12 },
                 }}
               >
-                {/* The Three.js canvas IS the logo now — sized to match the
-                    previous HTML logo footprint (w-[280px] mobile / w-[440px] desktop,
-                    box ratio width:height = 3:1.5 = 2:1 → height = width / 2). */}
-                <div className="w-[280px] sm:w-[440px] aspect-[2/1]">
-                  <BeitakLogo3D />
+                <div className="hero-logo-float">
+                  <div className="hero-logo-breathe">
+                    <div className="hero-logo-glow">
+                      <div className="hero-logo-stage">
+                        <div className="hero-logo-spin">
+                          {Array.from({ length: isMobile ? 1 : 30 }).map((_, i) => {
+                            const total = isMobile ? 1 : 30;
+                            const z = (i - (total - 1)) * 1.2;
+                            const darkness = total === 1 ? 1 : 0.55 + (i / (total - 1)) * 0.45;
+                            const sat = total === 1 ? 1 : 0.7 + (i / (total - 1)) * 0.3;
+                            return (
+                              <div
+                                key={i}
+                                className="hero-logo-layer"
+                                style={{
+                                  transform: `translateZ(${z}px)`,
+                                  filter: `brightness(${darkness}) saturate(${sat})`,
+                                }}
+                                aria-hidden={i !== total - 1}
+                              >
+                                <LogoTransparent size="hero" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </div>
