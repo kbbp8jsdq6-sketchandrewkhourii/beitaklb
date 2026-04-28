@@ -171,11 +171,13 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <Label htmlFor="title">Listing title *</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Cozy stone house in Bcharre" />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} placeholder="Cozy stone house in Bcharre" />
+            <FieldError message={errors.title} />
           </div>
           <div>
             <Label htmlFor="desc">Description *</Label>
-            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Tell guests what makes your place special…" />
+            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={1000} aria-invalid={!!errors.description} placeholder="Tell guests what makes your place special…" />
+            <FieldError message={errors.description} />
           </div>
 
           <div>
@@ -185,6 +187,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               list="city-suggestions"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              maxLength={120}
+              aria-invalid={!!errors.location}
               placeholder="e.g. Bcharre, Beirut, Tyre…"
             />
             <datalist id="city-suggestions">
@@ -192,6 +196,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 <option key={l} value={l} />
               ))}
             </datalist>
+            <FieldError message={errors.location} />
             <p className="mt-1 text-xs text-muted-foreground">
               Pick a suggestion or type any new city — it will appear in the search filter automatically.
             </p>
