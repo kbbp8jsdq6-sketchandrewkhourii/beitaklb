@@ -35,39 +35,49 @@ function ContactForm() {
   const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    const trimmedMsg = message.trim();
+    if (submitting) return;
 
-    if (!trimmedName || trimmedName.length > 100) {
-      toast.error("Please enter your name (max 100 characters)");
+    const payload = {
+      name: sanitizeLine(name),
+      email: email.trim(),
+      phone: sanitizeLine(phone),
+      subject: sanitizeLine(subject),
+      message: stripHtml(message),
+      website: website.trim(),
+    };
+
+    // Silent honeypot drop — pretend success.
+    if (payload.website) {
+      setName(""); setEmail(""); setPhone(""); setSubject(""); setMessage("");
+      toast.success("Message sent — we'll get back to you soon.");
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || trimmedEmail.length > 255) {
-      toast.error("Please enter a valid email");
+
+    const parsed = contactSchema.safeParse(payload);
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
       return;
     }
-    if (!trimmedMsg || trimmedMsg.length > 2000) {
-      toast.error("Message is required (max 2000 characters)");
-      return;
-    }
+    setErrors({});
 
     setSubmitting(true);
     const { error } = await supabase.from("contact_messages").insert({
-      name: trimmedName,
-      email: trimmedEmail,
-      phone: phone.trim() || null,
-      subject: subject.trim() || null,
-      message: trimmedMsg,
+      name: parsed.data.name,
+      email: parsed.data.email,
+      phone: parsed.data.phone || null,
+      subject: parsed.data.subject || null,
+      message: parsed.data.message,
     });
     setSubmitting(false);
 
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, "We couldn't send your message. Please try again."));
       return;
     }
     toast.success("Message sent — we'll get back to you soon.");
