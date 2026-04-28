@@ -1,6 +1,21 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
+// Inject a <link rel="preload" as="image"> for the first hero slide so it
+// starts downloading before React hydrates.
+if (typeof document !== "undefined") {
+  const FIRST_SLIDE =
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80";
+  if (!document.querySelector(`link[rel="preload"][href="${FIRST_SLIDE}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = FIRST_SLIDE;
+    (link as HTMLLinkElement & { fetchPriority?: string }).fetchPriority = "high";
+    document.head.appendChild(link);
+  }
+}
+
 // Curated Unsplash placeholders matching the warm Beitak palette
 // (cozy stone homes, mountain retreats, seaside stays, gardens).
 const SLIDES = [
