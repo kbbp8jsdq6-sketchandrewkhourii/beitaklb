@@ -6,13 +6,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 /**
  * BeitakLogo3D
  *
- * A real Three.js 3D rendering of the Beitak logo, sitting BEHIND the
- * existing HTML logo image in the hero. Adds a 3D card with thickness,
- * cinematic lighting, auto Y rotation, float, and mouse-tilt (desktop)
- * or auto sway (mobile).
- *
- * The canvas is absolutely positioned and pointer-events: none so it
- * never interferes with the rest of the hero UI.
+ * The Beitak hero logo, rendered as a real 3D Three.js object. The logo PNG
+ * is mapped onto the front face of a BoxGeometry with physical thickness;
+ * the sides + back use a dark-red material so the depth is visible as the
+ * box rotates.
  */
 export function BeitakLogo3D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,46 +19,41 @@ export function BeitakLogo3D() {
     const container = containerRef.current;
     if (!container) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 1;
+    const height = container.clientHeight || 1;
 
     // Scene
     const scene = new THREE.Scene();
 
-    // Camera
+    // Camera — sized so a 3-unit-wide box fits the container.
     const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6);
+    camera.position.set(0, 0, 5.5);
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.display = "block";
+    container.appendChild(renderer.domElement);
 
     // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambient);
 
-    const dirLight = new THREE.DirectionalLight(0xe63030, 1.2);
-    dirLight.position.set(3, 4, 3);
+    const dirLight = new THREE.DirectionalLight(0xe63030, 1.5);
+    dirLight.position.set(4, 4, 3);
     scene.add(dirLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 0.8, 20);
+    const pointLight = new THREE.PointLight(0xffffff, 0.6, 20);
     pointLight.position.set(0, -3, 2);
     scene.add(pointLight);
 
-    // Logo card group (BoxGeometry for real thickness, with logo texture
-    // on the front face and a darker red on sides/back).
+    // Logo box — 3 × 1.5 × 0.15 with PNG on the front, dark red sides + back.
     const group = new THREE.Group();
     scene.add(group);
-
-    const cardWidth = 3.2;
-    const cardHeight = 2.0;
-    const cardDepth = 0.05;
 
     const loader = new THREE.TextureLoader();
     loader.load(logoHeroWhite, (texture) => {
@@ -73,76 +65,68 @@ export function BeitakLogo3D() {
         transparent: true,
         alphaTest: 0.05,
         roughness: 0.45,
-        metalness: 0.15,
-      });
-      const sideMat = new THREE.MeshStandardMaterial({
-        color: 0x8a1a1a,
-        roughness: 0.5,
         metalness: 0.2,
       });
-      const backMat = new THREE.MeshStandardMaterial({
-        color: 0x5a0e0e,
-        roughness: 0.6,
-        metalness: 0.15,
+      const sideMat = new THREE.MeshStandardMaterial({
+        color: 0x8b0000,
+        roughness: 0.5,
+        metalness: 0.25,
       });
 
-      const geo = new THREE.BoxGeometry(cardWidth, cardHeight, cardDepth);
-      // Box face material order: +X, -X, +Y, -Y, +Z (front), -Z (back)
+      const geo = new THREE.BoxGeometry(3, 1.5, 0.15);
+      // Material order: +X, -X, +Y, -Y, +Z (front), -Z (back)
       const mesh = new THREE.Mesh(geo, [
-        sideMat, sideMat, sideMat, sideMat, frontMat, backMat,
+        sideMat, sideMat, sideMat, sideMat, frontMat, sideMat,
       ]);
       group.add(mesh);
     });
 
-    // Mouse tracking (desktop) — tilt toward cursor up to ±15°.
+    // Mouse tilt (desktop only) — follows cursor up to ±15°.
     const target = { x: 0, y: 0 };
     const maxTilt = (15 * Math.PI) / 180;
-
     const onPointerMove = (e: PointerEvent) => {
       const rect = container.getBoundingClientRect();
-      const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
-      target.x = -ny * maxTilt; // tilt X based on vertical mouse pos
-      target.y = nx * maxTilt;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      // Normalize over the viewport for a wide tracking range.
+      const nx = (e.clientX - cx) / (window.innerWidth / 2);
+      const ny = (e.clientY - cy) / (window.innerHeight / 2);
+      target.x = THREE.MathUtils.clamp(-ny, -1, 1) * maxTilt;
+      target.y = THREE.MathUtils.clamp(nx, -1, 1) * maxTilt;
     };
-
     if (!isMobile) {
-      // Listen on window so the logo reacts anywhere in the hero area.
       window.addEventListener("pointermove", onPointerMove, { passive: true });
     }
 
-    // Animation
+    // Animation loop
     const clock = new THREE.Clock();
-    let last = 0;
-    // 30fps cap on mobile, uncapped on desktop
+    let acc = 0;
     const minDelta = isMobile ? 1 / 30 : 0;
     let rafId = 0;
 
     const animate = () => {
       rafId = requestAnimationFrame(animate);
       const delta = clock.getDelta();
-      last += delta;
-      if (last < minDelta) return;
-      const dt = last;
-      last = 0;
+      acc += delta;
+      if (acc < minDelta) return;
+      const dt = acc;
+      acc = 0;
       const t = clock.elapsedTime;
 
-      // Auto Y rotation: 360° / 8s
-      group.rotation.y += dt * ((Math.PI * 2) / 8);
+      // Continuous Y rotation: 360° / 10s
+      group.rotation.y += dt * ((Math.PI * 2) / 10);
 
-      // Float ±0.3 over 3s
-      group.position.y = Math.sin((t * Math.PI * 2) / 3) * 0.3;
+      // Float ±0.15 over 3s
+      group.position.y = Math.sin((t * Math.PI * 2) / 3) * 0.15;
 
-      // Mouse tilt (desktop) or auto sway (mobile)
       if (isMobile) {
-        const sway = Math.sin(t * 0.8) * (10 * Math.PI / 180);
-        group.rotation.z = sway * 0.3;
-        // Note: don't override Y rotation; just gentle X tilt
+        // Gentle automatic left/right sway in addition to Y spin.
+        group.rotation.z = Math.sin(t * 0.8) * (8 * Math.PI / 180);
         group.rotation.x = Math.sin(t * 0.6) * (5 * Math.PI / 180);
       } else {
+        // Smooth ease toward cursor target on X tilt + Z roll.
         group.rotation.x += (target.x - group.rotation.x) * 0.08;
-        // Layer mouse tilt as a subtle Z offset on top of Y spin
-        group.rotation.z += (target.y * 0.3 - group.rotation.z) * 0.08;
+        group.rotation.z += (target.y * 0.4 - group.rotation.z) * 0.08;
       }
 
       renderer.render(scene, camera);
@@ -153,6 +137,7 @@ export function BeitakLogo3D() {
     const onResize = () => {
       const w = container.clientWidth;
       const h = container.clientHeight;
+      if (!w || !h) return;
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -163,10 +148,9 @@ export function BeitakLogo3D() {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
       if (!isMobile) window.removeEventListener("pointermove", onPointerMove);
-      // Dispose
       scene.traverse((obj) => {
-        if ((obj as THREE.Mesh).isMesh) {
-          const mesh = obj as THREE.Mesh;
+        const mesh = obj as THREE.Mesh;
+        if (mesh.isMesh) {
           mesh.geometry?.dispose();
           const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
           mats.forEach((m) => {
@@ -186,9 +170,8 @@ export function BeitakLogo3D() {
   return (
     <div
       ref={containerRef}
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0"
-      style={{ willChange: "transform" }}
+      aria-label="Beitak"
+      className="h-full w-full"
     />
   );
 }
