@@ -7,6 +7,7 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { resetPasswordSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
