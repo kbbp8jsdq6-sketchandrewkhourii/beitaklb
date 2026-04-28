@@ -26,17 +26,25 @@ function ForgotPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErr, setFieldErr] = useState<string | undefined>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setError(null);
+    const parsed = forgotPasswordSchema.safeParse({ email: email.trim() });
+    if (!parsed.success) {
+      setFieldErr(fieldErrors(parsed.error).email);
+      return;
+    }
+    setFieldErr(undefined);
     setSubmitting(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
     setSubmitting(false);
     if (error) {
-      setError(error.message);
+      setError(friendlyError(error, "We couldn't send the reset link. Please try again."));
       return;
     }
     setSuccess(true);
