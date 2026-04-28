@@ -16,10 +16,20 @@ export const Route = createFileRoute("/listing/$id")({
   loader: async ({ params }) => {
     const { data } = await supabase
       .from("listings")
-      .select("title, description, location, listing_photos(photo_url, display_order)")
+      .select("title, description, location, price_weekday, price_weekend, listing_photos(photo_url, display_order)")
       .eq("id", params.id)
       .maybeSingle();
-    if (!data) return { meta: null as null | { title: string; description: string; location: string; image: string | null } };
+    if (!data)
+      return {
+        meta: null as null | {
+          title: string;
+          description: string;
+          location: string;
+          image: string | null;
+          priceWeekday: number | null;
+          priceWeekend: number | null;
+        },
+      };
     const photos = (data.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
     return {
       meta: {
@@ -27,23 +37,57 @@ export const Route = createFileRoute("/listing/$id")({
         description: data.description,
         location: data.location,
         image: photos[0]?.photo_url ?? null,
+        priceWeekday: data.price_weekday != null ? Number(data.price_weekday) : null,
+        priceWeekend: data.price_weekend != null ? Number(data.price_weekend) : null,
       },
     };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const m = loaderData?.meta;
     if (!m) {
-      return { meta: [{ title: "Listing — BEITAK" }, { name: "description", content: "Stay in Lebanon with BEITAK." }] };
+      return {
+        meta: [
+          { title: "Listing — Beitak.lb" },
+          { name: "description", content: "Stay in Lebanon with Beitak." },
+          { name: "robots", content: "index, follow" },
+        ],
+      };
     }
-    const title = `${m.title} in ${m.location} — BEITAK`.slice(0, 60);
-    const desc = (m.description ?? `Stay at ${m.title} in ${m.location}.`).slice(0, 160);
+    const title = `${m.title} in ${m.location} | Beitak.lb`;
+    const desc = (m.description ?? `Stay at ${m.title} in ${m.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
+    const url = `https://beitaklb.lovable.app/listing/${params.id}`;
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "LodgingBusiness",
+      name: m.title,
+      description: desc,
+      ...(m.image ? { image: m.image } : {}),
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: m.location,
+        addressCountry: "LB",
+      },
+      ...(m.priceWeekday != null && m.priceWeekend != null
+        ? { priceRange: `$${m.priceWeekday} - $${m.priceWeekend}` }
+        : {}),
+      url,
+    };
     return {
       meta: [
         { title },
         { name: "description", content: desc },
+        { name: "robots", content: "index, follow" },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
+        { property: "og:type", content: "place" },
+        { property: "og:url", content: url },
         ...(m.image ? [{ property: "og:image", content: m.image }, { name: "twitter:image", content: m.image }] : []),
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(jsonLd),
+        },
       ],
     };
   },
