@@ -71,7 +71,7 @@ function ForgotPasswordPage() {
               Check your inbox! A reset link has been sent to your email 📩
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -80,8 +80,10 @@ function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
+                  aria-invalid={!!fieldErr}
                   required
                 />
+                <FieldError message={fieldErr} />
               </div>
               {error && (
                 <p className="text-sm font-medium" style={{ color: "#E63030" }}>{error}</p>
