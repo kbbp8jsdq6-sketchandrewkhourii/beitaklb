@@ -255,7 +255,8 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <Label htmlFor="title">Listing title *</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} />
+              <FieldError message={errors.title} />
             </div>
             <div>
               <Label htmlFor="desc">Description *</Label>
@@ -264,7 +265,10 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
+                maxLength={1000}
+                aria-invalid={!!errors.description}
               />
+              <FieldError message={errors.description} />
             </div>
 
             <div>
@@ -274,12 +278,15 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                 list="city-suggestions-edit"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                maxLength={120}
+                aria-invalid={!!errors.location}
               />
               <datalist id="city-suggestions-edit">
                 {LEBANESE_LOCATIONS.map((l) => (
                   <option key={l} value={l} />
                 ))}
               </datalist>
+              <FieldError message={errors.location} />
             </div>
 
             <div>
