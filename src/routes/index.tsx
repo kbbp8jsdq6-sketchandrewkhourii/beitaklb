@@ -9,6 +9,7 @@ import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { BeitakLogo3D } from "@/components/BeitakLogo3D";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
