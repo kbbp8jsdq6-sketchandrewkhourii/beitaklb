@@ -9,6 +9,7 @@ import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { BeitakLogo3D } from "@/components/BeitakLogo3D";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
@@ -231,6 +232,11 @@ function HomePage() {
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
             <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
+              {/* Three.js 3D logo card sits BEHIND the HTML logo for depth +
+                  cinematic lighting. The HTML logo on top stays crisp. */}
+              <div className="pointer-events-none absolute -inset-12 z-0">
+                <BeitakLogo3D />
+              </div>
               {/* Atmospheric red radial gradient behind the logo only */}
               <div className="hero-logo-aura" aria-hidden="true" />
               {/* Floating particles around the logo (4 on mobile, 10 on desktop) */}
@@ -261,6 +267,7 @@ function HomePage() {
                 })}
               </div>
               <motion.div
+                className="relative z-10"
                 initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
                 transition={{
