@@ -267,6 +267,7 @@ function HomePage() {
                 })}
               </div>
               <motion.div
+                className="relative z-10"
                 initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
                 transition={{
