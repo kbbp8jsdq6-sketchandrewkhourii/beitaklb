@@ -370,15 +370,18 @@ body.no-scroll {
     -webkit-backdrop-filter: blur(4px);
   }
 
-  /* Disable the heavy 3D extruded hero logo spin on mobile —
-     30 stacked layers with filters is extremely expensive on mobile GPUs.
-     The logo stays visible (front layer only) but no rotation. */
+  /* On mobile: disable the heavy 3D Y-axis spin and replace with a
+     simpler scale pulse. Keep float + glow for atmosphere. */
   .hero-logo-spin {
-    animation: none !important;
-    transform: none !important;
+    animation: hero-logo-mobile-pulse 3s ease-in-out infinite !important;
+    transform: none;
+  }
+  @keyframes hero-logo-mobile-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
   }
   .hero-logo-stage {
-    filter: none !important;
+    perspective: none;
   }
   /* Hide all but the front-most extruded layer on mobile */
   .hero-logo-layer:not(:last-child) {
