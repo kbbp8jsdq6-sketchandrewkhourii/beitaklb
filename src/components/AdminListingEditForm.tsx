@@ -492,7 +492,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                       <span className="text-xs">Add</span>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
                         multiple
                         onChange={handleFiles}
                         className="hidden"
