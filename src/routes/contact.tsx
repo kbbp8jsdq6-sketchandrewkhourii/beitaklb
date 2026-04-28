@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { FieldError } from "@/components/FieldError";
+import { contactSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
