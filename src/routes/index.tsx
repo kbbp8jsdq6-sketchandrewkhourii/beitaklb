@@ -227,10 +227,39 @@ function HomePage() {
             <HeroSlideshow />
           </div>
           {/* Extra premium dark gradient overlay for cinematic readability */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-            <div ref={magneticRef} style={{ willChange: "transform" }}>
+            <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
+              {/* Atmospheric red radial gradient behind the logo only */}
+              <div className="hero-logo-aura" aria-hidden="true" />
+              {/* Floating particles around the logo (4 on mobile, 10 on desktop) */}
+              <div className="hero-particles" aria-hidden="true">
+                {Array.from({ length: isMobile ? 4 : 10 }).map((_, i) => {
+                  const isRed = i % 2 === 0;
+                  const size = 4 + ((i * 3) % 5); // 4..8px
+                  const left = (i * 97) % 100;
+                  const delay = (i * 0.7) % 6;
+                  const duration = 5 + ((i * 1.3) % 4); // 5..9s
+                  return (
+                    <span
+                      key={i}
+                      className="hero-particle"
+                      style={{
+                        left: `${left}%`,
+                        width: `${size}px`,
+                        height: `${size}px`,
+                        background: isRed ? "rgba(230,48,48,0.85)" : "rgba(255,255,255,0.85)",
+                        boxShadow: isRed
+                          ? "0 0 8px rgba(230,48,48,0.8)"
+                          : "0 0 8px rgba(255,255,255,0.8)",
+                        animationDelay: `${delay}s`,
+                        animationDuration: `${duration}s`,
+                      }}
+                    />
+                  );
+                })}
+              </div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
@@ -240,42 +269,35 @@ function HomePage() {
                   scale: { type: "spring", stiffness: 120, damping: 12 },
                 }}
               >
-                <motion.div
-                  animate={{
-                    y: [0, -12, 0],
-                  }}
-                  transition={{
-                    y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                  }}
-                  className="hero-logo-stage"
-                >
-                  <div className="hero-logo-spin">
-                    {/* Solid extruded thickness layers — sharp duplicates with darker tint.
-                        On mobile, only render the single front layer to skip the expensive
-                        30-layer GPU extrusion entirely. */}
-                    {Array.from({ length: isMobile ? 1 : 30 }).map((_, i) => {
-                      const total = isMobile ? 1 : 30;
-                      // Center the stack so the front face sits at the highest Z
-                      const z = (i - (total - 1)) * 1.2;
-                      // Darker shade for back layers, full color near the front
-                      const darkness = total === 1 ? 1 : 0.55 + (i / (total - 1)) * 0.45;
-                      const sat = total === 1 ? 1 : 0.7 + (i / (total - 1)) * 0.3;
-                      return (
-                        <div
-                          key={i}
-                          className="hero-logo-layer"
-                          style={{
-                            transform: `translateZ(${z}px)`,
-                            filter: `brightness(${darkness}) saturate(${sat})`,
-                          }}
-                          aria-hidden={i !== total - 1}
-                        >
-                          <LogoTransparent size="hero" />
+                <div className="hero-logo-float">
+                  <div className="hero-logo-breathe">
+                    <div className="hero-logo-glow">
+                      <div className="hero-logo-stage">
+                        <div className="hero-logo-spin">
+                          {Array.from({ length: isMobile ? 1 : 30 }).map((_, i) => {
+                            const total = isMobile ? 1 : 30;
+                            const z = (i - (total - 1)) * 1.2;
+                            const darkness = total === 1 ? 1 : 0.55 + (i / (total - 1)) * 0.45;
+                            const sat = total === 1 ? 1 : 0.7 + (i / (total - 1)) * 0.3;
+                            return (
+                              <div
+                                key={i}
+                                className="hero-logo-layer"
+                                style={{
+                                  transform: `translateZ(${z}px)`,
+                                  filter: `brightness(${darkness}) saturate(${sat})`,
+                                }}
+                                aria-hidden={i !== total - 1}
+                              >
+                                <LogoTransparent size="hero" />
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
+                      </div>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             </div>
             <motion.h1
