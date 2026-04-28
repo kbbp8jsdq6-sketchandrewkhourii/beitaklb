@@ -9,6 +9,8 @@ import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, ImagePlus } from "lucide-react";
 import { CustomAmenityInput } from "@/components/CustomAmenityInput";
+import { FieldError } from "@/components/FieldError";
+import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 
 const AMENITY_OPTIONS = [
   "Pool",
