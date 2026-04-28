@@ -122,34 +122,46 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
   const [name, setName] = useState("");
   const [rating, setRating] = useState(5);
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedMsg = message.trim();
-    if (!trimmedName || trimmedName.length > 100) {
-      toast.error("Please enter your name (max 100 characters)");
+    if (submitting) return;
+
+    const payload = {
+      name: sanitizeLine(name),
+      message: stripHtml(message),
+      rating,
+      website: website.trim(),
+    };
+
+    if (payload.website) {
+      // Silent honeypot drop
+      setName(""); setMessage(""); setRating(5);
+      toast.success("Thanks for your feedback! It will appear after review.");
+      onSubmitted();
       return;
     }
-    if (!trimmedMsg || trimmedMsg.length > 1000) {
-      toast.error("Message is required (max 1000 characters)");
+
+    const parsed = feedbackSchema.safeParse(payload);
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
       return;
     }
-    if (rating < 1 || rating > 5) {
-      toast.error("Pick a rating between 1 and 5");
-      return;
-    }
+    setErrors({});
+
     setSubmitting(true);
     const { error } = await supabase.from("feedback").insert({
-      author_name: trimmedName,
-      rating,
-      message: trimmedMsg,
+      author_name: parsed.data.name,
+      rating: parsed.data.rating,
+      message: parsed.data.message,
       user_id: user?.id ?? null,
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, "We couldn't submit your feedback. Please try again."));
       return;
     }
     toast.success("Thanks for your feedback! It will appear after review.");
