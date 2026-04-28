@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { LogoTransparent } from "@/components/LogoTransparent";
+
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
