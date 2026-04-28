@@ -128,8 +128,17 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const list = Array.from(e.target.files ?? []);
+    const valid: File[] = [];
+    for (const f of list) {
+      const err = validateImageFile(f);
+      if (err) {
+        toast.error(err);
+        continue;
+      }
+      valid.push(f);
+    }
     const remaining = 10 - (existingPhotos.length - photosToDelete.length) - newFiles.length;
-    setNewFiles((prev) => [...prev, ...list].slice(0, prev.length + Math.max(0, remaining)));
+    setNewFiles((prev) => [...prev, ...valid].slice(0, prev.length + Math.max(0, remaining)));
     e.target.value = "";
   };
 
