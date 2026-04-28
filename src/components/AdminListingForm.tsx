@@ -73,7 +73,17 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const list = Array.from(e.target.files ?? []);
-    setFiles((prev) => [...prev, ...list].slice(0, 10));
+    const valid: File[] = [];
+    for (const f of list) {
+      const err = validateImageFile(f);
+      if (err) {
+        toast.error(err);
+        continue;
+      }
+      valid.push(f);
+    }
+    setFiles((prev) => [...prev, ...valid].slice(0, 10));
+    e.target.value = "";
   };
 
   const removeFile = (idx: number) => setFiles((p) => p.filter((_, i) => i !== idx));
