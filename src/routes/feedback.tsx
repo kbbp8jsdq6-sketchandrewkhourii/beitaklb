@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { STATIC_REVIEWS } from "@/lib/static-reviews";
+import { FieldError } from "@/components/FieldError";
+import { feedbackSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/feedback")({
   head: () => ({
