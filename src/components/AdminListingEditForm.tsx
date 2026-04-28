@@ -55,6 +55,7 @@ interface Props {
 export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [hostId, setHostId] = useState<string>("");
   const [title, setTitle] = useState("");
