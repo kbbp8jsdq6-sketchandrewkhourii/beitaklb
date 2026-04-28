@@ -156,7 +156,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
       onCreated();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create listing");
+      toast.error(friendlyError(err, "Failed to create listing"));
     } finally {
       setSubmitting(false);
     }
