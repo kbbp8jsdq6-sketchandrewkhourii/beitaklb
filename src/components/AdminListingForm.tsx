@@ -59,6 +59,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const reset = () => {
     setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
