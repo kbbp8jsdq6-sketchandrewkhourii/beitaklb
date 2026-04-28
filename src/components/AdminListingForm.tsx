@@ -9,6 +9,8 @@ import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, ImagePlus } from "lucide-react";
 import { CustomAmenityInput } from "@/components/CustomAmenityInput";
+import { FieldError } from "@/components/FieldError";
+import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 
 const AMENITY_OPTIONS = [
   "Pool",
@@ -57,6 +59,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [amenities, setAmenities] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const reset = () => {
     setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
@@ -70,26 +73,52 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const list = Array.from(e.target.files ?? []);
-    setFiles((prev) => [...prev, ...list].slice(0, 10));
+    const valid: File[] = [];
+    for (const f of list) {
+      const err = validateImageFile(f);
+      if (err) {
+        toast.error(err);
+        continue;
+      }
+      valid.push(f);
+    }
+    setFiles((prev) => [...prev, ...valid].slice(0, 10));
+    e.target.value = "";
   };
 
   const removeFile = (idx: number) => setFiles((p) => p.filter((_, i) => i !== idx));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !description || !location || !priceWeekday || !priceWeekend) {
-      toast.error("Fill all required fields");
+    if (submitting) return;
+
+    const cleanTitle = sanitizeLine(title);
+    const cleanDesc = stripHtml(description);
+    const cleanLoc = sanitizeLine(location);
+    const wd = Number(priceWeekday);
+    const we = Number(priceWeekend);
+
+    const parsed = listingSchema.safeParse({
+      title: cleanTitle,
+      description: cleanDesc,
+      location: cleanLoc,
+      priceWeekday: wd,
+      priceWeekend: we,
+    });
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
+      toast.error("Please fix the highlighted fields");
       return;
     }
+    setErrors({});
+
     setSubmitting(true);
     try {
-      const wd = Number(priceWeekday);
-      const we = Number(priceWeekend);
       const insertPayload = {
         host_id: adminUserId,
-        title: title.trim(),
-        description: description.trim(),
-        location,
+        title: parsed.data.title,
+        description: parsed.data.description,
+        location: parsed.data.location,
         category,
         price_per_night: Math.min(wd, we),
         price_weekday: wd,
@@ -127,7 +156,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
       onCreated();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create listing");
+      toast.error(friendlyError(err, "Failed to create listing"));
     } finally {
       setSubmitting(false);
     }
@@ -142,11 +171,13 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <Label htmlFor="title">Listing title *</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Cozy stone house in Bcharre" />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} placeholder="Cozy stone house in Bcharre" />
+            <FieldError message={errors.title} />
           </div>
           <div>
             <Label htmlFor="desc">Description *</Label>
-            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Tell guests what makes your place special…" />
+            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={1000} aria-invalid={!!errors.description} placeholder="Tell guests what makes your place special…" />
+            <FieldError message={errors.description} />
           </div>
 
           <div>
@@ -156,6 +187,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               list="city-suggestions"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              maxLength={120}
+              aria-invalid={!!errors.location}
               placeholder="e.g. Bcharre, Beirut, Tyre…"
             />
             <datalist id="city-suggestions">
@@ -163,6 +196,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 <option key={l} value={l} />
               ))}
             </datalist>
+            <FieldError message={errors.location} />
             <p className="mt-1 text-xs text-muted-foreground">
               Pick a suggestion or type any new city — it will appear in the search filter automatically.
             </p>
@@ -196,15 +230,17 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               <Label htmlFor="pwd">Weekday price (USD) *</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                <Input id="pwd" type="number" min="0" value={priceWeekday} onChange={(e) => setPriceWeekday(e.target.value)} placeholder="120" className="pl-7" />
+                <Input id="pwd" type="number" min="1" max="3000" step="1" value={priceWeekday} onChange={(e) => setPriceWeekday(e.target.value)} placeholder="120" className="pl-7" aria-invalid={!!errors.priceWeekday} />
               </div>
+              <FieldError message={errors.priceWeekday} />
             </div>
             <div>
               <Label htmlFor="pwe">Weekend price (USD) *</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                <Input id="pwe" type="number" min="0" value={priceWeekend} onChange={(e) => setPriceWeekend(e.target.value)} placeholder="180" className="pl-7" />
+                <Input id="pwe" type="number" min="1" max="3000" step="1" value={priceWeekend} onChange={(e) => setPriceWeekend(e.target.value)} placeholder="180" className="pl-7" aria-invalid={!!errors.priceWeekend} />
               </div>
+              <FieldError message={errors.priceWeekend} />
             </div>
           </div>
 
@@ -272,7 +308,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground transition hover:border-primary hover:bg-accent">
                   <ImagePlus className="h-6 w-6" />
                   <span className="text-xs">Add</span>
-                  <input type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
+                  <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" multiple onChange={handleFiles} className="hidden" />
                 </label>
               )}
             </div>

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { FieldError } from "@/components/FieldError";
+import { contactSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -33,39 +35,49 @@ function ContactForm() {
   const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    const trimmedMsg = message.trim();
+    if (submitting) return;
 
-    if (!trimmedName || trimmedName.length > 100) {
-      toast.error("Please enter your name (max 100 characters)");
+    const payload = {
+      name: sanitizeLine(name),
+      email: email.trim(),
+      phone: sanitizeLine(phone),
+      subject: sanitizeLine(subject),
+      message: stripHtml(message),
+      website: website.trim(),
+    };
+
+    // Silent honeypot drop — pretend success.
+    if (payload.website) {
+      setName(""); setEmail(""); setPhone(""); setSubject(""); setMessage("");
+      toast.success("Message sent — we'll get back to you soon.");
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || trimmedEmail.length > 255) {
-      toast.error("Please enter a valid email");
+
+    const parsed = contactSchema.safeParse(payload);
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
       return;
     }
-    if (!trimmedMsg || trimmedMsg.length > 2000) {
-      toast.error("Message is required (max 2000 characters)");
-      return;
-    }
+    setErrors({});
 
     setSubmitting(true);
     const { error } = await supabase.from("contact_messages").insert({
-      name: trimmedName,
-      email: trimmedEmail,
-      phone: phone.trim() || null,
-      subject: subject.trim() || null,
-      message: trimmedMsg,
+      name: parsed.data.name,
+      email: parsed.data.email,
+      phone: parsed.data.phone || null,
+      subject: parsed.data.subject || null,
+      message: parsed.data.message,
     });
     setSubmitting(false);
 
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, "We couldn't send your message. Please try again."));
       return;
     }
     toast.success("Message sent — we'll get back to you soon.");
@@ -80,36 +92,55 @@ function ContactForm() {
     <form
       onSubmit={submit}
       className="mt-12 rounded-2xl border border-border bg-card p-6 shadow-sm"
+      noValidate
     >
       <h2 className="font-display text-2xl text-foreground">Send us a message</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Fill out the form and our team will get back to you.
       </p>
 
+      {/* Honeypot — hidden from real users */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+        <label>
+          Website
+          <input
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </label>
+      </div>
+
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Name
           </label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required className="mt-1" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required className="mt-1" aria-invalid={!!errors.name} />
+          <FieldError message={errors.name} />
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Email
           </label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} required className="mt-1" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} required className="mt-1" aria-invalid={!!errors.email} />
+          <FieldError message={errors.email} />
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Phone (optional)
           </label>
-          <Input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={50} className="mt-1" />
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={50} className="mt-1" aria-invalid={!!errors.phone} />
+          <FieldError message={errors.phone} />
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Subject (optional)
           </label>
-          <Input value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} className="mt-1" />
+          <Input value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} className="mt-1" aria-invalid={!!errors.subject} />
+          <FieldError message={errors.subject} />
         </div>
       </div>
 
@@ -120,11 +151,13 @@ function ContactForm() {
         <Textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          maxLength={2000}
+          maxLength={500}
           required
           className="mt-1 min-h-32"
+          aria-invalid={!!errors.message}
         />
-        <p className="mt-1 text-right text-xs text-muted-foreground">{message.length}/2000</p>
+        <FieldError message={errors.message} />
+        <p className="mt-1 text-right text-xs text-muted-foreground">{message.length}/500</p>
       </div>
 
       <Button type="submit" className="mt-4" disabled={submitting}>

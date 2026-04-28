@@ -7,6 +7,7 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { resetPasswordSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
@@ -29,20 +30,19 @@ function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setError(null);
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-    if (password !== confirm) {
-      setError("Passwords don't match");
+    const parsed = resetPasswordSchema.safeParse({ password, confirm });
+    if (!parsed.success) {
+      const f = fieldErrors(parsed.error);
+      setError(f.password || f.confirm || "Please check the form");
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
     setSubmitting(false);
     if (error) {
-      setError(error.message);
+      setError(friendlyError(error, "We couldn't update your password. Please try again."));
       return;
     }
     setSuccess(true);

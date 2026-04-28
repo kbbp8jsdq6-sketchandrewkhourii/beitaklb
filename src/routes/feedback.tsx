@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { STATIC_REVIEWS } from "@/lib/static-reviews";
+import { FieldError } from "@/components/FieldError";
+import { feedbackSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/feedback")({
   head: () => ({
@@ -120,34 +122,46 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
   const [name, setName] = useState("");
   const [rating, setRating] = useState(5);
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedMsg = message.trim();
-    if (!trimmedName || trimmedName.length > 100) {
-      toast.error("Please enter your name (max 100 characters)");
+    if (submitting) return;
+
+    const payload = {
+      name: sanitizeLine(name),
+      message: stripHtml(message),
+      rating,
+      website: website.trim(),
+    };
+
+    if (payload.website) {
+      // Silent honeypot drop
+      setName(""); setMessage(""); setRating(5);
+      toast.success("Thanks for your feedback! It will appear after review.");
+      onSubmitted();
       return;
     }
-    if (!trimmedMsg || trimmedMsg.length > 1000) {
-      toast.error("Message is required (max 1000 characters)");
+
+    const parsed = feedbackSchema.safeParse(payload);
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
       return;
     }
-    if (rating < 1 || rating > 5) {
-      toast.error("Pick a rating between 1 and 5");
-      return;
-    }
+    setErrors({});
+
     setSubmitting(true);
     const { error } = await supabase.from("feedback").insert({
-      author_name: trimmedName,
-      rating,
-      message: trimmedMsg,
+      author_name: parsed.data.name,
+      rating: parsed.data.rating,
+      message: parsed.data.message,
       user_id: user?.id ?? null,
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, "We couldn't submit your feedback. Please try again."));
       return;
     }
     toast.success("Thanks for your feedback! It will appear after review.");
@@ -161,11 +175,26 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
     <form
       onSubmit={submit}
       className="mx-auto mt-10 max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-sm"
+      noValidate
     >
       <h2 className="font-display text-2xl text-foreground">Share your experience</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Reviews are moderated before appearing on the site.
       </p>
+
+      {/* Honeypot — hidden from real users */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+        <label>
+          Website
+          <input
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </label>
+      </div>
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -179,7 +208,9 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
             placeholder="Lara Haddad"
             className="mt-1"
             required
+            aria-invalid={!!errors.name}
           />
+          <FieldError message={errors.name} />
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -203,6 +234,7 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
               </button>
             ))}
           </div>
+          <FieldError message={errors.rating} />
         </div>
       </div>
 
@@ -213,13 +245,15 @@ function FeedbackForm({ onSubmitted }: { onSubmitted: () => void }) {
         <Textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          maxLength={1000}
+          maxLength={500}
           placeholder="Tell us about your stay…"
           className="mt-1 min-h-28"
           required
+          aria-invalid={!!errors.message}
         />
+        <FieldError message={errors.message} />
         <p className="mt-1 text-right text-xs text-muted-foreground">
-          {message.length}/1000
+          {message.length}/500
         </p>
       </div>
 

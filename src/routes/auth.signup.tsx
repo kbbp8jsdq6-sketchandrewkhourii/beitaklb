@@ -1,24 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import authLogoBlack from "@/assets/beitak-logo-auth-black.png";
 import { AuthBackground } from "@/components/AuthBackground";
 import { PasswordInput } from "@/components/PasswordInput";
+import { FieldError } from "@/components/FieldError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { signupSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({ meta: [{ title: "Sign up — BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
   component: SignupPage,
-});
-
-const signupSchema = z.object({
-  fullName: z.string().trim().min(2, "Enter your name").max(80),
-  email: z.string().trim().email("Invalid email").max(255),
-  password: z.string().min(6, "Min 6 characters").max(72),
 });
 
 function SignupPage() {
@@ -29,14 +24,21 @@ function SignupPage() {
   const [submitting, setSubmitting] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = signupSchema.safeParse({ fullName, email, password });
+    if (submitting) return;
+    const parsed = signupSchema.safeParse({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      password,
+    });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Invalid input");
+      setErrors(fieldErrors(parsed.error));
       return;
     }
+    setErrors({});
     setSubmitting(true);
     const redirectUrl = `${window.location.origin}/`;
     const { data, error } = await supabase.auth.signUp({
@@ -49,11 +51,11 @@ function SignupPage() {
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      const msg = friendlyError(error, "We couldn't create your account. Please try again.");
+      toast.error(msg);
+      setErrors({ _: msg });
       return;
     }
-    // If email confirmation is required, the user is NOT yet verified.
-    // Sign them out so they can't browse the site, and show a notice.
     const needsConfirmation = !data.session || !data.user?.email_confirmed_at;
     if (needsConfirmation) {
       await supabase.auth.signOut();
@@ -74,7 +76,7 @@ function SignupPage() {
       options: { emailRedirectTo: `${window.location.origin}/` },
     });
     setResending(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else toast.success("Verification email resent.");
   };
 
@@ -125,19 +127,43 @@ function SignupPage() {
             <>
               <h1 className="font-display text-3xl text-foreground">Create your account</h1>
               <p className="mt-1 text-sm text-muted-foreground">Start hosting or booking across Lebanon.</p>
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <div>
                   <Label htmlFor="name">Full name</Label>
-                  <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Layla Khoury" />
+                  <Input
+                    id="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    aria-invalid={!!errors.fullName}
+                    placeholder="Layla Khoury"
+                  />
+                  <FieldError message={errors.fullName} />
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    aria-invalid={!!errors.email}
+                    placeholder="you@example.com"
+                  />
+                  <FieldError message={errors.email} />
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
-                  <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    aria-invalid={!!errors.password}
+                    placeholder="At least 8 characters with a number"
+                  />
+                  <FieldError message={errors.password} />
                 </div>
+                <FieldError message={errors._} />
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? "Creating…" : "Create account"}
                 </Button>

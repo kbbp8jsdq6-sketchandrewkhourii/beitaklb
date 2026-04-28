@@ -9,6 +9,8 @@ import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, X, ImagePlus, Loader2 } from "lucide-react";
 import { CustomAmenityInput } from "@/components/CustomAmenityInput";
+import { FieldError } from "@/components/FieldError";
+import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 
 const AMENITY_OPTIONS = [
   "Pool",
@@ -53,6 +55,7 @@ interface Props {
 export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [hostId, setHostId] = useState<string>("");
   const [title, setTitle] = useState("");
@@ -125,8 +128,17 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const list = Array.from(e.target.files ?? []);
+    const valid: File[] = [];
+    for (const f of list) {
+      const err = validateImageFile(f);
+      if (err) {
+        toast.error(err);
+        continue;
+      }
+      valid.push(f);
+    }
     const remaining = 10 - (existingPhotos.length - photosToDelete.length) - newFiles.length;
-    setNewFiles((prev) => [...prev, ...list].slice(0, prev.length + Math.max(0, remaining)));
+    setNewFiles((prev) => [...prev, ...valid].slice(0, prev.length + Math.max(0, remaining)));
     e.target.value = "";
   };
 
@@ -142,21 +154,36 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!listingId) return;
-    if (!title || !description || !location || !priceWeekday || !priceWeekend) {
-      toast.error("Fill all required fields");
+    if (submitting) return;
+
+    const cleanTitle = sanitizeLine(title);
+    const cleanDesc = stripHtml(description);
+    const cleanLoc = sanitizeLine(location);
+    const wd = Number(priceWeekday);
+    const we = Number(priceWeekend);
+
+    const parsed = listingSchema.safeParse({
+      title: cleanTitle,
+      description: cleanDesc,
+      location: cleanLoc,
+      priceWeekday: wd,
+      priceWeekend: we,
+    });
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
+      toast.error("Please fix the highlighted fields");
       return;
     }
+    setErrors({});
+
     setSubmitting(true);
     try {
-      const wd = Number(priceWeekday);
-      const we = Number(priceWeekend);
-
       const { error: uErr } = await supabase
         .from("listings")
         .update({
-          title: title.trim(),
-          description: description.trim(),
-          location,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          location: parsed.data.location,
           category,
           price_weekday: wd,
           price_weekend: we,
@@ -204,7 +231,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
       onSaved();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update listing");
+      toast.error(friendlyError(err, "Failed to update listing"));
     } finally {
       setSubmitting(false);
     }
@@ -228,7 +255,8 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <Label htmlFor="title">Listing title *</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} />
+              <FieldError message={errors.title} />
             </div>
             <div>
               <Label htmlFor="desc">Description *</Label>
@@ -237,7 +265,10 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
+                maxLength={1000}
+                aria-invalid={!!errors.description}
               />
+              <FieldError message={errors.description} />
             </div>
 
             <div>
@@ -247,12 +278,15 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                 list="city-suggestions-edit"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                maxLength={120}
+                aria-invalid={!!errors.location}
               />
               <datalist id="city-suggestions-edit">
                 {LEBANESE_LOCATIONS.map((l) => (
                   <option key={l} value={l} />
                 ))}
               </datalist>
+              <FieldError message={errors.location} />
             </div>
 
             <div>
@@ -288,12 +322,16 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   <Input
                     id="pwd"
                     type="number"
-                    min="0"
+                    min="1"
+                    max="3000"
+                    step="1"
                     value={priceWeekday}
                     onChange={(e) => setPriceWeekday(e.target.value)}
                     className="pl-7"
+                    aria-invalid={!!errors.priceWeekday}
                   />
                 </div>
+                <FieldError message={errors.priceWeekday} />
               </div>
               <div>
                 <Label htmlFor="pwe">Weekend price (USD) *</Label>
@@ -304,12 +342,16 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   <Input
                     id="pwe"
                     type="number"
-                    min="0"
+                    min="1"
+                    max="3000"
+                    step="1"
                     value={priceWeekend}
                     onChange={(e) => setPriceWeekend(e.target.value)}
                     className="pl-7"
+                    aria-invalid={!!errors.priceWeekend}
                   />
                 </div>
+                <FieldError message={errors.priceWeekend} />
               </div>
             </div>
 
@@ -450,7 +492,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                       <span className="text-xs">Add</span>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
                         multiple
                         onChange={handleFiles}
                         className="hidden"

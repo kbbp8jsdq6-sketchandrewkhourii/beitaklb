@@ -3,10 +3,12 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { AuthBackground } from "@/components/AuthBackground";
+import { FieldError } from "@/components/FieldError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { forgotPasswordSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/forgot-password")({
   head: () => ({
@@ -24,17 +26,25 @@ function ForgotPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErr, setFieldErr] = useState<string | undefined>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setError(null);
+    const parsed = forgotPasswordSchema.safeParse({ email: email.trim() });
+    if (!parsed.success) {
+      setFieldErr(fieldErrors(parsed.error).email);
+      return;
+    }
+    setFieldErr(undefined);
     setSubmitting(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
     setSubmitting(false);
     if (error) {
-      setError(error.message);
+      setError(friendlyError(error, "We couldn't send the reset link. Please try again."));
       return;
     }
     setSuccess(true);
@@ -61,7 +71,7 @@ function ForgotPasswordPage() {
               Check your inbox! A reset link has been sent to your email 📩
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
               <div>
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -70,8 +80,10 @@ function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
+                  aria-invalid={!!fieldErr}
                   required
                 />
+                <FieldError message={fieldErr} />
               </div>
               {error && (
                 <p className="text-sm font-medium" style={{ color: "#E63030" }}>{error}</p>
