@@ -32,7 +32,6 @@ function ResetPasswordPage() {
     e.preventDefault();
     if (submitting) return;
     setError(null);
-    const { resetPasswordSchema, fieldErrors, friendlyError } = await import("@/lib/validation");
     const parsed = resetPasswordSchema.safeParse({ password, confirm });
     if (!parsed.success) {
       const f = fieldErrors(parsed.error);
