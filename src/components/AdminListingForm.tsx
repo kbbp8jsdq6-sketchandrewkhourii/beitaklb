@@ -308,7 +308,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground transition hover:border-primary hover:bg-accent">
                   <ImagePlus className="h-6 w-6" />
                   <span className="text-xs">Add</span>
-                  <input type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
+                  <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" multiple onChange={handleFiles} className="hidden" />
                 </label>
               )}
             </div>
