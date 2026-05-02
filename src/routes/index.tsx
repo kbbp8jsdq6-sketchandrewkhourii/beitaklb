@@ -9,6 +9,7 @@ import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
+import MapHero3D from "@/components/home/MapHero3D";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
@@ -232,7 +233,39 @@ function HomePage() {
           {/* Extra premium dark gradient overlay for cinematic readability */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+          {/* MapHero3D — desktop only, right 50%, behind text */}
+          {!isMobile && (
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 hidden md:block"
+              style={{ width: "50%", zIndex: 5 }}
+              aria-hidden="true"
+            >
+              {/* Subtle radial red glow behind the 3D */}
+              <div
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  width: 500,
+                  height: 500,
+                  background:
+                    "radial-gradient(circle, rgba(192,57,43,0.2) 0%, transparent 70%)",
+                }}
+              />
+              {/* 3D canvas */}
+              <div className="pointer-events-auto absolute inset-0">
+                <MapHero3D />
+              </div>
+              {/* Left-edge gradient blending 3D into text */}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(to right, rgba(0,0,0,0.6) 0%, transparent 40%)",
+                }}
+              />
+            </div>
+          )}
+
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
             <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
               {/* Atmospheric red radial gradient behind the logo only */}
               <div className="hero-logo-aura" aria-hidden="true" />
