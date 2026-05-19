@@ -16,7 +16,8 @@ export function Reveal({
   once = true,
 }: {
   children: ReactNode;
-  as?: keyof JSX.IntrinsicElements | ComponentType<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  as?: any;
   delay?: number;
   duration?: number;
   className?: string;
