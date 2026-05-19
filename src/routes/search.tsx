@@ -65,6 +65,7 @@ function usePageSize(): number {
 async function fetchSearchPage(
   q: string | undefined,
   category: ListingCategory | undefined,
+  bedrooms: number | undefined,
   selectedAmenities: string[],
   offset: number,
   pageSize: number,
@@ -72,11 +73,12 @@ async function fetchSearchPage(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, listing_photos(photo_url, display_order)",
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, bedrooms, listing_photos(photo_url, display_order)",
     )
     .eq("is_active", true);
 
   if (category) query = query.eq("category", category);
+  if (bedrooms != null) query = query.eq("bedrooms", bedrooms);
   if (q) {
     const term = q.replace(/[%,]/g, " ");
     query = query.or(
