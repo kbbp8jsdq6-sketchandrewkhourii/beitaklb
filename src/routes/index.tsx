@@ -403,40 +403,57 @@ function HomePage() {
 
       <SectionDivider fill="var(--color-background)" flip />
 
-      {/* 3. FEATURED LISTINGS */}
+      {/* 3. EXPLORE BY DISTRICT */}
       <section className="relative bg-muted/30">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <Reveal className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Featured</p>
-              <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-                Featured listings
-              </h2>
-              <p className="mt-2 text-muted-foreground">Handpicked stays from across Lebanon</p>
-            </div>
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Discover</p>
+            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+              Explore by District
+            </h2>
+            <p className="mt-2 text-muted-foreground">Find stays in your favorite Lebanese region</p>
           </Reveal>
 
-          {isLoading ? (
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
-              ))}
-            </div>
-          ) : featured.length === 0 ? (
-            <div className="mt-10 rounded-3xl border border-dashed border-border bg-background p-12 text-center">
-              <p className="font-display text-2xl">No listings yet</p>
-              <p className="mt-2 text-sm text-muted-foreground">Check back soon — new stays are added regularly.</p>
-            </div>
-          ) : (
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {featured.map((l, i) => (
-                <Reveal key={l.id} delay={i * 110}>
-                  <ListingCard listing={l} index={i} />
-                </Reveal>
-              ))}
-            </div>
-          )}
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {DISTRICTS.map((d, i) => (
+              <Reveal key={d.name} delay={i * 100}>
+                <Link
+                  to="/search"
+                  search={d.search}
+                  className="group relative block aspect-[4/3] overflow-hidden rounded-2xl"
+                >
+                  {/* Background placeholder */}
+                  <div
+                    className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+                    style={{ background: d.bg }}
+                  />
+                  {/* Subtle texture overlay */}
+                  <div
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                      backgroundImage:
+                        "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+                    }}
+                  />
+                  {/* Bottom gradient for text readability */}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  {/* Content */}
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="flex items-center gap-2">
+                      {d.icon && <Heart className="h-4 w-4 text-primary" />}
+                      <h3 className="font-display text-2xl tracking-wide text-white drop-shadow-lg">
+                        {d.name}
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs font-medium uppercase tracking-wider text-white/80">
+                      {d.icon ? "1 bedroom stays" : "Browse listings"}
+                    </p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
 
           <Reveal className="mt-10 flex justify-center" delay={150}>
             <Link
