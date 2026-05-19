@@ -12,6 +12,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 const searchSchema = z.object({
   q: z.string().optional().catch(undefined),
   category: z.enum(["villa", "cabin", "apartment"]).optional().catch(undefined),
+  bedrooms: z.coerce.number().int().min(1).max(20).optional().catch(undefined),
 });
 
 type ListingCategory = "villa" | "cabin" | "apartment";
