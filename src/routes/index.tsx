@@ -91,10 +91,7 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { data: featured = [], isLoading } = useQuery({
-    queryKey: ["featured-listings"],
-    queryFn: fetchFeatured,
-  });
+  // Districts section replaces featured listings
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   // Detect mobile to render a static single-layer logo instead of the
   // expensive 30-layer 3D extrusion. Defaults to false so SSR matches desktop.
