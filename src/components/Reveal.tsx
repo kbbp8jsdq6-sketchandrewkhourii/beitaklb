@@ -63,9 +63,5 @@ export function Reveal({
     ...style,
   };
 
-  return (
-    <Tag ref={ref as never} className={className} style={mergedStyle}>
-      {children}
-    </Tag>
-  );
+  return React.createElement(Tag, { ref, className, style: mergedStyle }, children);
 }
