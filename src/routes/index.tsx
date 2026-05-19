@@ -1,16 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Search, MessageCircle, Sparkles, Star, Instagram, ChevronDown } from "lucide-react";
+import { Search, MessageCircle, Sparkles, Star, Instagram, ChevronDown, Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
-import { ListingCard } from "@/components/ListingCard";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import MapHero3D from "@/components/home/MapHero3D";
-import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
 import { Reveal } from "@/components/Reveal";
