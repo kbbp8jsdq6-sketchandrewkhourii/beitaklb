@@ -12,6 +12,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 const searchSchema = z.object({
   q: z.string().optional().catch(undefined),
   category: z.enum(["villa", "cabin", "apartment"]).optional().catch(undefined),
+  bedrooms: z.coerce.number().int().min(1).max(20).optional().catch(undefined),
 });
 
 type ListingCategory = "villa" | "cabin" | "apartment";
@@ -64,6 +65,7 @@ function usePageSize(): number {
 async function fetchSearchPage(
   q: string | undefined,
   category: ListingCategory | undefined,
+  bedrooms: number | undefined,
   selectedAmenities: string[],
   offset: number,
   pageSize: number,
@@ -71,11 +73,12 @@ async function fetchSearchPage(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, listing_photos(photo_url, display_order)",
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, bedrooms, listing_photos(photo_url, display_order)",
     )
     .eq("is_active", true);
 
   if (category) query = query.eq("category", category);
+  if (bedrooms != null) query = query.eq("bedrooms", bedrooms);
   if (q) {
     const term = q.replace(/[%,]/g, " ");
     query = query.or(
@@ -116,7 +119,7 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, category } = Route.useSearch();
+  const { q, category, bedrooms } = Route.useSearch();
   const pageSize = usePageSize();
 
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
@@ -132,9 +135,9 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, category, selectedAmenities, pageSize],
+    queryKey: ["search-listings", q, category, bedrooms, selectedAmenities, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, category, selectedAmenities, pageParam, pageSize),
+      fetchSearchPage(q, category, bedrooms, selectedAmenities, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type ElementType, type CSSProperties } from "react";
+import React, { useEffect, useRef, useState, type ReactNode, type ComponentType, type CSSProperties } from "react";
 
 /**
  * Reveal — IntersectionObserver-driven fade + slide-up animation.
@@ -16,7 +16,8 @@ export function Reveal({
   once = true,
 }: {
   children: ReactNode;
-  as?: ElementType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  as?: any;
   delay?: number;
   duration?: number;
   className?: string;
@@ -62,9 +63,5 @@ export function Reveal({
     ...style,
   };
 
-  return (
-    <Tag ref={ref as never} className={className} style={mergedStyle}>
-      {children}
-    </Tag>
-  );
+  return React.createElement(Tag, { ref, className, style: mergedStyle }, children);
 }
