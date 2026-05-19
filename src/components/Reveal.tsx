@@ -16,7 +16,7 @@ export function Reveal({
   once = true,
 }: {
   children: ReactNode;
-  as?: ElementType;
+  as?: keyof JSX.IntrinsicElements | ComponentType<any>;
   delay?: number;
   duration?: number;
   className?: string;
