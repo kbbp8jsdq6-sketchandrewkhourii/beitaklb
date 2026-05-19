@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type ComponentType, type CSSProperties } from "react";
+import React, { useEffect, useRef, useState, type ReactNode, type ComponentType, type CSSProperties } from "react";
 
 /**
  * Reveal — IntersectionObserver-driven fade + slide-up animation.
