@@ -119,7 +119,7 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, category } = Route.useSearch();
+  const { q, category, bedrooms } = Route.useSearch();
   const pageSize = usePageSize();
 
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
@@ -135,9 +135,9 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, category, selectedAmenities, pageSize],
+    queryKey: ["search-listings", q, category, bedrooms, selectedAmenities, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, category, selectedAmenities, pageParam, pageSize),
+      fetchSearchPage(q, category, bedrooms, selectedAmenities, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
