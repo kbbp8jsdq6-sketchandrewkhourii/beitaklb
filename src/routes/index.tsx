@@ -35,30 +35,17 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-async function fetchFeatured() {
-  const { data, error } = await supabase
-    .from("listings")
-    .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
-    .eq("is_active", true)
-    .eq("featured", true)
-    .order("created_at", { ascending: false })
-    .limit(6);
-  if (error) throw error;
-  return (data ?? []).map((l) => {
-    const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
-    return {
-      id: l.id,
-      title: l.title,
-      location: l.location,
-      price_per_night: Number(l.price_per_night),
-      price_weekday: Number(l.price_weekday),
-      price_weekend: Number(l.price_weekend),
-      amenities: l.amenities ?? [],
-      cover: photos[0]?.photo_url ?? null,
-      photos: photos.map((p) => p.photo_url),
-    };
-  });
-}
+const DISTRICTS = [
+  { name: "Batroun", search: { q: "Batroun" }, bg: "linear-gradient(135deg, #0c2340 0%, #1a4a6e 50%, #2d8a9e 100%)" },
+  { name: "Chouf", search: { q: "Chouf" }, bg: "linear-gradient(135deg, #1a3c2a 0%, #2d5a3d 50%, #5a8a5c 100%)" },
+  { name: "Keserwan", search: { q: "Keserwan" }, bg: "linear-gradient(135deg, #3a2a1a 0%, #6b4423 50%, #a0522d 100%)" },
+  { name: "North Lebanon", search: { q: "North Lebanon" }, bg: "linear-gradient(135deg, #1a1a3a 0%, #3a3a6a 50%, #5a5a9a 100%)" },
+  { name: "Byblos", search: { q: "Byblos" }, bg: "linear-gradient(135deg, #5a4a2a 0%, #8b7355 50%, #c9a84c 100%)" },
+  { name: "Aley", search: { q: "Aley" }, bg: "linear-gradient(135deg, #2a3c3a 0%, #4a6a5a 50%, #7a9a8a 100%)" },
+  { name: "Maten", search: { q: "Maten" }, bg: "linear-gradient(135deg, #3a4a2a 0%, #5a7a4a 50%, #8aaa6a 100%)" },
+  { name: "Baabda", search: { q: "Baabda" }, bg: "linear-gradient(135deg, #3a2a2a 0%, #5a3a3a 50%, #8b6f5e 100%)" },
+  { name: "Couples", search: { bedrooms: 1 }, bg: "linear-gradient(135deg, #4a1520 0%, #7a2535 50%, #c0392b 100%)", icon: true },
+];
 
 const STEPS = [
   {
