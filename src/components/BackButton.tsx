@@ -21,7 +21,7 @@ export function BackButton() {
   const handleBack = () => {
   const returnTo = getListingReturnUrl();
   if (returnTo) {
-    router.navigate({ href: returnTo, resetScroll: false });
+    router.navigate({ to: returnTo, resetScroll: false });
     return;
   }
   router.navigate({ to: "/search", resetScroll: false });
