@@ -19,21 +19,13 @@ export function BackButton() {
   if (pathname === "/") return null;
 
   const handleBack = () => {
-    if (typeof window !== "undefined") {
-      if (pathname.startsWith("/listing/")) {
-        const returnTo = getListingReturnUrl();
-        if (returnTo) {
-          router.navigate({ href: returnTo, resetScroll: false });
-          return;
-        }
-      }
-      if (window.history.length > 1) {
-        window.history.back();
-        return;
-      }
-    }
-    router.navigate({ to: "/" });
-  };
+  const returnTo = getListingReturnUrl();
+  if (returnTo) {
+    router.navigate({ href: returnTo, resetScroll: false });
+    return;
+  }
+  router.navigate({ to: "/search", resetScroll: false });
+};
 
   return (
     <button
