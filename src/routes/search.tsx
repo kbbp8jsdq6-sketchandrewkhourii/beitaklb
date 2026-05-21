@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -13,6 +13,7 @@ const searchSchema = z.object({
   q: z.string().optional().catch(undefined),
   category: z.enum(["villa", "cabin", "apartment"]).optional().catch(undefined),
   bedrooms: z.coerce.number().int().min(1).max(20).optional().catch(undefined),
+  amenities: z.array(z.string()).optional().catch(undefined),
 });
 
 type ListingCategory = "villa" | "cabin" | "apartment";
@@ -119,13 +120,14 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, category, bedrooms } = Route.useSearch();
+  const { q, category, bedrooms, amenities } = Route.useSearch();
+  const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
+  const selectedAmenities = amenities ?? [];
 
   // Paginated, server-side filtered query.
   const {
@@ -173,10 +175,16 @@ function SearchPage() {
     },
   });
 
-  const toggleAmenity = (a: string) =>
-    setSelectedAmenities((prev) =>
-      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
-    );
+  const toggleAmenity = (a: string) => {
+    navigate({
+      search: (prev) => {
+        const current = prev.amenities ?? [];
+        const next = current.includes(a) ? current.filter((x) => x !== a) : [...current, a];
+        return { ...prev, amenities: next.length > 0 ? next : undefined };
+      },
+      resetScroll: false,
+    });
+  };
 
   const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
 
