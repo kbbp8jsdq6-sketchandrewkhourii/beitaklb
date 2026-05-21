@@ -139,7 +139,7 @@ export function ListingCard({
         to="/listing/$id"
         params={{ id: listing.id }}
         className="block"
-        onClick={handleMobileTap}
+        onClick={(e) => { handleMobileTap(e); saveListingReturnState(); }}
       >
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
           {photos.length > 0 ? (
