@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -10,10 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { SlidersHorizontal, X } from "lucide-react";
 
 const searchSchema = z.object({
-  q: z.string().optional().catch(undefined),
-  category: z.enum(["villa", "cabin", "apartment"]).optional().catch(undefined),
-  bedrooms: z.coerce.number().int().min(1).max(20).optional().catch(undefined),
-  amenities: z.array(z.string()).optional().catch(undefined),
+  q: fallback(z.string().optional(), undefined),
+  category: fallback(z.enum(["villa", "cabin", "apartment"]).optional(), undefined),
+  bedrooms: fallback(z.coerce.number().int().min(1).max(20).optional(), undefined),
+  amenities: fallback(z.array(z.string()), []).default([]),
 });
 
 type ListingCategory = "villa" | "cabin" | "apartment";
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/search")({
     ],
     links: [{ rel: "canonical", href: "https://beitaklb.lovable.app/search" }],
   }),
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: zodValidator(searchSchema),
   component: SearchPage,
 });
 
