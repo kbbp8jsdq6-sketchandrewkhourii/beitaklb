@@ -19,12 +19,8 @@ export function BackButton() {
   if (pathname === "/") return null;
 
   const handleBack = () => {
-  const returnTo = getListingReturnUrl();
-  if (returnTo) {
-    router.navigate({ to: returnTo, resetScroll: false });
-    return;
-  }
-  router.navigate({ to: "/search", resetScroll: false });
+  window.location.href = "/";
+};
 };
 
   return (
