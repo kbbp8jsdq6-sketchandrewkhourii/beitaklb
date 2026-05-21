@@ -1,4 +1,4 @@
-import { Link, useLocation, useRouter } from "@tanstack/react-router";
+import { useLocation, useRouter } from "@tanstack/react-router";
 import { X } from "lucide-react";
 
 /**
@@ -11,26 +11,22 @@ export function BackButton() {
   const router = useRouter();
   if (pathname === "/") return null;
 
-  const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (typeof window === "undefined") return;
-    const canGoBack =
-      window.history.length > 1 &&
-      document.referrer &&
-      new URL(document.referrer).origin === window.location.origin;
-    if (canGoBack) {
-      e.preventDefault();
-      router.history.back();
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      window.history.back();
+      return;
     }
+    router.navigate({ to: "/" });
   };
 
   return (
-    <Link
-      to="/"
+    <button
+      type="button"
       onClick={handleBack}
       aria-label="Back"
       className="fixed left-3 top-3 z-[9998] inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/90 text-black shadow-sm backdrop-blur transition hover:bg-white hover:shadow-md sm:left-4 sm:top-4"
     >
       <X className="h-5 w-5" strokeWidth={2.25} />
-    </Link>
+    </button>
   );
 }
