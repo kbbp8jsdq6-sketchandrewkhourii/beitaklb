@@ -1,5 +1,6 @@
 const RETURN_TO_KEY = "beitak:returnTo";
 const RETURN_SCROLL_KEY = "beitak:returnScrollY";
+const RETURN_CONSUMED_KEY = "beitak:returnConsumed";
 
 function isSafeReturnUrl(url: string | null): url is string {
   return !!url && url.startsWith("/") && !url.startsWith("//") && !url.startsWith("/listing/");
@@ -17,6 +18,7 @@ export function saveListingReturnState(returnUrl?: string | null) {
     if (!isSafeReturnUrl(target)) return;
     sessionStorage.setItem(RETURN_TO_KEY, target);
     sessionStorage.setItem(RETURN_SCROLL_KEY, String(window.scrollY));
+    sessionStorage.removeItem(RETURN_CONSUMED_KEY);
   } catch {}
 }
 
@@ -37,15 +39,15 @@ export function restoreListingReturnScroll() {
     const current = currentRelativeUrl();
     if (!target || target !== current) return;
 
+    // Only restore scroll once per navigation back
+    const consumed = sessionStorage.getItem(RETURN_CONSUMED_KEY);
+    if (consumed === "1") return;
+    sessionStorage.setItem(RETURN_CONSUMED_KEY, "1");
+
     const scrollY = Number(sessionStorage.getItem(RETURN_SCROLL_KEY));
-    
     if (!Number.isFinite(scrollY)) return;
     requestAnimationFrame(() => {
-     requestAnimationFrame(() => {
-  window.scrollTo({ top: scrollY, behavior: "auto" });
-  sessionStorage.removeItem(RETURN_TO_KEY);
-  sessionStorage.removeItem(RETURN_SCROLL_KEY);
-});
+      requestAnimationFrame(() => window.scrollTo({ top: scrollY, behavior: "auto" }));
     });
   } catch {}
 }
