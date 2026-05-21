@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Billboard, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -80,7 +80,7 @@ function Pin({
   position: [number, number];
 }) {
   return (
-    <group position={[position[0], 1.2, position[1]]}>
+    <group position={[position[0], 0.25, position[1]]}>
       {/* Cone (pointing down) */}
       <mesh position={[0, -0.13, 0]} rotation={[Math.PI, 0, 0]}>
         <coneGeometry args={[0.065, 0.26, 16]} />
@@ -93,12 +93,12 @@ function Pin({
         />
       </mesh>
       {/* Sphere head */}
-      <mesh position={[0, 1, 0]}>
+      <mesh position={[0, 0.04, 0]}>
         <sphereGeometry args={[0.09, 24, 24]} />
         <meshStandardMaterial
           color={RED}
-          metalness={1.8}
-          roughness={0.1}
+          metalness={0.8}
+          roughness={0.15}
           emissive={RED}
           emissiveIntensity={0.4}
         />
@@ -138,23 +138,11 @@ function Pin({
 // ---------- Floating card ----------
 function FloatingCard({
   position,
-  index,
 }: {
   position: [number, number];
-  index: number;
 }) {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    const t = state.clock.elapsedTime;
-    const phase = index * 0.9;
-    const bob = Math.sin(t * 1.3 + phase) * 0.07;
-    groupRef.current.position.y = 0.85 + bob;
-  });
-
   return (
-    <group ref={groupRef} position={[position[0], 0.85, position[1]]}>
+    <group position={[position[0], 0.85, position[1]]}>
       <Billboard>
         {/* Red glowing border (behind) */}
         <mesh position={[0, 0, -0.005]}>
@@ -183,103 +171,8 @@ function FloatingCard({
   );
 }
 
-// ---------- Particles ----------
-function Particles({ count = 50 }: { count?: number }) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const data = useMemo(() => {
-    const arr: { x: number; y: number; z: number; speed: number }[] = [];
-    for (let i = 0; i < count; i++) {
-      arr.push({
-        x: (Math.random() - 0.5) * 5.2,
-        y: Math.random() * 2.5,
-        z: (Math.random() - 0.5) * 3.5,
-        speed: 0.1 + Math.random() * 0.25,
-      });
-    }
-    return arr;
-  }, [count]);
-
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-
-  useFrame((_, delta) => {
-    if (!meshRef.current) return;
-    for (let i = 0; i < data.length; i++) {
-      const p = data[i];
-      p.y += p.speed * delta;
-      if (p.y > 2.8) {
-        p.y = 0;
-        p.x = (Math.random() - 0.5) * 5.2;
-        p.z = (Math.random() - 0.5) * 3.5;
-      }
-      dummy.position.set(p.x, p.y, p.z);
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    }
-    meshRef.current.instanceMatrix.needsUpdate = true;
-  });
-
-  return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-      <sphereGeometry args={[0.01, 8, 8]} />
-      <meshStandardMaterial
-        color={RED}
-        emissive={RED_EMISSIVE}
-        emissiveIntensity={0.9}
-      />
-    </instancedMesh>
-  );
-}
-
-// ---------- Camera tilt on mouse move ----------
-function CameraTilt() {
-  const { camera } = useThree();
-  const target = useRef({ x: 0, y: 0 });
-  const basePos = useRef(new THREE.Vector3(0, 2.8, 6));
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
-      // ±6 degrees in radians ~ 0.1047
-      target.current.x = nx * 0.1047;
-      target.current.y = ny * 0.1047;
-    };
-    window.addEventListener("mousemove", handler);
-    return () => window.removeEventListener("mousemove", handler);
-  }, []);
-
-  useFrame(() => {
-    const offsetX = Math.sin(target.current.x) * 0.4;
-    const offsetY = -Math.sin(target.current.y) * 0.3;
-    camera.position.x += (basePos.current.x + offsetX - camera.position.x) * 0.05;
-    camera.position.y += (basePos.current.y + offsetY - camera.position.y) * 0.05;
-  });
-
-  return null;
-}
-
 // ---------- Scene ----------
 function Scene() {
-  const [appeared, setAppeared] = useState<boolean[]>(() =>
-    PIN_POSITIONS.map(() => false),
-  );
-
-  useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    PIN_POSITIONS.forEach((_, i) => {
-      timers.push(
-        setTimeout(() => {
-          setAppeared((prev) => {
-            const next = [...prev];
-            next[i] = true;
-            return next;
-          });
-        }, i * 250),
-      );
-    });
-    return () => timers.forEach(clearTimeout);
-  }, []);
-
   return (
     <>
       <fog attach="fog" args={[DARK, 10, 22]} />
@@ -299,22 +192,16 @@ function Scene() {
       <Platform />
 
       {PIN_POSITIONS.map((pos, i) => (
-        <Pin key={i} position={pos} index={i} appeared={appeared[i]} />
+        <Pin key={i} position={pos} />
       ))}
 
       {CARD_PIN_INDICES.map((i) => (
-        <FloatingCard key={`card-${i}`} position={PIN_POSITIONS[i]} index={i} />
+        <FloatingCard key={`card-${i}`} position={PIN_POSITIONS[i]} />
       ))}
-
-      <Particles count={50} />
-
-      <CameraTilt />
 
       <OrbitControls
         enableZoom={false}
         enablePan={false}
-        autoRotate
-        autoRotateSpeed={0.5}
         minPolarAngle={Math.PI / 5}
         maxPolarAngle={Math.PI / 3}
       />
@@ -341,17 +228,10 @@ function LoadingFallback() {
           height: 56,
           borderRadius: "50%",
           background: RED,
-          opacity: 0.7,
-          animation: "maphero3d-pulse 1.4s ease-in-out infinite",
+          opacity: 1.7,
           boxShadow: `0 0 30px ${RED}`,
         }}
       />
-      <style>{`
-        @keyframes maphero3d-pulse {
-          0%, 100% { transform: scale(0.85); opacity: 0.5; }
-          50% { transform: scale(1.1); opacity: 0.9; }
-        }
-      `}</style>
     </div>
   );
 }
