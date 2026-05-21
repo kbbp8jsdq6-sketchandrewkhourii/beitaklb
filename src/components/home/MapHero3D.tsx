@@ -84,27 +84,12 @@ function Pin({
   appeared: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
-  const scaleRef = useRef(0);
 
-  useFrame((state, delta) => {
-    if (!groupRef.current) return;
-    const t = state.clock.elapsedTime;
-    const phase = index * 0.9;
-    const bob = Math.sin(t * 1.3 + phase) * 0.07;
-    groupRef.current.position.y = 0.25 + bob;
-
-    // Stagger scale-in
-    const target = appeared ? 1 : 0;
-    scaleRef.current += (target - scaleRef.current) * Math.min(delta * 6, 1);
-    groupRef.current.scale.setScalar(scaleRef.current);
-
-    if (ringRef.current) {
-      const mat = ringRef.current.material as THREE.MeshStandardMaterial;
-      const pulse = 0.15 + (Math.sin(t * 2 + phase) * 0.5 + 0.5) * 0.75;
-      mat.opacity = pulse;
+  useEffect(() => {
+    if (groupRef.current) {
+      groupRef.current.scale.setScalar(1);
     }
-  });
+  }, []);
 
   return (
     <group ref={groupRef} position={[position[0], 0.25, position[1]]}>
