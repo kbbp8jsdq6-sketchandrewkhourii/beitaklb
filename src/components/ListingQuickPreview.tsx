@@ -94,13 +94,14 @@ Could you help me with availability and booking?`
                 <span className="text-muted-foreground"> / night</span>
               </p>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                <Link
-                  to="/listing/$id"
-                  params={{ id: listing.id }}
-                  className="inline-flex flex-1 items-center justify-center rounded-md border-2 border-foreground px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
-                >
-                  View full listing
-                </Link>
+               <Link
+  to="/listing/$id"
+  params={{ id: listing.id }}
+  className="inline-flex flex-1 items-center justify-center rounded-md border-2 border-foreground px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
+  onClick={() => saveListingReturnState()}
+>
+  View full listing
+</Link>
                 <a
                   href={whatsappURL}
                   target="_blank"
