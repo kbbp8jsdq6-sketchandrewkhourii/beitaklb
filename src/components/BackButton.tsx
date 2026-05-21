@@ -19,9 +19,9 @@ export function BackButton() {
   if (pathname === "/") return null;
 
   const handleBack = () => {
-  window.location.href = "/";
-};
-};
+    window.location.href = "/";
+  };
+
 
   return (
     <button
