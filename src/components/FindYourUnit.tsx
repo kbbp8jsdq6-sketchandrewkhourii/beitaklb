@@ -213,7 +213,17 @@ export function FindYourUnit() {
     amenities: [],
     submitted: false,
   });
-
+useEffect(() => {
+    const saved = loadFindYourUnitState();
+    if (!saved) return;
+    if (saved.keyword) setKeyword(saved.keyword as string);
+    if (saved.city) setCity(saved.city as string);
+    if (saved.bed) setBed(saved.bed as AnyOption);
+    if (saved.bath) setBath(saved.bath as AnyOption);
+    if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
+    if (saved.amenities) setAmenities(saved.amenities as string[]);
+    if (saved.applied) setApplied(saved.applied as AppliedFilters);
+  }, []);
   // Suggestion pool — small static-ish snapshot used for the typeahead and
   // the city dropdown. Cached for 5 minutes.
   const { data: suggestionPool = [] } = useQuery({
