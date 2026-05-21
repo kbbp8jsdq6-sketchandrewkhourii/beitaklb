@@ -9,9 +9,11 @@ import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 import { supabase } from "@/integrations/supabase/client";
 import { SlidersHorizontal, X } from "lucide-react";
+import { restoreListingReturnScroll } from "@/lib/listing-return";
 
 const searchSchema = z.object({
   q: fallback(z.string().optional(), undefined),
+  district: fallback(z.string().optional(), undefined),
   category: fallback(z.enum(["villa", "cabin", "apartment"]).optional(), undefined),
   bedrooms: fallback(z.coerce.number().int().min(1).max(20).optional(), undefined),
   amenities: fallback(z.array(z.string()), []).default([]),
@@ -67,6 +69,7 @@ function usePageSize(): number {
 
 async function fetchSearchPage(
   q: string | undefined,
+  district: string | undefined,
   category: ListingCategory | undefined,
   bedrooms: number | undefined,
   selectedAmenities: string[],
@@ -82,6 +85,7 @@ async function fetchSearchPage(
 
   if (category) query = query.eq("category", category);
   if (bedrooms != null) query = query.eq("bedrooms", bedrooms);
+  if (district) query = query.ilike("location", `%${district.replace(/[%,]/g, " ")}%`);
   if (q) {
     const term = q.replace(/[%,]/g, " ");
     query = query.or(
@@ -122,7 +126,7 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, category, bedrooms, amenities } = Route.useSearch();
+  const { q, district, category, bedrooms, amenities } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
@@ -139,9 +143,9 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, category, bedrooms, selectedAmenities, pageSize],
+    queryKey: ["search-listings", q, district, category, bedrooms, selectedAmenities, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, category, bedrooms, selectedAmenities, pageParam, pageSize),
+      fetchSearchPage(q, district, category, bedrooms, selectedAmenities, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
@@ -198,12 +202,16 @@ function SearchPage() {
 
   const totalLoaded = filteredResults.length;
 
+  useEffect(() => {
+    if (!isLoading) restoreListingReturnScroll();
+  }, [isLoading, totalLoaded]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <section className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-6 sm:px-6 lg:px-8">
-          <SearchBar variant="compact" initial={{ location: q }} />
+            <SearchBar variant="compact" initial={{ location: q ?? district }} />
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -211,7 +219,9 @@ function SearchPage() {
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
             {category
               ? CATEGORY_LABEL[category as ListingCategory]
-              : q
+              : district
+                ? `Stays in ${district}`
+                : q
                 ? `Stays in ${q}`
                 : "All stays in Lebanon"}
           </h1>

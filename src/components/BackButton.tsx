@@ -1,5 +1,6 @@
 import { useLocation, useRouter } from "@tanstack/react-router";
 import { X } from "lucide-react";
+import { getListingReturnUrl } from "@/lib/listing-return";
 
 /**
  * Fixed back/exit button shown on every non-homepage route.
@@ -20,14 +21,11 @@ export function BackButton() {
   const handleBack = () => {
     if (typeof window !== "undefined") {
       if (pathname.startsWith("/listing/")) {
-        try {
-          const returnTo = sessionStorage.getItem("beitak:returnTo");
-          if (returnTo && returnTo !== pathname) {
-            sessionStorage.removeItem("beitak:returnTo");
-            router.navigate({ to: returnTo, resetScroll: false });
-            return;
-          }
-        } catch {}
+        const returnTo = getListingReturnUrl();
+        if (returnTo) {
+          router.navigate({ href: returnTo, resetScroll: false });
+          return;
+        }
       }
       if (window.history.length > 1) {
         window.history.back();

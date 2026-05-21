@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Instagram, Heart, Coffee, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { saveListingReturnState } from "@/lib/listing-return";
 
 export interface ListingCardData {
   id: string;
@@ -99,18 +100,8 @@ export function ListingCard({
     else if (dx < -threshold) goTo(current + 1);
   };
 
-  const saveReturnUrl = () => {
-    if (typeof window === "undefined") return;
-    try {
-      const here = window.location.pathname + window.location.search + window.location.hash;
-      if (!here.startsWith("/listing/")) {
-        sessionStorage.setItem("beitak:returnTo", here);
-      }
-    } catch {}
-  };
-
   const handleMobileTap = (e: React.MouseEvent) => {
-    saveReturnUrl();
+    saveListingReturnState();
     if (!onQuickPreview) return;
     if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
       e.preventDefault();
@@ -284,7 +275,7 @@ export function ListingCard({
       </Link>
       <div className="mt-3">
         <div className="flex items-start justify-between gap-2">
-          <Link to="/listing/$id" params={{ id: listing.id }} onClick={saveReturnUrl} className="min-w-0 flex-1">
+          <Link to="/listing/$id" params={{ id: listing.id }} onClick={() => saveListingReturnState()} className="min-w-0 flex-1">
             <h3 className="line-clamp-1 font-sans text-base font-semibold text-foreground">
               {listing.title}
             </h3>
@@ -308,7 +299,7 @@ export function ListingCard({
             </a>
           </div>
         </div>
-        <Link to="/listing/$id" params={{ id: listing.id }} onClick={saveReturnUrl} className="block">
+        <Link to="/listing/$id" params={{ id: listing.id }} onClick={() => saveListingReturnState()} className="block">
           <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3 w-3" />
             {listing.location}
