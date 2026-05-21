@@ -51,3 +51,21 @@ export function restoreListingReturnScroll() {
     });
   } catch {}
 }
+const FIND_STATE_KEY = "beitak:findState";
+
+export function saveFindYourUnitState(state: object) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(FIND_STATE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+export function loadFindYourUnitState(): Record<string, unknown> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(FIND_STATE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
