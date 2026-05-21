@@ -100,10 +100,7 @@ export function ListingCard({
     else if (dx < -threshold) goTo(current + 1);
   };
 
-  const handleMobileTap = (e: React.MouseEvent) => {
-    saveListingReturnState();
-  };
-
+  
   const handleHeart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -134,7 +131,7 @@ export function ListingCard({
         to="/listing/$id"
         params={{ id: listing.id }}
         className="block"
-        onClick={(e) => { handleMobileTap(e); saveListingReturnState(); }}
+        onClick={() => saveListingReturnState()}
       >
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
           {photos.length > 0 ? (
