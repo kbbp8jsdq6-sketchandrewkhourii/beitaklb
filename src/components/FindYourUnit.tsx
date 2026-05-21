@@ -260,7 +260,11 @@ export function FindYourUnit() {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    setApplied({ keyword, city, bed, bath, maxBudget, amenities, submitted: true });
+    const newApplied = { keyword, city, bed, bath, maxBudget, amenities, submitted: true };
+    setApplied(newApplied);
+    saveFindYourUnitState({
+      keyword, city, bed, bath, maxBudget, amenities, applied: newApplied,
+    });
     requestAnimationFrame(() => {
       const el = document.getElementById("find-your-unit-results");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
