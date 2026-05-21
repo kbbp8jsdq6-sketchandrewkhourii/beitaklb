@@ -281,7 +281,20 @@ const [district, setDistrict] = useState("");
               />
               <FieldError message={errors.description} />
             </div>
-
+<div>
+              <Label htmlFor="district">District</Label>
+              <select
+                id="district"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">-- None --</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
             <div>
               <Label htmlFor="loc">City / Location *</Label>
               <Input
