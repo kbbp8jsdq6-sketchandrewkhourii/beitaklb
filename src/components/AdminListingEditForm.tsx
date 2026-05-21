@@ -202,6 +202,7 @@ const [district, setDistrict] = useState("");
           bedrooms: Number(bedrooms),
           bathrooms: Number(bathrooms),
           amenities,
+          district,
         })
         .eq("id", listingId);
       if (uErr) throw uErr;
