@@ -18,6 +18,7 @@ const searchSchema = z.object({
 });
 
 type ListingCategory = "villa" | "cabin" | "apartment";
+type SearchParams = z.infer<typeof searchSchema>;
 
 const CATEGORY_LABEL: Record<ListingCategory, string> = {
   villa: "Villas",
@@ -128,7 +129,7 @@ function SearchPage() {
   const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
-  const selectedAmenities = amenities ?? [];
+  const selectedAmenities: string[] = amenities ?? [];
 
   // Paginated, server-side filtered query.
   const {
@@ -178,9 +179,9 @@ function SearchPage() {
 
   const toggleAmenity = (a: string) => {
     navigate({
-      search: (prev) => {
+      search: (prev: SearchParams) => {
         const current = prev.amenities ?? [];
-        const next = current.includes(a) ? current.filter((x) => x !== a) : [...current, a];
+        const next = current.includes(a) ? current.filter((x: string) => x !== a) : [...current, a];
         return { ...prev, amenities: next.length > 0 ? next : undefined };
       },
       resetScroll: false,
@@ -232,7 +233,12 @@ function SearchPage() {
               {selectedAmenities.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setSelectedAmenities([])}
+                  onClick={() =>
+                    navigate({
+                      search: (prev: SearchParams) => ({ ...prev, amenities: undefined }),
+                      resetScroll: false,
+                    })
+                  }
                   className="text-xs font-semibold text-primary hover:underline"
                 >
                   Clear ({selectedAmenities.length})
