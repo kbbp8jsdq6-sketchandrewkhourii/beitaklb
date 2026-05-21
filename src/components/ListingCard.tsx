@@ -99,7 +99,18 @@ export function ListingCard({
     else if (dx < -threshold) goTo(current + 1);
   };
 
+  const saveReturnUrl = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const here = window.location.pathname + window.location.search + window.location.hash;
+      if (!here.startsWith("/listing/")) {
+        sessionStorage.setItem("beitak:returnTo", here);
+      }
+    } catch {}
+  };
+
   const handleMobileTap = (e: React.MouseEvent) => {
+    saveReturnUrl();
     if (!onQuickPreview) return;
     if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
       e.preventDefault();
