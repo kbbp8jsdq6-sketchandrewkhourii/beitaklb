@@ -102,11 +102,6 @@ export function ListingCard({
 
   const handleMobileTap = (e: React.MouseEvent) => {
     saveListingReturnState();
-    if (!onQuickPreview) return;
-    if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
-      e.preventDefault();
-      onQuickPreview(listing);
-    }
   };
 
   const handleHeart = (e: React.MouseEvent) => {
