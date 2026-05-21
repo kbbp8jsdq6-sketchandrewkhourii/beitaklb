@@ -275,7 +275,7 @@ export function ListingCard({
       </Link>
       <div className="mt-3">
         <div className="flex items-start justify-between gap-2">
-          <Link to="/listing/$id" params={{ id: listing.id }} onClick={saveReturnUrl} className="min-w-0 flex-1">
+          <Link to="/listing/$id" params={{ id: listing.id }} onClick={() => saveListingReturnState()} className="min-w-0 flex-1">
             <h3 className="line-clamp-1 font-sans text-base font-semibold text-foreground">
               {listing.title}
             </h3>
@@ -299,7 +299,7 @@ export function ListingCard({
             </a>
           </div>
         </div>
-        <Link to="/listing/$id" params={{ id: listing.id }} onClick={saveReturnUrl} className="block">
+        <Link to="/listing/$id" params={{ id: listing.id }} onClick={() => saveListingReturnState()} className="block">
           <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3 w-3" />
             {listing.location}
