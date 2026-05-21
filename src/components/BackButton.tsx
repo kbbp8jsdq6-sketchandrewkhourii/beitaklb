@@ -2,9 +2,15 @@ import { useLocation, useRouter } from "@tanstack/react-router";
 import { X } from "lucide-react";
 
 /**
- * Fixed back button shown on every non-homepage route.
- * Prefers browser history (so search filters / scroll are restored)
- * and falls back to the homepage when there's no history entry.
+ * Fixed back/exit button shown on every non-homepage route.
+ *
+ * Behavior:
+ * - On listing pages, prefer a stored return URL (set when the user clicked
+ *   a card from /search or /). This guarantees the exact prior search
+ *   results — filters, query, scroll — are restored even when the listing
+ *   was opened in a fresh tab or after a hard refresh.
+ * - Otherwise, prefer browser history so TanStack's scroll restoration runs.
+ * - Final fallback: navigate to homepage.
  */
 export function BackButton() {
   const { pathname } = useLocation();
@@ -12,9 +18,21 @@ export function BackButton() {
   if (pathname === "/") return null;
 
   const handleBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      window.history.back();
-      return;
+    if (typeof window !== "undefined") {
+      if (pathname.startsWith("/listing/")) {
+        try {
+          const returnTo = sessionStorage.getItem("beitak:returnTo");
+          if (returnTo && returnTo !== pathname) {
+            sessionStorage.removeItem("beitak:returnTo");
+            router.navigate({ to: returnTo, resetScroll: false });
+            return;
+          }
+        } catch {}
+      }
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
     }
     router.navigate({ to: "/" });
   };

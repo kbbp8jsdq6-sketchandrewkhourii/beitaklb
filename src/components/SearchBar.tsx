@@ -129,6 +129,12 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             setOpenSuggest(false);
+                            try {
+                              const here = window.location.pathname + window.location.search + window.location.hash;
+                              if (!here.startsWith("/listing/")) {
+                                sessionStorage.setItem("beitak:returnTo", here);
+                              }
+                            } catch {}
                             navigate({ to: "/listing/$id", params: { id: l.id } });
                           }}
                           className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-accent"
