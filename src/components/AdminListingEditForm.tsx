@@ -38,7 +38,16 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: "cabin", label: "Cabin" },
   { value: "apartment", label: "Apartment" },
 ];
-
+const DISTRICTS = [
+  "Batroun",
+  "Chouf",
+  "Keserwan",
+  "North Lebanon",
+  "Byblos",
+  "Aley",
+  "Maten",
+  "Baabda",
+];
 type ExistingPhoto = {
   id: string;
   photo_url: string;
@@ -68,7 +77,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const [bedrooms, setBedrooms] = useState("1");
   const [bathrooms, setBathrooms] = useState("1");
   const [amenities, setAmenities] = useState<string[]>([]);
-
+const [district, setDistrict] = useState("");
   const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>([]);
   const [photosToDelete, setPhotosToDelete] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
@@ -82,7 +91,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         const { data: l, error } = await supabase
           .from("listings")
           .select(
-            "id, host_id, title, description, location, category, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
+            "id, host_id, title, description, location, district, category, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
           )
           .eq("id", listingId)
           .single();
@@ -108,6 +117,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         setBedrooms(String(l.bedrooms ?? 1));
         setBathrooms(String(l.bathrooms ?? 1));
         setAmenities(l.amenities ?? []);
+        setDistrict(l.district ?? "");
         setExistingPhotos(photos ?? []);
         setPhotosToDelete([]);
         setNewFiles([]);
