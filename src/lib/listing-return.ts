@@ -38,12 +38,14 @@ export function restoreListingReturnScroll() {
     if (!target || target !== current) return;
 
     const scrollY = Number(sessionStorage.getItem(RETURN_SCROLL_KEY));
-    sessionStorage.removeItem(RETURN_TO_KEY);
-    sessionStorage.removeItem(RETURN_SCROLL_KEY);
-
+    
     if (!Number.isFinite(scrollY)) return;
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => window.scrollTo({ top: scrollY, behavior: "auto" }));
+     requestAnimationFrame(() => {
+  window.scrollTo({ top: scrollY, behavior: "auto" });
+  sessionStorage.removeItem(RETURN_TO_KEY);
+  sessionStorage.removeItem(RETURN_SCROLL_KEY);
+});
     });
   } catch {}
 }
