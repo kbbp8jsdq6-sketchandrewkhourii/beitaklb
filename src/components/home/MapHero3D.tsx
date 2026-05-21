@@ -76,23 +76,11 @@ function Platform() {
 // ---------- Pin ----------
 function Pin({
   position,
-  index,
-  appeared,
 }: {
   position: [number, number];
-  index: number;
-  appeared: boolean;
 }) {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useEffect(() => {
-    if (groupRef.current) {
-      groupRef.current.scale.setScalar(1);
-    }
-  }, []);
-
   return (
-    <group ref={groupRef} position={[position[0], 0.25, position[1]]}>
+    <group position={[position[0], 1.2, position[1]]}>
       {/* Cone (pointing down) */}
       <mesh position={[0, -0.13, 0]} rotation={[Math.PI, 0, 0]}>
         <coneGeometry args={[0.065, 0.26, 16]} />
@@ -105,12 +93,12 @@ function Pin({
         />
       </mesh>
       {/* Sphere head */}
-      <mesh position={[0, 0.04, 0]}>
+      <mesh position={[0, 1, 0]}>
         <sphereGeometry args={[0.09, 24, 24]} />
         <meshStandardMaterial
           color={RED}
-          metalness={0.8}
-          roughness={0.15}
+          metalness={1.8}
+          roughness={0.1}
           emissive={RED}
           emissiveIntensity={0.4}
         />
@@ -126,7 +114,6 @@ function Pin({
       </mesh>
       {/* Glow ring at base */}
       <mesh
-        ref={ringRef}
         position={[0, -0.24, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
