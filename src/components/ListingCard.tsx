@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Instagram, Heart, Coffee, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { saveListingReturnState } from "@/lib/listing-return";
 
 export interface ListingCardData {
   id: string;
@@ -99,18 +100,8 @@ export function ListingCard({
     else if (dx < -threshold) goTo(current + 1);
   };
 
-  const saveReturnUrl = () => {
-    if (typeof window === "undefined") return;
-    try {
-      const here = window.location.pathname + window.location.search + window.location.hash;
-      if (!here.startsWith("/listing/")) {
-        sessionStorage.setItem("beitak:returnTo", here);
-      }
-    } catch {}
-  };
-
   const handleMobileTap = (e: React.MouseEvent) => {
-    saveReturnUrl();
+    saveListingReturnState();
     if (!onQuickPreview) return;
     if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
       e.preventDefault();
