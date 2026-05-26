@@ -236,7 +236,26 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                   </button>
                 );
               })}
-            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="district">District</Label>
+            <select
+              id="district"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
+            >
+              <option value="">— None —</option>
+              {DISTRICTS.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Listings with exactly 1 bedroom are automatically tagged as <span className="font-semibold">Couples</span>.
+            </p>
+          </div>
+
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
