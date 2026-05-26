@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
 });
 
 const DISTRICTS = [
-  { name: "Batroun", search: { district: "Batroun" }, bg: "linear-gradient(135deg, #0c2340 0%, #1a4a6e 50%, #2d8a9e 100%)" },
+  { name: "Batroun", search: { district: "Batroun" }, bg: "linear-gradient(135deg, #0c2340 0%, #1a4a6e 50%, #2d8a9e 100%)", image: "/batroun.png" },
   { name: "Chouf", search: { district: "Chouf" }, bg: "linear-gradient(135deg, #1a3c2a 0%, #2d5a3d 50%, #5a8a5c 100%)" },
   { name: "Keserwan", search: { district: "Keserwan" }, bg: "linear-gradient(135deg, #3a2a1a 0%, #6b4423 50%, #a0522d 100%)" },
   { name: "North Lebanon", search: { district: "North Lebanon" }, bg: "linear-gradient(135deg, #1a1a3a 0%, #3a3a6a 50%, #5a5a9a 100%)" },
@@ -425,8 +425,8 @@ function HomePage() {
                 >
                   {/* Background placeholder */}
                   <div
-                    className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-                    style={{ background: d.bg }}
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style={d.image ? { backgroundImage: `url(${d.image})` } : { background: d.bg }}
                   />
                   {/* Subtle texture overlay */}
                   <div
