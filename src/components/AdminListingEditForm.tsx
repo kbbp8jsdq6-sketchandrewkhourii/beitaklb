@@ -197,7 +197,6 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           description: parsed.data.description,
           location: parsed.data.location,
           category,
-          district: district || null,
           price_weekday: wd,
           price_weekend: we,
           price_per_night: Math.min(wd, we),
@@ -205,6 +204,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           bedrooms: Number(bedrooms),
           bathrooms: Number(bathrooms),
           amenities,
+          ...({ district: district || null } as Record<string, unknown>),
         })
         .eq("id", listingId);
       if (uErr) throw uErr;
