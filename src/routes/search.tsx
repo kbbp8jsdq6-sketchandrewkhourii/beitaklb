@@ -85,7 +85,7 @@ async function fetchSearchPage(
 
   if (category) query = query.eq("category", category);
   if (bedrooms != null) query = query.eq("bedrooms", bedrooms);
-  if (district) query = query.ilike("location", `%${district.replace(/[%,]/g, " ")}%`);
+  if (district) query = query.eq("district", district);
   if (q) {
     const term = q.replace(/[%,]/g, " ");
     query = query.or(
