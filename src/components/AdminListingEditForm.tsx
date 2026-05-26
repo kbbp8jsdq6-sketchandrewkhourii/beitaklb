@@ -112,6 +112,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         setDescription(l.description);
         setLocation(l.location);
         setCategory(l.category as Category);
+        setDistrict((l as { district?: string | null }).district ?? "");
         setPriceWeekday(String(l.price_weekday ?? ""));
         setPriceWeekend(String(l.price_weekend ?? ""));
         setMaxGuests(String(l.max_guests ?? 2));
