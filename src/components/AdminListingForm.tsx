@@ -75,6 +75,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
   const reset = () => {
     setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
+    setDistrict("");
     setPriceWeekday(""); setPriceWeekend("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
     setAmenities([]); setFiles([]);
