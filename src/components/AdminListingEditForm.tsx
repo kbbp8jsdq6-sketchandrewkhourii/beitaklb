@@ -92,7 +92,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         const { data: l, error } = await supabase
           .from("listings")
           .select(
-            "id, host_id, title, description, location, category, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
+            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
           )
           .eq("id", listingId)
           .single();
