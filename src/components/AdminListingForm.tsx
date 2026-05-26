@@ -39,6 +39,17 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: "apartment", label: "Apartment" },
 ];
 
+const DISTRICTS = [
+  "Batroun",
+  "Chouf",
+  "Aley",
+  "Maten",
+  "Keserwan",
+  "North Lebanon",
+  "Byblos",
+  "Baabda",
+];
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -51,6 +62,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<string>("");
   const [category, setCategory] = useState<Category>("apartment");
+  const [district, setDistrict] = useState<string>("");
   const [priceWeekday, setPriceWeekday] = useState("");
   const [priceWeekend, setPriceWeekend] = useState("");
   const [maxGuests, setMaxGuests] = useState("2");
@@ -63,6 +75,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
   const reset = () => {
     setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
+    setDistrict("");
     setPriceWeekday(""); setPriceWeekend("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
     setAmenities([]); setFiles([]);
@@ -128,6 +141,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         bathrooms: Number(bathrooms),
         amenities,
         is_active: true,
+        ...({ district: district || null } as Record<string, unknown>),
       };
       const { data: created, error: lErr } = await supabase
         .from("listings")
@@ -222,7 +236,26 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                   </button>
                 );
               })}
-            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="district">District</Label>
+            <select
+              id="district"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
+            >
+              <option value="">— None —</option>
+              {DISTRICTS.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Listings with exactly 1 bedroom are automatically tagged as <span className="font-semibold">Couples</span>.
+            </p>
+          </div>
+
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

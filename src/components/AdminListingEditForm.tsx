@@ -71,6 +71,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState<Category>("apartment");
+  const [district, setDistrict] = useState<string>("");
   const [priceWeekday, setPriceWeekday] = useState("");
   const [priceWeekend, setPriceWeekend] = useState("");
   const [maxGuests, setMaxGuests] = useState("2");
@@ -91,7 +92,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         const { data: l, error } = await supabase
           .from("listings")
           .select(
-            "id, host_id, title, description, location, category, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
+            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
           )
           .eq("id", listingId)
           .single();
@@ -111,6 +112,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         setDescription(l.description);
         setLocation(l.location);
         setCategory(l.category as Category);
+        setDistrict((l as { district?: string | null }).district ?? "");
         setPriceWeekday(String(l.price_weekday ?? ""));
         setPriceWeekend(String(l.price_weekend ?? ""));
         setMaxGuests(String(l.max_guests ?? 2));
@@ -202,6 +204,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           bedrooms: Number(bedrooms),
           bathrooms: Number(bathrooms),
           amenities,
+          ...({ district: district || null } as Record<string, unknown>),
         })
         .eq("id", listingId);
       if (uErr) throw uErr;
@@ -320,6 +323,24 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   );
                 })}
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="district">District</Label>
+              <select
+                id="district"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
+              >
+                <option value="">— None —</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Listings with exactly 1 bedroom are automatically tagged as <span className="font-semibold">Couples</span>.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
