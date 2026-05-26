@@ -350,10 +350,12 @@ export type Database = {
           category: Database["public"]["Enums"]["listing_category"]
           created_at: string
           description: string
+          district: string | null
           featured: boolean
           host_id: string
           id: string
           is_active: boolean
+          is_couples: boolean | null
           location: string
           max_guests: number
           price_per_night: number
@@ -375,10 +377,12 @@ export type Database = {
           category: Database["public"]["Enums"]["listing_category"]
           created_at?: string
           description: string
+          district?: string | null
           featured?: boolean
           host_id: string
           id?: string
           is_active?: boolean
+          is_couples?: boolean | null
           location: string
           max_guests?: number
           price_per_night: number
@@ -400,10 +404,12 @@ export type Database = {
           category?: Database["public"]["Enums"]["listing_category"]
           created_at?: string
           description?: string
+          district?: string | null
           featured?: boolean
           host_id?: string
           id?: string
           is_active?: boolean
+          is_couples?: boolean | null
           location?: string
           max_guests?: number
           price_per_night?: number
