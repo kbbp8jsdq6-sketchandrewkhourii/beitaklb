@@ -140,6 +140,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         bathrooms: Number(bathrooms),
         amenities,
         is_active: true,
+        ...({ district: district || null } as Record<string, unknown>),
       };
       const { data: created, error: lErr } = await supabase
         .from("listings")
