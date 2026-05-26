@@ -322,6 +322,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                     </button>
                   );
                 })}
+              </div>
             </div>
 
             <div>
@@ -340,7 +341,6 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
               <p className="mt-1 text-xs text-muted-foreground">
                 Listings with exactly 1 bedroom are automatically tagged as <span className="font-semibold">Couples</span>.
               </p>
-            </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
