@@ -71,6 +71,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState<Category>("apartment");
+  const [district, setDistrict] = useState<string>("");
   const [priceWeekday, setPriceWeekday] = useState("");
   const [priceWeekend, setPriceWeekend] = useState("");
   const [maxGuests, setMaxGuests] = useState("2");
