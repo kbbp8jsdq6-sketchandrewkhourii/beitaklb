@@ -197,6 +197,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           description: parsed.data.description,
           location: parsed.data.location,
           category,
+          district: district || null,
           price_weekday: wd,
           price_weekend: we,
           price_per_night: Math.min(wd, we),
