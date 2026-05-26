@@ -39,6 +39,17 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: "apartment", label: "Apartment" },
 ];
 
+const DISTRICTS = [
+  "Batroun",
+  "Chouf",
+  "Aley",
+  "Maten",
+  "Keserwan",
+  "North Lebanon",
+  "Byblos",
+  "Baabda",
+];
+
 interface Props {
   open: boolean;
   onClose: () => void;
