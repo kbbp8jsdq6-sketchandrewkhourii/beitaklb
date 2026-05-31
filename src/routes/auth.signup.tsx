@@ -1,15 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import authLogoBlack from "@/assets/beitak-logo-auth-black.png";
 import { AuthBackground } from "@/components/AuthBackground";
-import { PasswordInput } from "@/components/PasswordInput";
 import { FieldError } from "@/components/FieldError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
-import { signupSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({ meta: [{ title: "Sign up — BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -18,49 +18,63 @@ export const Route = createFileRoute("/auth/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState<"email" | "otp">("email");
   const [submitting, setSubmitting] = useState(false);
-  const [sentTo, setSentTo] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
+  const sendCode = async (addr: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: addr,
+      options: { shouldCreateUser: true },
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    setResendIn(30);
+    return true;
+  };
+
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    const parsed = signupSchema.safeParse({
-      fullName: fullName.trim(),
-      email: email.trim(),
-      password,
-    });
-    if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+    const addr = email.trim();
+    if (!addr || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) {
+      setErrors({ email: "Enter a valid email address." });
       return;
     }
     setErrors({});
     setSubmitting(true);
-    const redirectUrl = `${window.location.origin}/`;
-    const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: { full_name: parsed.data.fullName },
-      },
+    const ok = await sendCode(addr);
+    setSubmitting(false);
+    if (ok) {
+      setStep("otp");
+      toast.success("We sent a verification code to your email.");
+    }
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting || code.length !== 6) return;
+    setSubmitting(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: code,
+      type: "email",
     });
     setSubmitting(false);
     if (error) {
-      const msg = friendlyError(error, "We couldn't create your account. Please try again.");
-      toast.error(msg);
-      setErrors({ _: msg });
-      return;
-    }
-    const needsConfirmation = !data.session || !data.user?.email_confirmed_at;
-    if (needsConfirmation) {
-      await supabase.auth.signOut();
-      setSentTo(parsed.data.email);
-      toast.success("Account created — please verify your email.");
+      toast.error(error.message);
       return;
     }
     toast.success("Welcome to BEITAK!");
@@ -68,16 +82,11 @@ function SignupPage() {
   };
 
   const handleResend = async () => {
-    if (!sentTo) return;
+    if (resendIn > 0 || resending) return;
     setResending(true);
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email: sentTo,
-      options: { emailRedirectTo: `${window.location.origin}/` },
-    });
+    const ok = await sendCode(email.trim());
     setResending(false);
-    if (error) toast.error(friendlyError(error));
-    else toast.success("Verification email resent.");
+    if (ok) toast.success("Code resent.");
   };
 
   return (
@@ -97,48 +106,11 @@ function SignupPage() {
           </Link>
         </div>
         <div className="rounded-3xl border border-border bg-white p-8 shadow-2xl ring-1 ring-black/5">
-          {sentTo ? (
-            <div className="text-center">
-              <h1 className="font-display text-3xl text-foreground">Check your email</h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                We sent a verification link to{" "}
-                <span className="font-semibold text-foreground">{sentTo}</span>. Click the link to
-                activate your account before logging in.
-              </p>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Didn't get it? Check your spam folder.
-              </p>
-              <Button
-                onClick={handleResend}
-                disabled={resending}
-                variant="outline"
-                className="mt-5 w-full"
-              >
-                {resending ? "Sending…" : "Resend verification email"}
-              </Button>
-              <p className="mt-6 text-center text-sm text-muted-foreground">
-                Already verified?{" "}
-                <Link to="/auth/login" className="font-semibold text-primary hover:underline">
-                  Log in
-                </Link>
-              </p>
-            </div>
-          ) : (
+          {step === "email" ? (
             <>
               <h1 className="font-display text-3xl text-foreground">Create your account</h1>
               <p className="mt-1 text-sm text-muted-foreground">Start hosting or booking across Lebanon.</p>
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                <div>
-                  <Label htmlFor="name">Full name</Label>
-                  <Input
-                    id="name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    aria-invalid={!!errors.fullName}
-                    placeholder="Layla Khoury"
-                  />
-                  <FieldError message={errors.fullName} />
-                </div>
+              <form onSubmit={handleSendCode} className="mt-6 space-y-4" noValidate>
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -152,26 +124,51 @@ function SignupPage() {
                   />
                   <FieldError message={errors.email} />
                 </div>
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <PasswordInput
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    aria-invalid={!!errors.password}
-                    placeholder="At least 8 characters with a number"
-                  />
-                  <FieldError message={errors.password} />
-                </div>
-                <FieldError message={errors._} />
                 <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Creating…" : "Create account"}
+                  {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending…</> : "Send Code"}
                 </Button>
               </form>
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <Link to="/auth/login" className="font-semibold text-primary hover:underline">Log in</Link>
               </p>
+            </>
+          ) : (
+            <>
+              <h1 className="font-display text-3xl text-foreground">Enter your code</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                We sent a 6-digit code to <span className="font-semibold text-foreground">{email}</span>.
+              </p>
+              <form onSubmit={handleVerify} className="mt-6 space-y-5" noValidate>
+                <div className="flex justify-center">
+                  <InputOTP maxLength={6} value={code} onChange={setCode}>
+                    <InputOTPGroup>
+                      {[0, 1, 2, 3, 4, 5].map((i) => (
+                        <InputOTPSlot key={i} index={i} />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting || code.length !== 6}>
+                  {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying…</> : "Verify & continue"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleResend}
+                  disabled={resending || resendIn > 0}
+                >
+                  {resending ? "Sending…" : resendIn > 0 ? `Resend code in ${resendIn}s` : "Resend code"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => { setStep("email"); setCode(""); }}
+                  className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Use a different email
+                </button>
+              </form>
             </>
           )}
         </div>
