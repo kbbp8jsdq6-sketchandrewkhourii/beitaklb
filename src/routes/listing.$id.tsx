@@ -55,7 +55,7 @@ export const Route = createFileRoute("/listing/$id")({
     }
     const title = `${m.title} in ${m.location} | Beitak.lb`;
     const desc = (m.description ?? `Stay at ${m.title} in ${m.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
-    const url = `https://beitaklb.lovable.app/listing/${params.id}`;
+    const url = `https://beitaklb.com/listing/${params.id}`;
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": "LodgingBusiness",

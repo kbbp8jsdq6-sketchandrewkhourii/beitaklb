@@ -17,7 +17,7 @@ export const Route = createFileRoute("/terms")({
       { name: "robots", content: "index, follow" },
       { property: "og:title", content: "Terms & Conditions — Beitak" },
       { property: "og:description", content: "Beitak terms and conditions." },
-      { property: "og:url", content: "https://beitaklb.lovable.app/terms" },
+      { property: "og:url", content: "https://beitaklb.com/terms" },
     ],
   }),
   component: TermsPage,

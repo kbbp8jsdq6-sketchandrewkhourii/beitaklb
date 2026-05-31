@@ -20,7 +20,7 @@ export const Route = createFileRoute("/contact")({
       { name: "robots", content: "index, follow" },
       { property: "og:title", content: "Contact Beitak | Get in Touch" },
       { property: "og:description", content: "Get in touch with the Beitak team." },
-      { property: "og:url", content: "https://beitaklb.lovable.app/contact" },
+      { property: "og:url", content: "https://beitaklb.com/contact" },
     ],
   }),
   component: ContactPage,

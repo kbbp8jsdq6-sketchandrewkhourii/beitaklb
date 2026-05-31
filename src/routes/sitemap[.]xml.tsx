@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
-const SITE_URL = "https://beitaklb.lovable.app";
+const SITE_URL = "https://beitaklb.com";
 
 const STATIC_URLS: { loc: string; changefreq: string; priority: string }[] = [
   { loc: "/", changefreq: "weekly", priority: "1.0" },
