@@ -222,7 +222,7 @@ function HomePage() {
               <div className="hero-logo-aura" aria-hidden="true" />
               {/* Floating particles around the logo (4 on mobile, 10 on desktop) */}
               <div className="hero-particles" aria-hidden="true">
-                {Array.from({ length: isMobile ? 4 : 10 }).map((_, i) => {
+                {Array.from({ length: isMobile ? 0 : 6 }).map((_, i) => {
                   const isRed = i % 2 === 0;
                   const size = 4 + ((i * 3) % 5); // 4..8px
                   const left = (i * 97) % 100;
@@ -261,8 +261,8 @@ function HomePage() {
                     <div className="hero-logo-glow">
                       <div className="hero-logo-stage">
                         <div className="hero-logo-spin">
-                          {Array.from({ length: isMobile ? 1 : 30 }).map((_, i) => {
-                            const total = isMobile ? 1 : 30;
+                          {Array.from({ length: isMobile ? 1 : 8 }).map((_, i) => {
+                            const total = isMobile ? 1 : 8;
                             const z = (i - (total - 1)) * 1.2;
                             const darkness = total === 1 ? 1 : 0.55 + (i / (total - 1)) * 0.45;
                             const sat = total === 1 ? 1 : 0.7 + (i / (total - 1)) * 0.3;
