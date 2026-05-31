@@ -4,12 +4,14 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import authLogoBlack from "@/assets/beitak-logo-auth-black.png";
 import { AuthBackground } from "@/components/AuthBackground";
+import { PasswordInput } from "@/components/PasswordInput";
 import { FieldError } from "@/components/FieldError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
+import { signupSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({ meta: [{ title: "Sign up — BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -18,9 +20,11 @@ export const Route = createFileRoute("/auth/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
-  const [step, setStep] = useState<"email" | "otp">("email");
+  const [step, setStep] = useState<"details" | "otp">("details");
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendIn, setResendIn] = useState(0);
@@ -32,35 +36,38 @@ function SignupPage() {
     return () => clearTimeout(t);
   }, [resendIn]);
 
-  const sendCode = async (addr: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: addr,
-      options: { shouldCreateUser: true },
-    });
-    if (error) {
-      toast.error(error.message);
-      return false;
-    }
-    setResendIn(30);
-    return true;
-  };
-
-  const handleSendCode = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    const addr = email.trim();
-    if (!addr || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) {
-      setErrors({ email: "Enter a valid email address." });
+    const parsed = signupSchema.safeParse({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      password,
+    });
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
       return;
     }
     setErrors({});
     setSubmitting(true);
-    const ok = await sendCode(addr);
+    const { error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        data: { full_name: parsed.data.fullName },
+      },
+    });
     setSubmitting(false);
-    if (ok) {
-      setStep("otp");
-      toast.success("We sent a verification code to your email.");
+    if (error) {
+      const msg = friendlyError(error, "We couldn't create your account. Please try again.");
+      toast.error(msg);
+      setErrors({ _: msg });
+      return;
     }
+    setEmail(parsed.data.email);
+    setStep("otp");
+    setResendIn(30);
+    toast.success("We sent a 6-digit code to your email.");
   };
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -70,11 +77,11 @@ function SignupPage() {
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim(),
       token: code,
-      type: "email",
+      type: "signup",
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error, "Invalid or expired code."));
       return;
     }
     toast.success("Welcome to BEITAK!");
@@ -84,9 +91,17 @@ function SignupPage() {
   const handleResend = async () => {
     if (resendIn > 0 || resending) return;
     setResending(true);
-    const ok = await sendCode(email.trim());
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim(),
+    });
     setResending(false);
-    if (ok) toast.success("Code resent.");
+    if (error) {
+      toast.error(friendlyError(error));
+      return;
+    }
+    setResendIn(30);
+    toast.success("Code resent.");
   };
 
   return (
@@ -106,11 +121,22 @@ function SignupPage() {
           </Link>
         </div>
         <div className="rounded-3xl border border-border bg-white p-8 shadow-2xl ring-1 ring-black/5">
-          {step === "email" ? (
+          {step === "details" ? (
             <>
               <h1 className="font-display text-3xl text-foreground">Create your account</h1>
               <p className="mt-1 text-sm text-muted-foreground">Start hosting or booking across Lebanon.</p>
-              <form onSubmit={handleSendCode} className="mt-6 space-y-4" noValidate>
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+                <div>
+                  <Label htmlFor="name">Full name</Label>
+                  <Input
+                    id="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    aria-invalid={!!errors.fullName}
+                    placeholder="Layla Khoury"
+                  />
+                  <FieldError message={errors.fullName} />
+                </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -124,8 +150,20 @@ function SignupPage() {
                   />
                   <FieldError message={errors.email} />
                 </div>
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    aria-invalid={!!errors.password}
+                    placeholder="At least 8 characters with a number"
+                  />
+                  <FieldError message={errors.password} />
+                </div>
+                <FieldError message={errors._} />
                 <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending…</> : "Send Code"}
+                  {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating…</> : "Create account"}
                 </Button>
               </form>
               <p className="mt-6 text-center text-sm text-muted-foreground">
@@ -163,10 +201,10 @@ function SignupPage() {
                 </Button>
                 <button
                   type="button"
-                  onClick={() => { setStep("email"); setCode(""); }}
+                  onClick={() => { setStep("details"); setCode(""); }}
                   className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Use a different email
+                  Back to details
                 </button>
               </form>
             </>
