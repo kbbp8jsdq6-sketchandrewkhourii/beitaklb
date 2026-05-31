@@ -48,6 +48,7 @@ export const Route = createRootRoute({
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "canonical", href: "https://beitaklb.lovable.app/" },
+      { rel: "icon", type: "image/png", href: "/logo-new.png" },
     ],
   }),
   shellComponent: RootShell,
