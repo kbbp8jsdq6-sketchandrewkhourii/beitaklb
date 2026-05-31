@@ -228,12 +228,12 @@ body.no-scroll {
 
 /* Outer wrapper: float */
 .hero-logo-float {
-  animation: hero-logo-float 3s ease-in-out infinite;
+  animation: hero-logo-float 5s ease-in-out infinite;
   will-change: transform;
 }
 /* Mid wrapper: breathing scale */
 .hero-logo-breathe {
-  animation: hero-logo-breathe 4s ease-in-out infinite;
+  animation: hero-logo-breathe 6s ease-in-out infinite;
   will-change: transform;
 }
 /* Glow wrapper: pulsing red + golden drop-shadow */
@@ -249,7 +249,7 @@ body.no-scroll {
 }
 .hero-logo-spin {
   position: relative;
-  animation: hero-logo-spin-y 6s linear infinite;
+  animation: hero-logo-spin-y 10s linear infinite;
   transform-style: preserve-3d;
   will-change: transform;
 }
