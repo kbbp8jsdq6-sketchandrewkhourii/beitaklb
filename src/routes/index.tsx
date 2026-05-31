@@ -16,7 +16,7 @@ import { SectionDivider } from "@/components/SectionDivider";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Beitak — Find Your Perfect Stay in Lebanon | Home is Closer Than You Think" },
+      { title: "Beitak - Find Your Perfect Stay" },
       {
         name: "description",
         content:
