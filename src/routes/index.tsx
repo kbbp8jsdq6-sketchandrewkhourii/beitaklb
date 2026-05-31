@@ -533,6 +533,7 @@ function HomePage() {
                 width={1024}
                 height={896}
                 loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
                 style={{
                   WebkitMaskImage:
