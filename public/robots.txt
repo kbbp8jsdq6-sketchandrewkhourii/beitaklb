@@ -5,4 +5,4 @@ Disallow: /auth/
 Disallow: /profile
 Disallow: /bookings
 
-Sitemap: https://beitaklb.lovable.app/sitemap.xml
+Sitemap: https://beitaklb.com/sitemap.xml

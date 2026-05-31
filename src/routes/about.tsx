@@ -19,7 +19,7 @@ export const Route = createFileRoute("/about")({
         content:
           "Our mission and vision — connecting travelers with the most unique homes across Lebanon.",
       },
-      { property: "og:url", content: "https://beitaklb.lovable.app/about" },
+      { property: "og:url", content: "https://beitaklb.com/about" },
     ],
   }),
   component: AboutPage,
