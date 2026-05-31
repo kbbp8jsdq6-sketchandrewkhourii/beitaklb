@@ -1,56 +1,59 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
+const BASE_URLS = [
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1518733057094-95b53143d2a7?auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop",
+];
+
+const slideUrl = (base: string, w: number, q: number) => `${base}&w=${w}&q=${q}`;
+
 // Inject a <link rel="preload" as="image"> for the first hero slide so it
 // starts downloading before React hydrates.
 if (typeof document !== "undefined") {
-  const FIRST_SLIDE =
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=60";
-  if (!document.querySelector(`link[rel="preload"][href="${FIRST_SLIDE}"]`)) {
+  const firstSrc = slideUrl(BASE_URLS[0], 1920, 80);
+  if (!document.querySelector(`link[rel="preload"][href="${firstSrc}"]`)) {
     const link = document.createElement("link");
     link.rel = "preload";
     link.as = "image";
-    link.href = FIRST_SLIDE;
+    link.href = firstSrc;
     (link as HTMLLinkElement & { fetchPriority?: string }).fetchPriority = "high";
     document.head.appendChild(link);
   }
 }
-
-// Curated Unsplash placeholders matching the warm Beitak palette
-// (cozy stone homes, mountain retreats, seaside stays, gardens).
-const SLIDES = [
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=60",
-  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1920&q=60",
-  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1920&q=60",
-  "https://images.unsplash.com/photo-1518733057094-95b53143d2a7?auto=format&fit=crop&w=1920&q=60",
-  "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=1920&q=60",
-  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1920&q=60",
-];
 
 export function HeroSlideshow() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % SLIDES.length);
+      setIndex((i) => (i + 1) % BASE_URLS.length);
     }, 4000);
     return () => window.clearInterval(id);
   }, []);
 
   // Preload the next slide for a smoother crossfade
   useEffect(() => {
-    const next = (index + 1) % SLIDES.length;
+    const next = (index + 1) % BASE_URLS.length;
     const img = new Image();
-    img.src = SLIDES[next];
+    img.src = slideUrl(BASE_URLS[next], 1920, 80);
   }, [index]);
+
+  const currentBase = BASE_URLS[index];
 
   return (
     <>
       <div className="absolute inset-0 overflow-hidden bg-foreground">
         <AnimatePresence mode="sync">
           <motion.img
-            key={SLIDES[index]}
-            src={SLIDES[index]}
+            key={currentBase}
+            src={slideUrl(currentBase, 1920, 80)}
+            srcSet={`${slideUrl(currentBase, 800, 60)} 800w, ${slideUrl(currentBase, 1920, 80)} 1920w`}
+            sizes="(max-width: 768px) 800px, 1920px"
             alt=""
             aria-hidden="true"
             decoding="async"
@@ -72,7 +75,7 @@ export function HeroSlideshow() {
 
       {/* Dots */}
       <div className="pointer-events-auto absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-        {SLIDES.map((_, i) => (
+        {BASE_URLS.map((_, i) => (
           <button
             key={i}
             type="button"
