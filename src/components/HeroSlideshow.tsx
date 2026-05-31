@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 // starts downloading before React hydrates.
 if (typeof document !== "undefined") {
   const FIRST_SLIDE =
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80";
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=60";
   if (!document.querySelector(`link[rel="preload"][href="${FIRST_SLIDE}"]`)) {
     const link = document.createElement("link");
     link.rel = "preload";
@@ -19,12 +19,12 @@ if (typeof document !== "undefined") {
 // Curated Unsplash placeholders matching the warm Beitak palette
 // (cozy stone homes, mountain retreats, seaside stays, gardens).
 const SLIDES = [
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1518733057094-95b53143d2a7?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=60",
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1920&q=60",
+  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1920&q=60",
+  "https://images.unsplash.com/photo-1518733057094-95b53143d2a7?auto=format&fit=crop&w=1920&q=60",
+  "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=1920&q=60",
+  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1920&q=60",
 ];
 
 export function HeroSlideshow() {
