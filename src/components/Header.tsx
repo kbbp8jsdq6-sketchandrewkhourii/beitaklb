@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { LogoTransparent } from "./LogoTransparent";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User as UserIcon, Shield, Instagram, Heart } from "lucide-react";
+import { LogOut, User as UserIcon, Shield, Instagram, Heart, MessageCircle, List } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +50,22 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-2">
+          <a
+            href="https://wa.me/96181160435"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition hover:bg-primary hover:text-primary-foreground"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+            Contact
+          </a>
+          <Link
+            to="/search"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-bold text-foreground transition hover:border-primary hover:text-primary"
+          >
+            <List className="h-3.5 w-3.5" />
+            Listings
+          </Link>
           <Link
             to="/favorites"
             aria-label="My favorites"
