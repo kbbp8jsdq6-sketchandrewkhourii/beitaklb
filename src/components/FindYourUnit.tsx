@@ -282,10 +282,10 @@ useEffect(() => {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    const newApplied = { keyword, city, bed, bath, maxBudget, amenities, submitted: true };
+    const newApplied = { keyword, city, bed, bath, guests, maxBudget, amenities, submitted: true };
     setApplied(newApplied);
     saveFindYourUnitState({
-      keyword, city, bed, bath, maxBudget, amenities, applied: newApplied,
+      keyword, city, bed, bath, guests, maxBudget, amenities, applied: newApplied,
     });
     requestAnimationFrame(() => {
       const el = document.getElementById("find-your-unit-results");
