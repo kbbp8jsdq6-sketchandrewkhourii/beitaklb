@@ -7,7 +7,7 @@ import { Header } from "@/components/Header";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Slider } from "@/components/ui/slider";
-import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown, Bed, Bath } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { restoreListingReturnScroll } from "@/lib/listing-return";
 
@@ -15,7 +15,8 @@ const searchSchema = z.object({
   q: fallback(z.string().optional(), undefined),
   district: fallback(z.string().optional(), undefined),
   category: fallback(z.enum(["villa", "cabin", "apartment"]).optional(), undefined),
-  bedrooms: fallback(z.coerce.number().int().min(1).max(20).optional(), undefined),
+  bedrooms: fallback(z.coerce.number().int().min(0).max(20), 0).default(0),
+  bathrooms: fallback(z.coerce.number().int().min(0).max(20), 0).default(0),
   amenities: fallback(z.array(z.string()), []).default([]),
   guests: fallback(z.coerce.number().int().min(1).max(20), 1).default(1),
   minBudget: fallback(z.coerce.number(), 0).default(0),
@@ -78,6 +79,7 @@ async function fetchSearchPage(
   district: string | undefined,
   category: ListingCategory | undefined,
   bedrooms: number | undefined,
+  bathrooms: number | undefined,
   selectedAmenities: string[],
   guests: number,
   minBudget: number,
@@ -95,7 +97,8 @@ async function fetchSearchPage(
     .eq("is_active", true);
 
   if (category) query = query.eq("category", category);
-  if (bedrooms != null) query = query.eq("bedrooms", bedrooms);
+  if (bedrooms != null && bedrooms > 0) query = query.eq("bedrooms", bedrooms);
+  if (bathrooms != null && bathrooms > 0) query = query.eq("bathrooms", bathrooms);
   if (district) query = query.eq("district", district);
   if (q) {
     const term = q.replace(/[%,]/g, " ");
@@ -142,7 +145,7 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, district, category, bedrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
+  const { q, district, category, bedrooms, bathrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
@@ -150,6 +153,8 @@ function SearchPage() {
   const selectedAmenities: string[] = amenities ?? [];
 
   const [localGuests, setLocalGuests] = useState<number>(guests);
+  const [localBedrooms, setLocalBedrooms] = useState<number>(bedrooms ?? 0);
+  const [localBathrooms, setLocalBathrooms] = useState<number>(bathrooms ?? 0);
   const [localMin, setLocalMin] = useState<number>(minBudget);
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
@@ -171,9 +176,9 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, district, category, bedrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
+    queryKey: ["search-listings", q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, district, category, bedrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
+      fetchSearchPage(q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
@@ -226,6 +231,8 @@ function SearchPage() {
         minBudget: localMin,
         maxBudget: localMax,
         location: localLocation || undefined,
+        bedrooms: localBedrooms > 0 ? localBedrooms : undefined,
+        bathrooms: localBathrooms > 0 ? localBathrooms : undefined,
       }),
       resetScroll: false,
     });
@@ -300,6 +307,32 @@ function SearchPage() {
                 onClick={() => setLocalGuests((g) => Math.min(20, g + 1))}
                 className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary"
               >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+
+            {/* Bedrooms stepper */}
+            <div className="flex h-10 items-center gap-3 rounded-full border border-border bg-background px-4">
+              <Bed className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Beds</span>
+              <button type="button" onClick={() => setLocalBedrooms((b) => Math.max(0, b - 1))} disabled={localBedrooms <= 0} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="w-4 text-center text-sm font-bold">{localBedrooms === 0 ? "Any" : localBedrooms}</span>
+              <button type="button" onClick={() => setLocalBedrooms((b) => Math.min(20, b + 1))} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary">
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+
+            {/* Bathrooms stepper */}
+            <div className="flex h-10 items-center gap-3 rounded-full border border-border bg-background px-4">
+              <Bath className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Baths</span>
+              <button type="button" onClick={() => setLocalBathrooms((b) => Math.max(0, b - 1))} disabled={localBathrooms <= 0} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="w-4 text-center text-sm font-bold">{localBathrooms === 0 ? "Any" : localBathrooms}</span>
+              <button type="button" onClick={() => setLocalBathrooms((b) => Math.min(20, b + 1))} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary">
                 <Plus className="h-3 w-3" />
               </button>
             </div>
