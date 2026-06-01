@@ -96,7 +96,7 @@ async function fetchUnitsPage(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)",
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, max_guests, amenities, listing_photos(photo_url, display_order)",
     )
     .eq("is_active", true);
 
