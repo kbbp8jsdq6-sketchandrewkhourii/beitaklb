@@ -335,15 +335,14 @@ export function FindYourUnit() {
                 </span>
               </div>
               <div className="mt-4 px-1">
-                <Slider
-                  value={[minBudget, maxBudget]}
+                <DualSlider
                   min={0}
                   max={maxPrice}
                   step={50}
-                  onValueChange={(v) => {
-                    setMinBudget(v[0]);
-                    setMaxBudget(v[1]);
-                  }}
+                  valueMin={minBudget}
+                  valueMax={maxBudget}
+                  onChangeMin={setMinBudget}
+                  onChangeMax={setMaxBudget}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
