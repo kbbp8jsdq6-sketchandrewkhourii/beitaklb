@@ -569,7 +569,7 @@ useEffect(() => {
                     transition={{ duration: 0.4, delay: Math.min(i, 8) * 0.04, ease: "easeOut" }}
                     className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
                   >
-                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, maxBudget, amenities, applied: { keyword, city, bed, bath, maxBudget, amenities, submitted: true } })}>
+                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, guests, maxBudget, amenities, applied: { keyword, city, bed, bath, guests, maxBudget, amenities, submitted: true } })}>
                       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                         <CardPhotoSlider
                           photos={u.photos}
