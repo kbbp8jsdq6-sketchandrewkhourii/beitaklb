@@ -79,6 +79,7 @@ async function fetchSearchPage(
   district: string | undefined,
   category: ListingCategory | undefined,
   bedrooms: number | undefined,
+  bathrooms: number | undefined,
   selectedAmenities: string[],
   guests: number,
   minBudget: number,
@@ -96,7 +97,8 @@ async function fetchSearchPage(
     .eq("is_active", true);
 
   if (category) query = query.eq("category", category);
-  if (bedrooms != null) query = query.eq("bedrooms", bedrooms);
+  if (bedrooms != null && bedrooms > 0) query = query.eq("bedrooms", bedrooms);
+  if (bathrooms != null && bathrooms > 0) query = query.eq("bathrooms", bathrooms);
   if (district) query = query.eq("district", district);
   if (q) {
     const term = q.replace(/[%,]/g, " ");
@@ -174,9 +176,9 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, district, category, bedrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
+    queryKey: ["search-listings", q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, district, category, bedrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
+      fetchSearchPage(q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
@@ -229,6 +231,8 @@ function SearchPage() {
         minBudget: localMin,
         maxBudget: localMax,
         location: localLocation || undefined,
+        bedrooms: localBedrooms > 0 ? localBedrooms : undefined,
+        bathrooms: localBathrooms > 0 ? localBathrooms : undefined,
       }),
       resetScroll: false,
     });
