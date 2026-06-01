@@ -15,7 +15,7 @@ type AnyOption = "Any" | "1" | "2" | "3" | "4" | "5" | "5+";
 
 const BED_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
 const BATH_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
-const GUEST_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
+
 const AMENITIES = [
   "Pool",
   "Gym",
