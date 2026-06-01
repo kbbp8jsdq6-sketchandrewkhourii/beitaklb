@@ -503,20 +503,21 @@ useEffect(() => {
 
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-foreground">
-                  Max budget per night
-                </p>
+                <p className="text-sm font-bold text-foreground">Budget per night</p>
                 <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
-                  Up to ${maxBudget.toLocaleString()}
+                  ${minBudget.toLocaleString()} — ${maxBudget.toLocaleString()}
                 </span>
               </div>
               <div className="mt-4 px-1">
                 <Slider
-                  value={[maxBudget]}
+                  value={[minBudget, maxBudget]}
                   min={0}
                   max={maxPrice}
                   step={50}
-                  onValueChange={(v) => setMaxBudget(v[0])}
+                  onValueChange={(v) => {
+                    setMinBudget(v[0]);
+                    setMaxBudget(v[1]);
+                  }}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
@@ -524,7 +525,7 @@ useEffect(() => {
                 <span>${maxPrice.toLocaleString()}</span>
               </div>
               <p className="mt-2 text-[11px] text-muted-foreground">
-                Drag down from the top to lower your maximum.
+                Drag both handles to set your price range.
               </p>
             </div>
 
