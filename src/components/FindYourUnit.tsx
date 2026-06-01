@@ -407,13 +407,21 @@ useEffect(() => {
               onChange={(v) => setBath(v)}
             />
 
-            <ScrollPicker
-              label="Guests"
-              icon={<Users className="h-4 w-4 text-primary" />}
-              options={GUEST_OPTIONS}
-              value={guests}
-              onChange={(v) => setGuests(v)}
-            />
+            <div className="flex h-12 w-full items-center justify-between rounded-full border border-border bg-background px-4">
+              <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                <Users className="h-4 w-4 text-primary" />
+                Guests
+              </span>
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => setGuests((g) => Math.max(1, g - 1))} disabled={guests <= 1} className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="w-4 text-center text-sm font-bold">{guests}</span>
+                <button type="button" onClick={() => setGuests((g) => Math.min(20, g + 1))} className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary">
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
 
 
             <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
