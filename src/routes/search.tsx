@@ -15,7 +15,8 @@ const searchSchema = z.object({
   q: fallback(z.string().optional(), undefined),
   district: fallback(z.string().optional(), undefined),
   category: fallback(z.enum(["villa", "cabin", "apartment"]).optional(), undefined),
-  bedrooms: fallback(z.coerce.number().int().min(1).max(20).optional(), undefined),
+  bedrooms: fallback(z.coerce.number().int().min(0).max(20), 0).default(0),
+  bathrooms: fallback(z.coerce.number().int().min(0).max(20), 0).default(0),
   amenities: fallback(z.array(z.string()), []).default([]),
   guests: fallback(z.coerce.number().int().min(1).max(20), 1).default(1),
   minBudget: fallback(z.coerce.number(), 0).default(0),
@@ -142,7 +143,7 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, district, category, bedrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
+  const { q, district, category, bedrooms, bathrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
@@ -150,6 +151,8 @@ function SearchPage() {
   const selectedAmenities: string[] = amenities ?? [];
 
   const [localGuests, setLocalGuests] = useState<number>(guests);
+  const [localBedrooms, setLocalBedrooms] = useState<number>(bedrooms ?? 0);
+  const [localBathrooms, setLocalBathrooms] = useState<number>(bathrooms ?? 0);
   const [localMin, setLocalMin] = useState<number>(minBudget);
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
