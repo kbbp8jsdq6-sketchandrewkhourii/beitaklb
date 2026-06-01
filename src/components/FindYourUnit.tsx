@@ -102,19 +102,15 @@ export function FindYourUnit() {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    const bedrooms =
-      bed === "Any" ? undefined : bed === "5+" ? 5 : Number(bed);
     navigate({
       to: "/search",
       search: {
         q: keyword.trim() || undefined,
         location: city !== "All Cities" ? city : undefined,
-        bedrooms,
-        guests,
-        minBudget,
-        maxBudget,
-        amenities,
-        sortPrice: "none",
+        guests: guests > 1 ? guests : undefined,
+        minBudget: minBudget > 0 ? minBudget : undefined,
+        maxBudget: maxBudget < 3000 ? maxBudget : undefined,
+        amenities: amenities.length > 0 ? amenities : [],
       },
     });
   };
