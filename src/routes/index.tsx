@@ -12,6 +12,10 @@ import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
 import { Reveal } from "@/components/Reveal";
 import { SectionDivider } from "@/components/SectionDivider";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { ListingCard, type ListingCardData } from "@/components/ListingCard";
+import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -92,8 +96,9 @@ const FAQS = [
 ];
 
 function HomePage() {
-  // Districts section replaces featured listings
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [featuredPreview, setFeaturedPreview] = useState<QuickPreviewListing | null>(null);
+  const [featuredPreviewOpen, setFeaturedPreviewOpen] = useState(false);
   // Detect mobile to render a static single-layer logo instead of the
   // expensive 30-layer 3D extrusion. Defaults to false so SSR matches desktop.
   const [isMobile, setIsMobile] = useState(false);
@@ -201,6 +206,35 @@ function HomePage() {
     };
   }, []);
 
+
+  const { data: featuredListings = [] } = useQuery({
+    queryKey: ["home-featured-listings"],
+    staleTime: 2 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
+        .eq("is_active", true)
+        .eq("featured", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return (data ?? []).map((l) => {
+        const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
+        return {
+          id: l.id,
+          title: l.title,
+          location: l.location,
+          price_per_night: Number(l.price_per_night),
+          price_weekday: Number(l.price_weekday),
+          price_weekend: Number(l.price_weekend),
+          amenities: l.amenities ?? [],
+          cover: photos[0]?.photo_url ?? null,
+          photos: photos.map((p) => p.photo_url),
+        };
+      });
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -338,40 +372,8 @@ function HomePage() {
       {/* 1.5 FIND YOUR UNIT */}
       <FindYourUnit />
 
-      <SectionDivider fill="var(--color-muted)" />
-
-      {/* 2. HOW IT WORKS */}
-      <section className="relative border-b border-border bg-background">
-        <PatternBackground />
-        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <Reveal className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
-            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-              Three steps to your stay
-            </h2>
-          </Reveal>
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Reveal
-                key={s.title}
-                delay={i * 120}
-                className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary text-red-600"
-              >
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
-                  <s.icon className="h-7 w-7" strokeWidth={1.75} />
-                </div>
-                <p className="mt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Step {i + 1}
-                </p>
-                <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <SectionDivider fill="var(--color-background)" flip />
+
 
       {/* 3. EXPLORE BY DISTRICT */}
       <section className="relative bg-muted/30">
@@ -437,6 +439,84 @@ function HomePage() {
       </section>
 
       <SectionDivider fill="var(--color-muted)" />
+
+      {/* 2. HOW IT WORKS */}
+      <section className="relative border-b border-border bg-background">
+        <PatternBackground />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <Reveal className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
+            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+              Three steps to your stay
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <Reveal
+                key={s.title}
+                delay={i * 120}
+                className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary text-red-600"
+              >
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
+                  <s.icon className="h-7 w-7" strokeWidth={1.75} />
+                </div>
+                <p className="mt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Step {i + 1}
+                </p>
+                <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3.5 FEATURED LISTINGS */}
+      {featuredListings.length > 0 && (
+        <>
+          <SectionDivider fill="var(--color-background)" flip />
+          <section className="relative bg-muted/30">
+            <PatternBackground />
+            <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+              <Reveal className="text-center">
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Handpicked</p>
+                <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+                  Featured Stays
+                </h2>
+                <p className="mt-2 text-muted-foreground">Our favorite picks across Lebanon</p>
+              </Reveal>
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {featuredListings.map((l, i) => (
+                  <div key={l.id}>
+                    <ListingCard
+                      listing={l as ListingCardData}
+                      index={i}
+                      onQuickPreview={(listing) => {
+                        setFeaturedPreview(listing as QuickPreviewListing);
+                        setFeaturedPreviewOpen(true);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <Reveal className="mt-10 flex justify-center" delay={150}>
+                <Link
+                  to="/search"
+                  className="inline-flex items-center justify-center rounded-md border-2 border-foreground bg-transparent px-7 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
+                >
+                  View all listings →
+                </Link>
+              </Reveal>
+            </div>
+          </section>
+        </>
+      )}
+
+      <ListingQuickPreview
+        listing={featuredPreview}
+        open={featuredPreviewOpen}
+        onClose={() => setFeaturedPreviewOpen(false)}
+      />
 
       {/* 4. REVIEWS */}
       <section className="relative border-y border-border bg-background">
