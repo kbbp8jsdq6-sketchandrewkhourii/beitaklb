@@ -4,11 +4,12 @@ import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-qu
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { Header } from "@/components/Header";
-import { SearchBar } from "@/components/SearchBar";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 import { supabase } from "@/integrations/supabase/client";
-import { SlidersHorizontal, X } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { restoreListingReturnScroll } from "@/lib/listing-return";
 
 const searchSchema = z.object({
@@ -17,10 +18,16 @@ const searchSchema = z.object({
   category: fallback(z.enum(["villa", "cabin", "apartment"]).optional(), undefined),
   bedrooms: fallback(z.coerce.number().int().min(1).max(20).optional(), undefined),
   amenities: fallback(z.array(z.string()), []).default([]),
+  guests: fallback(z.coerce.number().int().min(1).max(20), 1).default(1),
+  minBudget: fallback(z.coerce.number(), 0).default(0),
+  maxBudget: fallback(z.coerce.number(), 3000).default(3000),
+  sortPrice: fallback(z.enum(["none", "asc", "desc"]), "none").default("none"),
+  location: fallback(z.string().optional(), undefined),
 });
 
 type ListingCategory = "villa" | "cabin" | "apartment";
 type SearchParams = z.infer<typeof searchSchema>;
+type SortPrice = "none" | "asc" | "desc";
 
 const CATEGORY_LABEL: Record<ListingCategory, string> = {
   villa: "Villas",
@@ -73,6 +80,11 @@ async function fetchSearchPage(
   category: ListingCategory | undefined,
   bedrooms: number | undefined,
   selectedAmenities: string[],
+  guests: number,
+  minBudget: number,
+  maxBudget: number,
+  sortPrice: SortPrice,
+  location: string | undefined,
   offset: number,
   pageSize: number,
 ): Promise<PageResult> {
@@ -95,10 +107,15 @@ async function fetchSearchPage(
   if (selectedAmenities.length > 0) {
     query = query.contains("amenities", selectedAmenities);
   }
+  if (guests > 1) query = query.gte("max_guests", guests);
+  query = query.gte("price_weekday", minBudget).lte("price_weekday", maxBudget);
+  if (location) query = query.ilike("location", `${location}%`);
 
-  const { data, error } = await query
-    .order("created_at", { ascending: false })
-    .range(offset, offset + pageSize - 1);
+  if (sortPrice === "asc") query = query.order("price_weekday", { ascending: true });
+  else if (sortPrice === "desc") query = query.order("price_weekday", { ascending: false });
+  else query = query.order("created_at", { ascending: false });
+
+  const { data, error } = await query.range(offset, offset + pageSize - 1);
   if (error) throw error;
 
   const rows = data ?? [];
@@ -126,7 +143,7 @@ async function fetchSearchPage(
 }
 
 function SearchPage() {
-  const { q, district, category, bedrooms, amenities } = Route.useSearch();
+  const { q, district, category, bedrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
@@ -135,7 +152,21 @@ function SearchPage() {
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   const selectedAmenities: string[] = amenities ?? [];
 
-  // Paginated, server-side filtered query.
+  const [localGuests, setLocalGuests] = useState<number>(guests);
+  const [localMin, setLocalMin] = useState<number>(minBudget);
+  const [localMax, setLocalMax] = useState<number>(maxBudget);
+  const [localLocation, setLocalLocation] = useState<string>(location ?? "");
+  const maxPrice = 3000;
+
+  const { data: locationPool = [] } = useQuery<string[]>({
+    queryKey: ["search-locations"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase.from("listings").select("location").eq("is_active", true).limit(200);
+      return [...new Set((data ?? []).map((r) => (r.location ?? "").split(",")[0].trim()).filter(Boolean))].sort();
+    },
+  });
+
   const {
     data,
     isLoading,
@@ -143,9 +174,9 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, district, category, bedrooms, selectedAmenities, pageSize],
+    queryKey: ["search-listings", q, district, category, bedrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, district, category, bedrooms, selectedAmenities, pageParam, pageSize),
+      fetchSearchPage(q, district, category, bedrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
@@ -157,8 +188,6 @@ function SearchPage() {
     [data],
   );
 
-  // Aggregate every unique amenity across active listings — capped to 200
-  // listings so we never download 100+ rows for the filter chips.
   const { data: allAmenities = [] } = useQuery<string[]>({
     queryKey: ["all-amenities"],
     staleTime: 5 * 60_000,
@@ -186,13 +215,24 @@ function SearchPage() {
       search: (prev: SearchParams) => {
         const current = prev.amenities ?? [];
         const next = current.includes(a) ? current.filter((x: string) => x !== a) : [...current, a];
-        return { ...prev, amenities: next.length > 0 ? next : undefined };
+        return { ...prev, amenities: next.length > 0 ? next : undefined } as SearchParams;
       },
       resetScroll: false,
     });
   };
 
-  const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
+  const applyFilters = () => {
+    navigate({
+      search: (prev: SearchParams) => ({
+        ...prev,
+        guests: localGuests,
+        minBudget: localMin,
+        maxBudget: localMax,
+        location: localLocation || undefined,
+      }),
+      resetScroll: false,
+    });
+  };
 
   const openPreview = (listing: ListingCardData) => {
     const full = filteredResults.find((r) => r.id === listing.id);
@@ -206,14 +246,12 @@ function SearchPage() {
     if (!isLoading) restoreListingReturnScroll();
   }, [isLoading, totalLoaded]);
 
+  const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-6 sm:px-6 lg:px-8">
-            <SearchBar variant="compact" initial={{ location: q ?? district }} />
-        </div>
-      </section>
+
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-baseline justify-between">
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
@@ -232,62 +270,159 @@ function SearchPage() {
           </p>
         </div>
 
-        {/* Amenities filter — capped pool, server-side filtered when toggled */}
-        {allAmenities.length > 0 && (
-          <div className="mt-6 rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="h-4 w-4 text-primary" />
-                <h2 className="text-sm font-semibold text-foreground">Filter by amenities</h2>
-              </div>
-              {selectedAmenities.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate({
-                      search: (prev: SearchParams) => ({ ...prev, amenities: undefined }),
-                      resetScroll: false,
-                    })
-                  }
-                  className="text-xs font-semibold text-primary hover:underline"
-                >
-                  Clear ({selectedAmenities.length})
-                </button>
-              )}
+        {/* Filter panel */}
+        <div className="mt-6 rounded-2xl border border-border bg-card p-4 space-y-4">
+          {/* Row 1: Location + Guests + Sort + Apply */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Location dropdown */}
+            <div className="relative min-w-[200px] flex-1">
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
+              <select
+                value={localLocation}
+                onChange={(e) => setLocalLocation(e.target.value)}
+                className="h-10 w-full appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">All Locations</option>
+                {locationPool.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {visibleAmenities.map((a) => {
-                const active = selectedAmenities.some(
-                  (s) => s.toLowerCase() === a.toLowerCase(),
-                );
-                return (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => toggleAmenity(a)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                      active
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background text-foreground hover:border-primary"
-                    }`}
-                  >
-                    {a}
-                    {active && <X className="h-3 w-3" />}
-                  </button>
-                );
-              })}
-              {allAmenities.length > 14 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllAmenities((v) => !v)}
-                  className="rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary"
-                >
-                  {showAllAmenities ? "Show less" : `+${allAmenities.length - 14} more`}
-                </button>
-              )}
+
+            {/* Guests stepper */}
+            <div className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-3">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="text-xs font-semibold text-muted-foreground">Guests</span>
+              <button
+                type="button"
+                onClick={() => setLocalGuests((g) => Math.max(1, g - 1))}
+                disabled={localGuests <= 1}
+                className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40"
+              >
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="w-4 text-center text-sm font-bold">{localGuests}</span>
+              <button
+                type="button"
+                onClick={() => setLocalGuests((g) => Math.min(20, g + 1))}
+                className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+
+            {/* Sort price */}
+            <div className="relative">
+              <ArrowUpDown className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
+              <select
+                value={sortPrice}
+                onChange={(e) =>
+                  navigate({
+                    search: (prev: SearchParams) => ({ ...prev, sortPrice: e.target.value as SortPrice }),
+                    resetScroll: false,
+                  })
+                }
+                className="h-10 appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="none">Sort: Default</option>
+                <option value="asc">Price: Low to High</option>
+                <option value="desc">Price: High to Low</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
+
+            {/* Apply */}
+            <button
+              type="button"
+              onClick={applyFilters}
+              className="h-10 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+            >
+              Apply
+            </button>
+          </div>
+
+          {/* Row 2: Budget */}
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Budget per night</p>
+              <span className="text-xs font-bold text-primary">
+                ${localMin.toLocaleString()} — ${localMax.toLocaleString()}
+              </span>
+            </div>
+            <Slider
+              className="mt-3"
+              value={[localMin, localMax]}
+              min={0}
+              max={maxPrice}
+              step={50}
+              onValueChange={(v) => {
+                setLocalMin(v[0]);
+                setLocalMax(v[1]);
+              }}
+            />
+            <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+              <span>$0</span>
+              <span>${maxPrice.toLocaleString()}</span>
             </div>
           </div>
-        )}
+
+          {/* Row 3: Amenities */}
+          {allAmenities.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-semibold text-foreground">Amenities</h2>
+                </div>
+                {selectedAmenities.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate({
+                        search: (prev: SearchParams) => ({ ...prev, amenities: undefined }),
+                        resetScroll: false,
+                      })
+                    }
+                    className="text-xs font-semibold text-primary hover:underline"
+                  >
+                    Clear ({selectedAmenities.length})
+                  </button>
+                )}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {visibleAmenities.map((a) => {
+                  const active = selectedAmenities.some((s) => s.toLowerCase() === a.toLowerCase());
+                  return (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => toggleAmenity(a)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                        active
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background text-foreground hover:border-primary",
+                      )}
+                    >
+                      {a}
+                      {active && <X className="h-3 w-3" />}
+                    </button>
+                  );
+                })}
+                {allAmenities.length > 14 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllAmenities((v) => !v)}
+                    className="rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    {showAllAmenities ? "Show less" : `+${allAmenities.length - 14} more`}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {isLoading ? (
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
