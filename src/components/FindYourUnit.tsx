@@ -210,6 +210,7 @@ export function FindYourUnit() {
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
   const [guests, setGuests] = useState<AnyOption>("Any");
+  const [minBudget, setMinBudget] = useState<number>(0);
   const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
@@ -220,6 +221,7 @@ export function FindYourUnit() {
     bed: "Any",
     bath: "Any",
     guests: "Any",
+    minBudget: 0,
     maxBudget,
     amenities: [],
     submitted: false,
