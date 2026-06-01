@@ -604,6 +604,10 @@ useEffect(() => {
                             <Bath className="h-4 w-4 text-primary" />
                             {u.baths} bath{u.baths !== 1 ? "s" : ""}
                           </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Users className="h-4 w-4 text-primary" />
+                            Up to {u.maxGuests} guest{u.maxGuests !== 1 ? "s" : ""}
+                          </span>
                         </div>
                         {u.amenities.length > 0 && (
                           <div className="mt-4 flex flex-wrap gap-1.5">
