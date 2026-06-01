@@ -161,6 +161,7 @@ async function fetchUnitsPage(
       priceWeekend: weekend,
       beds: l.bedrooms ?? 0,
       baths: Number(l.bathrooms ?? 0),
+      maxGuests: l.max_guests ?? 0,
       amenities: l.amenities ?? [],
       image: photos[0]?.photo_url ?? null,
       photos: photos.map((p) => p.photo_url),
