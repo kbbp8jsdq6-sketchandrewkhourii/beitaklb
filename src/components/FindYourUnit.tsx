@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users } from "lucide-react";
+import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus } from "lucide-react";
 import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,7 +15,7 @@ type AnyOption = "Any" | "1" | "2" | "3" | "4" | "5" | "5+";
 
 const BED_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
 const BATH_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
-const GUEST_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
+
 const AMENITIES = [
   "Pool",
   "Gym",
@@ -72,7 +72,7 @@ interface AppliedFilters {
   city: string;
   bed: AnyOption;
   bath: AnyOption;
-  guests: AnyOption;
+  guests: number;
   minBudget: number;
   maxBudget: number;
   amenities: string[];
@@ -115,10 +115,7 @@ async function fetchUnitsPage(
     if (applied.bath === "5+") query = query.gte("bathrooms", 5);
     else query = query.eq("bathrooms", Number(applied.bath));
   }
-  if (applied.guests !== "Any") {
-    if (applied.guests === "5+") query = query.gte("max_guests", 5);
-    else query = query.gte("max_guests", Number(applied.guests));
-  }
+  query = query.gte("max_guests", applied.guests);
 
   // Budget — compare against the lower of weekday/weekend
   query = query.gte("price_weekday", applied.minBudget).lte("price_weekday", applied.maxBudget);
@@ -209,7 +206,7 @@ export function FindYourUnit() {
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
-  const [guests, setGuests] = useState<AnyOption>("Any");
+  const [guests, setGuests] = useState<number>(1);
   const [minBudget, setMinBudget] = useState<number>(0);
   const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
@@ -220,7 +217,7 @@ export function FindYourUnit() {
     city: "All Cities",
     bed: "Any",
     bath: "Any",
-    guests: "Any",
+    guests: 1,
     minBudget: 0,
     maxBudget,
     amenities: [],
@@ -233,7 +230,7 @@ useEffect(() => {
     if (saved.city) setCity(saved.city as string);
     if (saved.bed) setBed(saved.bed as AnyOption);
     if (saved.bath) setBath(saved.bath as AnyOption);
-    if (saved.guests) setGuests(saved.guests as AnyOption);
+    if (saved.guests) setGuests(saved.guests as number);
     if (saved.minBudget !== undefined) setMinBudget(saved.minBudget as number);
     if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
     if (saved.amenities) setAmenities(saved.amenities as string[]);
@@ -410,13 +407,21 @@ useEffect(() => {
               onChange={(v) => setBath(v)}
             />
 
-            <ScrollPicker
-              label="Guests"
-              icon={<Users className="h-4 w-4 text-primary" />}
-              options={GUEST_OPTIONS}
-              value={guests}
-              onChange={(v) => setGuests(v)}
-            />
+            <div className="flex h-12 w-full items-center justify-between rounded-full border border-border bg-background px-4">
+              <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                <Users className="h-4 w-4 text-primary" />
+                Guests
+              </span>
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => setGuests((g) => Math.max(1, g - 1))} disabled={guests <= 1} className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="w-4 text-center text-sm font-bold">{guests}</span>
+                <button type="button" onClick={() => setGuests((g) => Math.min(20, g + 1))} className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary">
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
 
 
             <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
