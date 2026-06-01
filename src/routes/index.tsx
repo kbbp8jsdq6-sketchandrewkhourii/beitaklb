@@ -15,7 +15,6 @@ import { SectionDivider } from "@/components/SectionDivider";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
-import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -97,8 +96,6 @@ const FAQS = [
 
 function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [featuredPreview, setFeaturedPreview] = useState<QuickPreviewListing | null>(null);
-  const [featuredPreviewOpen, setFeaturedPreviewOpen] = useState(false);
   // Detect mobile to render a static single-layer logo instead of the
   // expensive 30-layer 3D extrusion. Defaults to false so SSR matches desktop.
   const [isMobile, setIsMobile] = useState(false);
@@ -491,10 +488,6 @@ function HomePage() {
                     <ListingCard
                       listing={l as ListingCardData}
                       index={i}
-                      onQuickPreview={(listing) => {
-                        setFeaturedPreview(listing as QuickPreviewListing);
-                        setFeaturedPreviewOpen(true);
-                      }}
                     />
                   </div>
                 ))}
@@ -512,11 +505,6 @@ function HomePage() {
         </>
       )}
 
-      <ListingQuickPreview
-        listing={featuredPreview}
-        open={featuredPreviewOpen}
-        onClose={() => setFeaturedPreviewOpen(false)}
-      />
 
       {/* 4. REVIEWS */}
       <section className="relative border-y border-border bg-background">

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { Header } from "@/components/Header";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
-import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 import { supabase } from "@/integrations/supabase/client";
 import { Slider } from "@/components/ui/slider";
 import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown } from "lucide-react";
@@ -147,8 +146,6 @@ function SearchPage() {
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
-  const [preview, setPreview] = useState<QuickPreviewListing | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   const selectedAmenities: string[] = amenities ?? [];
 
@@ -234,11 +231,6 @@ function SearchPage() {
     });
   };
 
-  const openPreview = (listing: ListingCardData) => {
-    const full = filteredResults.find((r) => r.id === listing.id);
-    setPreview(full ?? listing);
-    setPreviewOpen(true);
-  };
 
   const totalLoaded = filteredResults.length;
 
@@ -449,7 +441,7 @@ function SearchPage() {
           <>
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredResults.map((l, i) => (
-                <ListingCard key={l.id} listing={l} index={Math.min(i, 8)} onQuickPreview={openPreview} />
+                <ListingCard key={l.id} listing={l} index={Math.min(i, 8)} />
               ))}
             </div>
 
@@ -469,11 +461,6 @@ function SearchPage() {
         )}
       </section>
 
-      <ListingQuickPreview
-        listing={preview}
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-      />
     </div>
   );
 }
