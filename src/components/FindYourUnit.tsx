@@ -73,6 +73,7 @@ interface AppliedFilters {
   bed: AnyOption;
   bath: AnyOption;
   guests: AnyOption;
+  minBudget: number;
   maxBudget: number;
   amenities: string[];
   submitted: boolean;
@@ -120,7 +121,7 @@ async function fetchUnitsPage(
   }
 
   // Budget — compare against the lower of weekday/weekend
-  query = query.lte("price_weekday", applied.maxBudget);
+  query = query.gte("price_weekday", applied.minBudget).lte("price_weekday", applied.maxBudget);
 
   // Amenities — array contains all selected
   if (applied.amenities.length > 0) {
@@ -209,6 +210,7 @@ export function FindYourUnit() {
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
   const [guests, setGuests] = useState<AnyOption>("Any");
+  const [minBudget, setMinBudget] = useState<number>(0);
   const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
@@ -219,6 +221,7 @@ export function FindYourUnit() {
     bed: "Any",
     bath: "Any",
     guests: "Any",
+    minBudget: 0,
     maxBudget,
     amenities: [],
     submitted: false,
@@ -231,6 +234,7 @@ useEffect(() => {
     if (saved.bed) setBed(saved.bed as AnyOption);
     if (saved.bath) setBath(saved.bath as AnyOption);
     if (saved.guests) setGuests(saved.guests as AnyOption);
+    if (saved.minBudget !== undefined) setMinBudget(saved.minBudget as number);
     if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
     if (saved.amenities) setAmenities(saved.amenities as string[]);
     if (saved.applied) setApplied(saved.applied as AppliedFilters);
@@ -282,10 +286,10 @@ useEffect(() => {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    const newApplied = { keyword, city, bed, bath, guests, maxBudget, amenities, submitted: true };
+    const newApplied = { keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, submitted: true };
     setApplied(newApplied);
     saveFindYourUnitState({
-      keyword, city, bed, bath, guests, maxBudget, amenities, applied: newApplied,
+      keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, applied: newApplied,
     });
     requestAnimationFrame(() => {
       const el = document.getElementById("find-your-unit-results");
@@ -499,20 +503,21 @@ useEffect(() => {
 
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-foreground">
-                  Max budget per night
-                </p>
+                <p className="text-sm font-bold text-foreground">Budget per night</p>
                 <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
-                  Up to ${maxBudget.toLocaleString()}
+                  ${minBudget.toLocaleString()} — ${maxBudget.toLocaleString()}
                 </span>
               </div>
               <div className="mt-4 px-1">
                 <Slider
-                  value={[maxBudget]}
+                  value={[minBudget, maxBudget]}
                   min={0}
                   max={maxPrice}
                   step={50}
-                  onValueChange={(v) => setMaxBudget(v[0])}
+                  onValueChange={(v) => {
+                    setMinBudget(v[0]);
+                    setMaxBudget(v[1]);
+                  }}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
@@ -520,7 +525,7 @@ useEffect(() => {
                 <span>${maxPrice.toLocaleString()}</span>
               </div>
               <p className="mt-2 text-[11px] text-muted-foreground">
-                Drag down from the top to lower your maximum.
+                Drag both handles to set your price range.
               </p>
             </div>
 
@@ -569,7 +574,7 @@ useEffect(() => {
                     transition={{ duration: 0.4, delay: Math.min(i, 8) * 0.04, ease: "easeOut" }}
                     className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
                   >
-                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, guests, maxBudget, amenities, applied: { keyword, city, bed, bath, guests, maxBudget, amenities, submitted: true } })}>
+                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, applied: { keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, submitted: true } })}>
                       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                         <CardPhotoSlider
                           photos={u.photos}
