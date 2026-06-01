@@ -208,6 +208,7 @@ export function FindYourUnit() {
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
+  const [guests, setGuests] = useState<AnyOption>("Any");
   const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
@@ -217,6 +218,7 @@ export function FindYourUnit() {
     city: "All Cities",
     bed: "Any",
     bath: "Any",
+    guests: "Any",
     maxBudget,
     amenities: [],
     submitted: false,
@@ -228,6 +230,7 @@ useEffect(() => {
     if (saved.city) setCity(saved.city as string);
     if (saved.bed) setBed(saved.bed as AnyOption);
     if (saved.bath) setBath(saved.bath as AnyOption);
+    if (saved.guests) setGuests(saved.guests as AnyOption);
     if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
     if (saved.amenities) setAmenities(saved.amenities as string[]);
     if (saved.applied) setApplied(saved.applied as AppliedFilters);
