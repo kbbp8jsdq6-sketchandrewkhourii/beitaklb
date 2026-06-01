@@ -314,7 +314,7 @@ function SearchPage() {
             {/* Bedrooms stepper */}
             <div className="flex h-10 items-center gap-3 rounded-full border border-border bg-background px-4">
               <Bed className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">Beds</span>
+              <span className="text-sm font-medium text-foreground">Bedrooms</span>
               <button type="button" onClick={() => setLocalBedrooms((b) => Math.max(0, b - 1))} disabled={localBedrooms <= 0} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
                 <Minus className="h-3 w-3" />
               </button>
@@ -324,18 +324,6 @@ function SearchPage() {
               </button>
             </div>
 
-            {/* Bathrooms stepper */}
-            <div className="flex h-10 items-center gap-3 rounded-full border border-border bg-background px-4">
-              <Bath className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">Baths</span>
-              <button type="button" onClick={() => setLocalBathrooms((b) => Math.max(0, b - 1))} disabled={localBathrooms <= 0} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
-                <Minus className="h-3 w-3" />
-              </button>
-              <span className="w-4 text-center text-sm font-bold">{localBathrooms === 0 ? "Any" : localBathrooms}</span>
-              <button type="button" onClick={() => setLocalBathrooms((b) => Math.min(20, b + 1))} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary">
-                <Plus className="h-3 w-3" />
-              </button>
-            </div>
 
             {/* Sort price */}
             <div className="relative">
