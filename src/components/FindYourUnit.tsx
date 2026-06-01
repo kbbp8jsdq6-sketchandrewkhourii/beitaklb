@@ -234,6 +234,7 @@ useEffect(() => {
     if (saved.bed) setBed(saved.bed as AnyOption);
     if (saved.bath) setBath(saved.bath as AnyOption);
     if (saved.guests) setGuests(saved.guests as AnyOption);
+    if (saved.minBudget !== undefined) setMinBudget(saved.minBudget as number);
     if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
     if (saved.amenities) setAmenities(saved.amenities as string[]);
     if (saved.applied) setApplied(saved.applied as AppliedFilters);
