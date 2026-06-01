@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -335,15 +335,14 @@ export function FindYourUnit() {
                 </span>
               </div>
               <div className="mt-4 px-1">
-                <Slider
-                  value={[minBudget, maxBudget]}
+                <DualSlider
                   min={0}
                   max={maxPrice}
                   step={50}
-                  onValueChange={(v) => {
-                    setMinBudget(v[0]);
-                    setMaxBudget(v[1]);
-                  }}
+                  valueMin={minBudget}
+                  valueMax={maxBudget}
+                  onChangeMin={setMinBudget}
+                  onChangeMax={setMaxBudget}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
@@ -369,6 +368,78 @@ export function FindYourUnit() {
     </section>
   );
 }
+
+function DualSlider({
+  min, max, step, valueMin, valueMax, onChangeMin, onChangeMax,
+}: {
+  min: number; max: number; step: number;
+  valueMin: number; valueMax: number;
+  onChangeMin: (v: number) => void;
+  onChangeMax: (v: number) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const toPercent = (v: number) => ((v - min) / (max - min)) * 100;
+
+  const fromPointer = (clientX: number) => {
+    const rect = trackRef.current!.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const raw = min + ratio * (max - min);
+    return Math.round(raw / step) * step;
+  };
+
+  const dragMin = (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      const val = Math.min(fromPointer(ev.clientX), valueMax - step);
+      onChangeMin(Math.max(min, val));
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
+  const dragMax = (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      const val = Math.max(fromPointer(ev.clientX), valueMin + step);
+      onChangeMax(Math.min(max, val));
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
+  const minPct = toPercent(valueMin);
+  const maxPct = toPercent(valueMax);
+
+  return (
+    <div className="relative h-6 select-none" ref={trackRef}>
+      <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/20" />
+      <div
+        className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary"
+        style={{ left: `${minPct}%`, right: `${100 - maxPct}%` }}
+      />
+      <div
+        onPointerDown={dragMin}
+        className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border border-primary/50 bg-background shadow active:cursor-grabbing"
+        style={{ left: `${minPct}%` }}
+      />
+      <div
+        onPointerDown={dragMax}
+        className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border border-primary/50 bg-background shadow active:cursor-grabbing"
+        style={{ left: `${maxPct}%` }}
+      />
+    </div>
+  );
+}
+
 
 interface ScrollPickerProps {
   label: string;
