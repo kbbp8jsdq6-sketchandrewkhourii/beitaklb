@@ -115,10 +115,7 @@ async function fetchUnitsPage(
     if (applied.bath === "5+") query = query.gte("bathrooms", 5);
     else query = query.eq("bathrooms", Number(applied.bath));
   }
-  if (applied.guests !== "Any") {
-    if (applied.guests === "5+") query = query.gte("max_guests", 5);
-    else query = query.gte("max_guests", Number(applied.guests));
-  }
+  query = query.gte("max_guests", applied.guests);
 
   // Budget — compare against the lower of weekday/weekend
   query = query.gte("price_weekday", applied.minBudget).lte("price_weekday", applied.maxBudget);
