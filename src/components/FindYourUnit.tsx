@@ -72,7 +72,7 @@ interface AppliedFilters {
   city: string;
   bed: AnyOption;
   bath: AnyOption;
-  guests: AnyOption;
+  guests: number;
   minBudget: number;
   maxBudget: number;
   amenities: string[];
