@@ -47,6 +47,7 @@ interface Unit {
   priceWeekend: number;
   beds: number;
   baths: number;
+  maxGuests: number;
   amenities: string[];
   image: string | null;
   photos: string[];
