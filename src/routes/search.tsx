@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Header } from "@/components/Header";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { supabase } from "@/integrations/supabase/client";
-import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown, Bed, Bath } from "lucide-react";
+import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown, Bed } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { restoreListingReturnScroll } from "@/lib/listing-return";
 
