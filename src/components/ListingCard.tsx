@@ -116,9 +116,6 @@ export function ListingCard({
     listing.price_weekend ?? listing.price_per_night,
   );
 
-  // Detect coarse pointer (mobile/touch) once per render — disables hover preview entirely.
-  const isCoarsePointer =
-    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 
   return (
     <motion.div
@@ -175,14 +172,6 @@ export function ListingCard({
             </div>
           )}
 
-          {/* Center hover hotspot — only triggers preview when hovering exact center of the cover photo */}
-          {onQuickPreview && !isCoarsePointer && (
-            <div
-              aria-hidden="true"
-              onMouseEnter={() => onQuickPreview(listing)}
-              className="pointer-events-auto absolute left-1/2 top-1/2 z-[1] h-1/3 w-1/3 -translate-x-1/2 -translate-y-1/2"
-            />
-          )}
 
           {/* Desktop arrows — appear on hover */}
           {photos.length > 1 && (
