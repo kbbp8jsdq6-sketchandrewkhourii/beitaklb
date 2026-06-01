@@ -121,7 +121,7 @@ async function fetchUnitsPage(
   }
 
   // Budget — compare against the lower of weekday/weekend
-  query = query.lte("price_weekday", applied.maxBudget);
+  query = query.gte("price_weekday", applied.minBudget).lte("price_weekday", applied.maxBudget);
 
   // Amenities — array contains all selected
   if (applied.amenities.length > 0) {
