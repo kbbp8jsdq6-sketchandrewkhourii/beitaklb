@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users } from "lucide-react";
 import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,6 +15,7 @@ type AnyOption = "Any" | "1" | "2" | "3" | "4" | "5" | "5+";
 
 const BED_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
 const BATH_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
+const GUEST_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
 const AMENITIES = [
   "Pool",
   "Gym",
@@ -46,6 +47,7 @@ interface Unit {
   priceWeekend: number;
   beds: number;
   baths: number;
+  maxGuests: number;
   amenities: string[];
   image: string | null;
   photos: string[];
@@ -70,6 +72,7 @@ interface AppliedFilters {
   city: string;
   bed: AnyOption;
   bath: AnyOption;
+  guests: AnyOption;
   maxBudget: number;
   amenities: string[];
   submitted: boolean;
@@ -93,7 +96,7 @@ async function fetchUnitsPage(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, amenities, listing_photos(photo_url, display_order)",
+      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, max_guests, amenities, listing_photos(photo_url, display_order)",
     )
     .eq("is_active", true);
 
@@ -110,6 +113,10 @@ async function fetchUnitsPage(
   if (applied.bath !== "Any") {
     if (applied.bath === "5+") query = query.gte("bathrooms", 5);
     else query = query.eq("bathrooms", Number(applied.bath));
+  }
+  if (applied.guests !== "Any") {
+    if (applied.guests === "5+") query = query.gte("max_guests", 5);
+    else query = query.gte("max_guests", Number(applied.guests));
   }
 
   // Budget — compare against the lower of weekday/weekend
@@ -154,6 +161,7 @@ async function fetchUnitsPage(
       priceWeekend: weekend,
       beds: l.bedrooms ?? 0,
       baths: Number(l.bathrooms ?? 0),
+      maxGuests: l.max_guests ?? 0,
       amenities: l.amenities ?? [],
       image: photos[0]?.photo_url ?? null,
       photos: photos.map((p) => p.photo_url),
@@ -200,6 +208,7 @@ export function FindYourUnit() {
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
   const [bath, setBath] = useState<AnyOption>("Any");
+  const [guests, setGuests] = useState<AnyOption>("Any");
   const [maxBudget, setMaxBudget] = useState<number>(maxPrice);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
@@ -209,6 +218,7 @@ export function FindYourUnit() {
     city: "All Cities",
     bed: "Any",
     bath: "Any",
+    guests: "Any",
     maxBudget,
     amenities: [],
     submitted: false,
@@ -220,6 +230,7 @@ useEffect(() => {
     if (saved.city) setCity(saved.city as string);
     if (saved.bed) setBed(saved.bed as AnyOption);
     if (saved.bath) setBath(saved.bath as AnyOption);
+    if (saved.guests) setGuests(saved.guests as AnyOption);
     if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
     if (saved.amenities) setAmenities(saved.amenities as string[]);
     if (saved.applied) setApplied(saved.applied as AppliedFilters);
@@ -271,10 +282,10 @@ useEffect(() => {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    const newApplied = { keyword, city, bed, bath, maxBudget, amenities, submitted: true };
+    const newApplied = { keyword, city, bed, bath, guests, maxBudget, amenities, submitted: true };
     setApplied(newApplied);
     saveFindYourUnitState({
-      keyword, city, bed, bath, maxBudget, amenities, applied: newApplied,
+      keyword, city, bed, bath, guests, maxBudget, amenities, applied: newApplied,
     });
     requestAnimationFrame(() => {
       const el = document.getElementById("find-your-unit-results");
@@ -394,6 +405,15 @@ useEffect(() => {
               value={bath}
               onChange={(v) => setBath(v)}
             />
+
+            <ScrollPicker
+              label="Guests"
+              icon={<Users className="h-4 w-4 text-primary" />}
+              options={GUEST_OPTIONS}
+              value={guests}
+              onChange={(v) => setGuests(v)}
+            />
+
 
             <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
               <PopoverTrigger asChild>
@@ -549,7 +569,7 @@ useEffect(() => {
                     transition={{ duration: 0.4, delay: Math.min(i, 8) * 0.04, ease: "easeOut" }}
                     className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
                   >
-                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, maxBudget, amenities, applied: { keyword, city, bed, bath, maxBudget, amenities, submitted: true } })}>
+                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, guests, maxBudget, amenities, applied: { keyword, city, bed, bath, guests, maxBudget, amenities, submitted: true } })}>
                       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                         <CardPhotoSlider
                           photos={u.photos}
@@ -583,6 +603,10 @@ useEffect(() => {
                           <span className="inline-flex items-center gap-1.5">
                             <Bath className="h-4 w-4 text-primary" />
                             {u.baths} bath{u.baths !== 1 ? "s" : ""}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Users className="h-4 w-4 text-primary" />
+                            Up to {u.maxGuests} guest{u.maxGuests !== 1 ? "s" : ""}
                           </span>
                         </div>
                         {u.amenities.length > 0 && (
