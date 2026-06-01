@@ -12,6 +12,10 @@ import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
 import { Reveal } from "@/components/Reveal";
 import { SectionDivider } from "@/components/SectionDivider";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { ListingCard, type ListingCardData } from "@/components/ListingCard";
+import { ListingQuickPreview, type QuickPreviewListing } from "@/components/ListingQuickPreview";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -92,8 +96,9 @@ const FAQS = [
 ];
 
 function HomePage() {
-  // Districts section replaces featured listings
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [featuredPreview, setFeaturedPreview] = useState<QuickPreviewListing | null>(null);
+  const [featuredPreviewOpen, setFeaturedPreviewOpen] = useState(false);
   // Detect mobile to render a static single-layer logo instead of the
   // expensive 30-layer 3D extrusion. Defaults to false so SSR matches desktop.
   const [isMobile, setIsMobile] = useState(false);
@@ -201,6 +206,35 @@ function HomePage() {
     };
   }, []);
 
+
+  const { data: featuredListings = [] } = useQuery({
+    queryKey: ["home-featured-listings"],
+    staleTime: 2 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
+        .eq("is_active", true)
+        .eq("featured", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return (data ?? []).map((l) => {
+        const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
+        return {
+          id: l.id,
+          title: l.title,
+          location: l.location,
+          price_per_night: Number(l.price_per_night),
+          price_weekday: Number(l.price_weekday),
+          price_weekend: Number(l.price_weekend),
+          amenities: l.amenities ?? [],
+          cover: photos[0]?.photo_url ?? null,
+          photos: photos.map((p) => p.photo_url),
+        };
+      });
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -338,7 +372,7 @@ function HomePage() {
       {/* 1.5 FIND YOUR UNIT */}
       <FindYourUnit />
 
-      <SectionDivider fill="var(--color-muted)" />
+      <SectionDivider fill="var(--color-background)" flip />
 
       {/* 2. HOW IT WORKS */}
       <section className="relative border-b border-border bg-background">
