@@ -30,11 +30,9 @@ const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
 export function ListingCard({
   listing,
   index = 0,
-  onQuickPreview,
 }: {
   listing: ListingCardData;
   index?: number;
-  onQuickPreview?: (listing: ListingCardData) => void;
 }) {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const isFav = favoriteIds.has(listing.id);
