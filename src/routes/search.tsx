@@ -345,6 +345,25 @@ function SearchPage() {
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
 
+            {/* Reset */}
+            <button
+              type="button"
+              onClick={() => {
+                setLocalGuests(1);
+                setLocalMin(0);
+                setLocalMax(3000);
+                setLocalLocation("");
+                setLocalBedrooms(0);
+                navigate({
+                  search: () => ({}),
+                  resetScroll: false,
+                });
+              }}
+              className="h-10 rounded-full border border-border bg-background px-5 text-sm font-bold text-foreground transition hover:border-primary hover:text-primary"
+            >
+              Reset
+            </button>
+
             {/* Apply */}
             <button
               type="button"
