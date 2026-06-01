@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users } from "lucide-react";
 import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
