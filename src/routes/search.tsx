@@ -375,16 +375,14 @@ function SearchPage() {
                 ${localMin.toLocaleString()} — ${localMax.toLocaleString()}
               </span>
             </div>
-            <Slider
-              className="mt-3"
-              value={[localMin, localMax]}
+            <DualSlider
               min={0}
               max={maxPrice}
               step={50}
-              onValueChange={(v) => {
-                setLocalMin(v[0]);
-                setLocalMax(v[1]);
-              }}
+              valueMin={localMin}
+              valueMax={localMax}
+              onChangeMin={setLocalMin}
+              onChangeMax={setLocalMax}
             />
             <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
               <span>$0</span>
