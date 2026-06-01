@@ -406,6 +406,15 @@ useEffect(() => {
               onChange={(v) => setBath(v)}
             />
 
+            <ScrollPicker
+              label="Guests"
+              icon={<Users className="h-4 w-4 text-primary" />}
+              options={GUEST_OPTIONS}
+              value={guests}
+              onChange={(v) => setGuests(v)}
+            />
+
+
             <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
               <PopoverTrigger asChild>
                 <button
