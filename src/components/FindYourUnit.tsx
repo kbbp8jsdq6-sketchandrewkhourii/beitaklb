@@ -1,16 +1,13 @@
-import { useMemo, useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { Link } from "@tanstack/react-router";
-import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus } from "lucide-react";
-import { CardPhotoSlider } from "@/components/CardPhotoSlider";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { PatternBackground } from "@/components/PatternBackground";
 
-import { saveFindYourUnitState, loadFindYourUnitState } from "@/lib/listing-return";
 type AnyOption = "Any" | "1" | "2" | "3" | "4" | "5" | "5+";
 
 const BED_OPTIONS: AnyOption[] = ["Any", "1", "2", "3", "4", "5", "5+"];
@@ -36,146 +33,18 @@ const AMENITIES = [
   "Hot water",
 ] as const;
 
-interface Unit {
+interface SuggestionUnit {
   id: string;
   name: string;
-  city: string;
   location: string;
-  description: string;
-  price: number;
-  priceWeekday: number;
-  priceWeekend: number;
-  beds: number;
-  baths: number;
-  maxGuests: number;
-  amenities: string[];
-  image: string | null;
-  photos: string[];
-}
-
-/** Page size — load fewer cards on mobile to stay snappy on slower connections. */
-function usePageSize(): number {
-  const [size, setSize] = useState(8);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setSize(mq.matches ? 4 : 8);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  return size;
-}
-
-interface AppliedFilters {
-  keyword: string;
   city: string;
-  bed: AnyOption;
-  bath: AnyOption;
-  guests: number;
-  minBudget: number;
-  maxBudget: number;
+  image: string | null;
   amenities: string[];
-  submitted: boolean;
-}
-
-interface PageResult {
-  units: Unit[];
-  nextOffset: number | null;
-}
-
-/**
- * Server-side paginated fetch. Pushes every filter into the SQL query so we
- * never load all rows in memory. Returns `nextOffset = null` when there are
- * no more rows.
- */
-async function fetchUnitsPage(
-  applied: AppliedFilters,
-  offset: number,
-  pageSize: number,
-): Promise<PageResult> {
-  let query = supabase
-    .from("listings")
-    .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, bedrooms, bathrooms, max_guests, amenities, listing_photos(photo_url, display_order)",
-    )
-    .eq("is_active", true);
-
-  // City — match anything before the first comma in `location` (e.g. "Beirut, Lebanon")
-  if (applied.city !== "All Cities") {
-    query = query.ilike("location", `${applied.city}%`);
-  }
-
-  // Bedrooms / bathrooms
-  if (applied.bed !== "Any") {
-    if (applied.bed === "5+") query = query.gte("bedrooms", 5);
-    else query = query.eq("bedrooms", Number(applied.bed));
-  }
-  if (applied.bath !== "Any") {
-    if (applied.bath === "5+") query = query.gte("bathrooms", 5);
-    else query = query.eq("bathrooms", Number(applied.bath));
-  }
-  query = query.gte("max_guests", applied.guests);
-
-  // Budget — compare against the lower of weekday/weekend
-  query = query.gte("price_weekday", applied.minBudget).lte("price_weekday", applied.maxBudget);
-
-  // Amenities — array contains all selected
-  if (applied.amenities.length > 0) {
-    query = query.contains("amenities", applied.amenities);
-  }
-
-  // Keyword — title / description / location
-  const k = applied.keyword.trim();
-  if (k) {
-    const term = k.replace(/[%,]/g, " ");
-    query = query.or(
-      `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%`,
-    );
-  }
-
-  // Sort + paginate
-  const { data, error } = await query
-    .order("created_at", { ascending: false })
-    .range(offset, offset + pageSize - 1);
-
-  if (error) throw error;
-  const rows = data ?? [];
-  const units: Unit[] = rows.map((l) => {
-    const photos = (l.listing_photos ?? [])
-      .slice()
-      .sort((a, b) => a.display_order - b.display_order);
-    const city = (l.location ?? "").split(",")[0].trim();
-    const weekday = Number(l.price_weekday ?? l.price_per_night);
-    const weekend = Number(l.price_weekend ?? l.price_per_night);
-    return {
-      id: l.id,
-      name: l.title,
-      city,
-      location: l.location,
-      description: l.description ?? "",
-      price: weekday,
-      priceWeekday: weekday,
-      priceWeekend: weekend,
-      beds: l.bedrooms ?? 0,
-      baths: Number(l.bathrooms ?? 0),
-      maxGuests: l.max_guests ?? 0,
-      amenities: l.amenities ?? [],
-      image: photos[0]?.photo_url ?? null,
-      photos: photos.map((p) => p.photo_url),
-    };
-  });
-  return {
-    units,
-    nextOffset: rows.length < pageSize ? null : offset + pageSize,
-  };
 }
 
 /** Lightweight query — pulls only city + amenities for typeahead suggestions.
  *  Limited to 200 rows so it never explodes for 100+ listings. */
-async function fetchSuggestionPool(): Promise<
-  Pick<Unit, "id" | "name" | "location" | "city" | "image" | "amenities">[]
-> {
+async function fetchSuggestionPool(): Promise<SuggestionUnit[]> {
   const { data, error } = await supabase
     .from("listings")
     .select("id, title, location, listing_photos(photo_url, display_order), amenities")
@@ -199,8 +68,7 @@ async function fetchSuggestionPool(): Promise<
 }
 
 export function FindYourUnit() {
-  const pageSize = usePageSize();
-
+  const navigate = useNavigate();
   const maxPrice = 3000;
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
@@ -212,30 +80,6 @@ export function FindYourUnit() {
   const [amenities, setAmenities] = useState<string[]>([]);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
 
-  const [applied, setApplied] = useState<AppliedFilters>({
-    keyword: "",
-    city: "All Cities",
-    bed: "Any",
-    bath: "Any",
-    guests: 1,
-    minBudget: 0,
-    maxBudget,
-    amenities: [],
-    submitted: false,
-  });
-useEffect(() => {
-    const saved = loadFindYourUnitState();
-    if (!saved) return;
-    if (saved.keyword) setKeyword(saved.keyword as string);
-    if (saved.city) setCity(saved.city as string);
-    if (saved.bed) setBed(saved.bed as AnyOption);
-    if (saved.bath) setBath(saved.bath as AnyOption);
-    if (saved.guests) setGuests(saved.guests as number);
-    if (saved.minBudget !== undefined) setMinBudget(saved.minBudget as number);
-    if (saved.maxBudget) setMaxBudget(saved.maxBudget as number);
-    if (saved.amenities) setAmenities(saved.amenities as string[]);
-    if (saved.applied) setApplied(saved.applied as AppliedFilters);
-  }, []);
   // Suggestion pool — small static-ish snapshot used for the typeahead and
   // the city dropdown. Cached for 5 minutes.
   const { data: suggestionPool = [] } = useQuery({
@@ -249,31 +93,6 @@ useEffect(() => {
     [suggestionPool],
   );
 
-  // Paginated infinite query — every page is a fresh DB call with .range().
-  // queryKey includes every applied filter so changing a filter starts a new
-  // sequence (and TanStack caches each filter combo independently).
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["find-your-unit-listings", applied, pageSize],
-    queryFn: ({ pageParam = 0 }) => fetchUnitsPage(applied, pageParam, pageSize),
-    getNextPageParam: (lastPage) => lastPage.nextOffset,
-    initialPageParam: 0,
-    placeholderData: keepPreviousData,
-    staleTime: 30_000,
-  });
-
-  const displayed = useMemo(
-    () => (data?.pages ?? []).flatMap((p) => p.units),
-    [data],
-  );
-
-  const totalLoaded = displayed.length;
-
   const toggleAmenity = (a: string) =>
     setAmenities((prev) =>
       prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
@@ -283,14 +102,20 @@ useEffect(() => {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
-    const newApplied = { keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, submitted: true };
-    setApplied(newApplied);
-    saveFindYourUnitState({
-      keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, applied: newApplied,
-    });
-    requestAnimationFrame(() => {
-      const el = document.getElementById("find-your-unit-results");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const bedrooms =
+      bed === "Any" ? undefined : bed === "5+" ? 5 : Number(bed);
+    navigate({
+      to: "/search",
+      search: {
+        q: keyword.trim() || undefined,
+        location: city !== "All Cities" ? city : undefined,
+        bedrooms,
+        guests,
+        minBudget,
+        maxBudget,
+        amenities,
+        sortPrice: "none",
+      },
     });
   };
 
@@ -543,114 +368,6 @@ useEffect(() => {
               Search
             </button>
           </div>
-        </div>
-
-        {/* Results */}
-        <div id="find-your-unit-results" className="mt-12 scroll-mt-24">
-          <div className="flex items-end justify-between">
-            <h3 className="font-display text-3xl text-foreground sm:text-4xl">
-              {applied.submitted
-                ? `${totalLoaded}${hasNextPage ? "+" : ""} ${totalLoaded === 1 ? "unit" : "units"} found`
-                : "Available units"}
-            </h3>
-          </div>
-
-          {isLoading ? (
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
-              ))}
-            </div>
-          ) : displayed.length === 0 ? (
-            <div className="mt-6 rounded-3xl border border-dashed border-border bg-background p-12 text-center">
-              <p className="font-display text-2xl">No units found</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Try widening your price range, picking a different city, or removing a filter.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {displayed.map((u, i) => (
-                  <motion.article
-                    key={u.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: Math.min(i, 8) * 0.04, ease: "easeOut" }}
-                    className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary hover:shadow-lg"
-                  >
-                    <Link to="/listing/$id" params={{ id: u.id }} className="block" onClick={() => saveFindYourUnitState({ keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, applied: { keyword, city, bed, bath, guests, minBudget, maxBudget, amenities, submitted: true } })}>
-                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                        <CardPhotoSlider
-                          photos={u.photos}
-                          alt={u.name}
-                          fallback={
-                            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                              No photo
-                            </div>
-                          }
-                        />
-                        <div className="absolute right-3 top-3 z-[3] rounded-full bg-background/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground shadow">
-                          From ${Math.min(u.priceWeekday, u.priceWeekend).toLocaleString()}/night
-                        </div>
-                        {u.amenities.some((a) => a.toLowerCase() === "breakfast included") && (
-                          <div className="absolute left-3 top-3 z-[3] inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
-                            ☕ Breakfast
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <h4 className="font-display text-xl text-foreground">{u.name}</h4>
-                        <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {u.location}
-                        </p>
-                        <div className="mt-3 flex items-center gap-4 text-sm text-foreground">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Bed className="h-4 w-4 text-primary" />
-                            {u.beds} bedroom{u.beds !== 1 ? "s" : ""}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <Bath className="h-4 w-4 text-primary" />
-                            {u.baths} bath{u.baths !== 1 ? "s" : ""}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <Users className="h-4 w-4 text-primary" />
-                            Up to {u.maxGuests} guest{u.maxGuests !== 1 ? "s" : ""}
-                          </span>
-                        </div>
-                        {u.amenities.length > 0 && (
-                          <div className="mt-4 flex flex-wrap gap-1.5">
-                            {u.amenities.slice(0, 6).map((a) => (
-                              <span
-                                key={a}
-                                className="rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
-                              >
-                                {a}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                  </motion.article>
-                ))}
-              </div>
-
-              {hasNextPage && (
-                <div className="mt-10 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                    className="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-transparent px-8 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background disabled:opacity-60"
-                  >
-                    {isFetchingNextPage ? "Loading…" : "Load more"}
-                  </button>
-                </div>
-              )}
-            </>
-          )}
         </div>
       </div>
     </section>
