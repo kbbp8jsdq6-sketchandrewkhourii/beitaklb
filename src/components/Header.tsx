@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { LogoTransparent } from "./LogoTransparent";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User as UserIcon, Shield, Instagram, Heart } from "lucide-react";
+import { LogOut, User as UserIcon, Shield, Instagram, Heart, MessageCircle, List } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
