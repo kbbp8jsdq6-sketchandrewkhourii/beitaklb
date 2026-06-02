@@ -7,7 +7,7 @@ import { VerifyEmailGate } from "@/components/VerifyEmailGate";
 import { BackButton } from "@/components/BackButton";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
-import { CustomCursor } from "@/components/CustomCursor";
+
 
 import appCss from "../styles.css?url";
 
@@ -88,7 +88,7 @@ function RootComponent() {
         <SiteGate />
         <BackButton />
         <FloatingWhatsApp />
-        <CustomCursor />
+        
         <Toaster richColors position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
