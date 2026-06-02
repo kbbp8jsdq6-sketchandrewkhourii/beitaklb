@@ -158,7 +158,6 @@ function SearchPage() {
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
-  const [showAllAmenities, setShowAllAmenities] = useState(false);
   const selectedAmenities: string[] = amenities ?? [];
 
   const [localGuests, setLocalGuests] = useState<number>(guests);
