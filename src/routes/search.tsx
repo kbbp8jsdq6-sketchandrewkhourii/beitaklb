@@ -389,7 +389,7 @@ function SearchPage() {
           </div>
 
           {/* Row 3: Amenities */}
-          {allAmenities.length > 0 && (
+          {ALL_AMENITIES.length > 0 && (
             <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -413,7 +413,7 @@ function SearchPage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {visibleAmenities.map((a) => {
-                  const active = selectedAmenities.some((s) => s.toLowerCase() === a.toLowerCase());
+                  const active = selectedAmenities.includes(a);
                   return (
                     <button
                       key={a}
@@ -431,15 +431,6 @@ function SearchPage() {
                     </button>
                   );
                 })}
-                {allAmenities.length > 14 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAllAmenities((v) => !v)}
-                    className="rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary"
-                  >
-                    {showAllAmenities ? "Show less" : `+${allAmenities.length - 14} more`}
-                  </button>
-                )}
               </div>
             </div>
           )}
