@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MessageCircle, Sparkles, Star, Instagram, ChevronDown, Heart } from "lucide-react";
+import { Search, MessageCircle, Sparkles, Instagram, ChevronDown, Heart } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
