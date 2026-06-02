@@ -383,6 +383,8 @@ function SearchPage() {
                 setLocalMax(2000);
                 setLocalLocation("");
                 setLocalBedrooms(0);
+                setLocalAmenities([]);
+                setAppliedParams({ guests: 1, minBudget: 0, maxBudget: 2000, location: "", bedrooms: 0, amenities: [], sortPrice: "none", q: undefined, district: undefined, category: undefined, bathrooms: 0 });
                 navigate({
                   search: () => ({}),
                   resetScroll: false,
