@@ -88,7 +88,7 @@ function RootComponent() {
         <SiteGate />
         <BackButton />
         <FloatingWhatsApp />
-        <CustomCursor />
+        
         <Toaster richColors position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
