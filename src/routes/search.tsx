@@ -20,7 +20,7 @@ const searchSchema = z.object({
   amenities: fallback(z.array(z.string()), []).default([]),
   guests: fallback(z.coerce.number().int().min(1).max(20), 1).default(1),
   minBudget: fallback(z.coerce.number(), 0).default(0),
-  maxBudget: fallback(z.coerce.number(), 3000).default(3000),
+  maxBudget: fallback(z.coerce.number(), 2000).default(2000),
   sortPrice: fallback(z.enum(["none", "asc", "desc"]), "none").default("none"),
   location: fallback(z.string().optional(), undefined),
 });
@@ -166,7 +166,7 @@ function SearchPage() {
   const [localMin, setLocalMin] = useState<number>(minBudget);
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
-  const maxPrice = 3000;
+  const maxPrice = 2000;
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const { data: locationPool = [] } = useQuery<string[]>({
@@ -342,7 +342,7 @@ function SearchPage() {
               onClick={() => {
                 setLocalGuests(1);
                 setLocalMin(0);
-                setLocalMax(3000);
+                setLocalMax(2000);
                 setLocalLocation("");
                 setLocalBedrooms(0);
                 navigate({
@@ -370,7 +370,7 @@ function SearchPage() {
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Budget per night</p>
               <span className="text-xs font-bold text-primary">
-                ${localMin.toLocaleString()} — ${localMax.toLocaleString()}
+                ${localMin.toLocaleString()} - ${localMax.toLocaleString()}
               </span>
             </div>
             <DualSlider
