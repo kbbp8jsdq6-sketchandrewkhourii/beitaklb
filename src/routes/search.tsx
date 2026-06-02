@@ -107,9 +107,7 @@ async function fetchSearchPage(
     );
   }
   if (selectedAmenities.length > 0) {
-    selectedAmenities.forEach((amenity) => {
-      query = query.ilike("amenities", `*${amenity}*`);
-    });
+    query = query.contains("amenities", selectedAmenities);
   }
   if (guests > 1) query = query.gte("max_guests", guests);
   query = query.gte("price_weekday", minBudget).lte("price_weekday", maxBudget);
@@ -122,7 +120,13 @@ async function fetchSearchPage(
   const { data, error } = await query.range(offset, offset + pageSize - 1);
   if (error) throw error;
 
-  const rows = data ?? [];
+  const rows = (data ?? []).filter((l) => {
+    if (selectedAmenities.length === 0) return true;
+    const unitAmenities = (l.amenities ?? []).map((a: string) => a.toLowerCase().trim());
+    return selectedAmenities.every((a) =>
+      unitAmenities.includes(a.toLowerCase().trim())
+    );
+  });
   const results: SearchListing[] = rows.map((l) => {
     const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
     return {
@@ -166,6 +170,20 @@ function SearchPage() {
   const [localMin, setLocalMin] = useState<number>(minBudget);
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
+  const [localAmenities, setLocalAmenities] = useState<string[]>(selectedAmenities);
+  const [appliedParams, setAppliedParams] = useState({
+    guests,
+    minBudget,
+    maxBudget,
+    location: location ?? "",
+    bedrooms: bedrooms ?? 0,
+    amenities: selectedAmenities,
+    sortPrice,
+    q,
+    district,
+    category,
+    bathrooms: bathrooms ?? 0,
+  });
   const maxPrice = 2000;
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -185,9 +203,23 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
+    queryKey: ["search-listings", appliedParams, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
+      fetchSearchPage(
+        appliedParams.q,
+        appliedParams.district,
+        appliedParams.category as ListingCategory | undefined,
+        appliedParams.bedrooms,
+        appliedParams.bathrooms,
+        appliedParams.amenities,
+        appliedParams.guests,
+        appliedParams.minBudget,
+        appliedParams.maxBudget,
+        appliedParams.sortPrice as SortPrice,
+        appliedParams.location || undefined,
+        pageParam,
+        pageSize,
+      ),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
@@ -201,26 +233,32 @@ function SearchPage() {
 
 
   const toggleAmenity = (a: string) => {
-    navigate({
-      search: (prev: SearchParams) => {
-        const current = prev.amenities ?? [];
-        const next = current.includes(a) ? current.filter((x: string) => x !== a) : [...current, a];
-        return { ...prev, amenities: next.length > 0 ? next : undefined } as SearchParams;
-      },
-      resetScroll: false,
-    });
+    setLocalAmenities((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]
+    );
   };
 
   const applyFilters = () => {
+    const next = {
+      guests: localGuests,
+      minBudget: localMin,
+      maxBudget: localMax,
+      location: localLocation || "",
+      bedrooms: localBedrooms,
+      amenities: localAmenities,
+      sortPrice,
+      q,
+      district,
+      category,
+      bathrooms: localBathrooms ?? 0,
+    };
+    setAppliedParams(next);
     navigate({
-      search: (prev: SearchParams) => ({
-        ...prev,
-        guests: localGuests,
-        minBudget: localMin,
-        maxBudget: localMax,
-        location: localLocation || undefined,
-        bedrooms: localBedrooms > 0 ? localBedrooms : undefined,
-        bathrooms: localBathrooms > 0 ? localBathrooms : undefined,
+      search: () => ({
+        ...next,
+        location: next.location || undefined,
+        bedrooms: next.bedrooms > 0 ? next.bedrooms : undefined,
+        amenities: next.amenities.length > 0 ? next.amenities : undefined,
       }),
       resetScroll: false,
     });
@@ -345,6 +383,8 @@ function SearchPage() {
                 setLocalMax(2000);
                 setLocalLocation("");
                 setLocalBedrooms(0);
+                setLocalAmenities([]);
+                setAppliedParams({ guests: 1, minBudget: 0, maxBudget: 2000, location: "", bedrooms: 0, amenities: [], sortPrice: "none", q: undefined, district: undefined, category: undefined, bathrooms: 0 });
                 navigate({
                   search: () => ({}),
                   resetScroll: false,
@@ -413,7 +453,7 @@ function SearchPage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {visibleAmenities.map((a) => {
-                  const active = selectedAmenities.includes(a);
+                  const active = localAmenities.includes(a);
                   return (
                     <button
                       key={a}
