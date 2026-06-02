@@ -14,13 +14,12 @@ const slideUrl = (base: string, w: number, q: number) => `${base}&w=${w}&q=${q}`
 
 export function HeroSlideshow() {
   const [index, setIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
     const update = () => setIsMobile(mq.matches);
+    update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
@@ -29,7 +28,7 @@ export function HeroSlideshow() {
     if (isMobile) return;
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % BASE_URLS.length);
-    }, 4000);
+    }, 6000);
     return () => window.clearInterval(id);
   }, [isMobile]);
 
