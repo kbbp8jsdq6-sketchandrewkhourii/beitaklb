@@ -248,7 +248,7 @@ function HomePage() {
 
 
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
-            <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
+            <div ref={magneticRef} style={{ willChange: isMobile ? "auto" : "transform" }} className="relative">
               {/* Atmospheric red radial gradient behind the logo only */}
               <div className="hero-logo-aura" aria-hidden="true" />
               {/* Floating particles around the logo (4 on mobile, 10 on desktop) */}
