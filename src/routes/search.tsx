@@ -233,26 +233,32 @@ function SearchPage() {
 
 
   const toggleAmenity = (a: string) => {
-    navigate({
-      search: (prev: SearchParams) => {
-        const current = prev.amenities ?? [];
-        const next = current.includes(a) ? current.filter((x: string) => x !== a) : [...current, a];
-        return { ...prev, amenities: next.length > 0 ? next : undefined } as SearchParams;
-      },
-      resetScroll: false,
-    });
+    setLocalAmenities((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]
+    );
   };
 
   const applyFilters = () => {
+    const next = {
+      guests: localGuests,
+      minBudget: localMin,
+      maxBudget: localMax,
+      location: localLocation || "",
+      bedrooms: localBedrooms,
+      amenities: localAmenities,
+      sortPrice,
+      q,
+      district,
+      category,
+      bathrooms: localBathrooms ?? 0,
+    };
+    setAppliedParams(next);
     navigate({
-      search: (prev: SearchParams) => ({
-        ...prev,
-        guests: localGuests,
-        minBudget: localMin,
-        maxBudget: localMax,
-        location: localLocation || undefined,
-        bedrooms: localBedrooms > 0 ? localBedrooms : undefined,
-        bathrooms: localBathrooms > 0 ? localBathrooms : undefined,
+      search: () => ({
+        ...next,
+        location: next.location || undefined,
+        bedrooms: next.bedrooms > 0 ? next.bedrooms : undefined,
+        amenities: next.amenities.length > 0 ? next.amenities : undefined,
       }),
       resetScroll: false,
     });
