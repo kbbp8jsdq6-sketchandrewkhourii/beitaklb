@@ -236,7 +236,7 @@ function SearchPage() {
     if (!isLoading) restoreListingReturnScroll();
   }, [isLoading, totalLoaded]);
 
-  const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
+  const visibleAmenities = ALL_AMENITIES;
 
   return (
     <div className="min-h-screen bg-background">
