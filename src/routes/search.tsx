@@ -453,7 +453,7 @@ function SearchPage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {visibleAmenities.map((a) => {
-                  const active = selectedAmenities.includes(a);
+                  const active = localAmenities.includes(a);
                   return (
                     <button
                       key={a}
