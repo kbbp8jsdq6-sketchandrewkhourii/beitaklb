@@ -146,6 +146,13 @@ async function fetchSearchPage(
   };
 }
 
+const ALL_AMENITIES = [
+  "Pool", "Gym", "Parking", "Pet Friendly", "Washer/Dryer", "Balcony",
+  "AC", "BBQ Area", "Beach Access", "Chimney", "Jacuzzi",
+  "Wheelchair Accessibility", "Breakfast included", "Electricity 24/7",
+  "High speed WIFI", "Smart TV & Streaming services",
+];
+
 function SearchPage() {
   const { q, district, category, bedrooms, bathrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
