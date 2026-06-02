@@ -107,7 +107,9 @@ async function fetchSearchPage(
     );
   }
   if (selectedAmenities.length > 0) {
-    query = query.contains("amenities", selectedAmenities);
+    selectedAmenities.forEach((amenity) => {
+      query = query.ilike("amenities", `*${amenity}*`);
+    });
   }
   if (guests > 1) query = query.gte("max_guests", guests);
   query = query.gte("price_weekday", minBudget).lte("price_weekday", maxBudget);
@@ -144,12 +146,18 @@ async function fetchSearchPage(
   };
 }
 
+const ALL_AMENITIES = [
+  "Pool", "Gym", "Parking", "Pet Friendly", "Washer/Dryer", "Balcony",
+  "AC", "BBQ Area", "Beach Access", "Chimney", "Jacuzzi",
+  "Wheelchair Accessibility", "Breakfast included", "Electricity 24/7",
+  "High speed WIFI", "Smart TV & Streaming services",
+];
+
 function SearchPage() {
   const { q, district, category, bedrooms, bathrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
 
-  const [showAllAmenities, setShowAllAmenities] = useState(false);
   const selectedAmenities: string[] = amenities ?? [];
 
   const [localGuests, setLocalGuests] = useState<number>(guests);
@@ -191,27 +199,6 @@ function SearchPage() {
     [data],
   );
 
-  const { data: allAmenities = [] } = useQuery<string[]>({
-    queryKey: ["all-amenities"],
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("amenities")
-        .eq("is_active", true)
-        .limit(200);
-      if (error) throw error;
-      const set = new Map<string, string>();
-      (data ?? []).forEach((row) => {
-        (row.amenities ?? []).forEach((a) => {
-          const key = a.trim().toLowerCase();
-          if (!key) return;
-          if (!set.has(key)) set.set(key, a.trim());
-        });
-      });
-      return [...set.values()].sort((a, b) => a.localeCompare(b));
-    },
-  });
 
   const toggleAmenity = (a: string) => {
     navigate({
@@ -249,7 +236,7 @@ function SearchPage() {
     if (!isLoading) restoreListingReturnScroll();
   }, [isLoading, totalLoaded]);
 
-  const visibleAmenities = showAllAmenities ? allAmenities : allAmenities.slice(0, 14);
+  const visibleAmenities = ALL_AMENITIES;
 
   return (
     <div className="min-h-screen bg-background">
@@ -402,7 +389,7 @@ function SearchPage() {
           </div>
 
           {/* Row 3: Amenities */}
-          {allAmenities.length > 0 && (
+          {ALL_AMENITIES.length > 0 && (
             <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -426,7 +413,7 @@ function SearchPage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {visibleAmenities.map((a) => {
-                  const active = selectedAmenities.some((s) => s.toLowerCase() === a.toLowerCase());
+                  const active = selectedAmenities.includes(a);
                   return (
                     <button
                       key={a}
@@ -444,15 +431,6 @@ function SearchPage() {
                     </button>
                   );
                 })}
-                {allAmenities.length > 14 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAllAmenities((v) => !v)}
-                    className="rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary"
-                  >
-                    {showAllAmenities ? "Show less" : `+${allAmenities.length - 14} more`}
-                  </button>
-                )}
               </div>
             </div>
           )}
