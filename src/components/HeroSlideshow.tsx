@@ -47,14 +47,15 @@ export function HeroSlideshow() {
       <div className="absolute inset-0 overflow-hidden bg-foreground">
         {isMobile ? (
           <img
-            src={slideUrl(BASE_URLS[0], 800, 55)}
+            src={slideUrl(BASE_URLS[0], 480, 40)}
             alt=""
             aria-hidden="true"
             decoding="async"
             loading="eager"
             fetchPriority="high"
-            width={800}
-            height={600}
+            crossOrigin="anonymous"
+            width={480}
+            height={360}
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
