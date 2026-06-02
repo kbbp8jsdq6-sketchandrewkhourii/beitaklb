@@ -170,6 +170,20 @@ function SearchPage() {
   const [localMin, setLocalMin] = useState<number>(minBudget);
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
+  const [localAmenities, setLocalAmenities] = useState<string[]>(selectedAmenities);
+  const [appliedParams, setAppliedParams] = useState({
+    guests,
+    minBudget,
+    maxBudget,
+    location: location ?? "",
+    bedrooms: bedrooms ?? 0,
+    amenities: selectedAmenities,
+    sortPrice,
+    q,
+    district,
+    category,
+    bathrooms: bathrooms ?? 0,
+  });
   const maxPrice = 2000;
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -189,9 +203,23 @@ function SearchPage() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["search-listings", q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageSize],
+    queryKey: ["search-listings", appliedParams, pageSize],
     queryFn: ({ pageParam = 0 }) =>
-      fetchSearchPage(q, district, category, bedrooms, bathrooms, selectedAmenities, guests, minBudget, maxBudget, sortPrice, location, pageParam, pageSize),
+      fetchSearchPage(
+        appliedParams.q,
+        appliedParams.district,
+        appliedParams.category as ListingCategory | undefined,
+        appliedParams.bedrooms,
+        appliedParams.bathrooms,
+        appliedParams.amenities,
+        appliedParams.guests,
+        appliedParams.minBudget,
+        appliedParams.maxBudget,
+        appliedParams.sortPrice as SortPrice,
+        appliedParams.location || undefined,
+        pageParam,
+        pageSize,
+      ),
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
     placeholderData: keepPreviousData,
