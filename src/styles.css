@@ -589,3 +589,17 @@ body.no-scroll {
 
 
 
+
+/* Mobile perf — kill non-composited animations */
+@media (max-width: 768px) {
+  .footer-wave .fw-mid,
+  .footer-wave .fw-front {
+    animation: none;
+  }
+  .liquid-wave svg {
+    animation: none;
+  }
+  .announcement-track {
+    animation-duration: 60s;
+  }
+}
