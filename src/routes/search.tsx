@@ -199,27 +199,6 @@ function SearchPage() {
     [data],
   );
 
-  const { data: allAmenities = [] } = useQuery<string[]>({
-    queryKey: ["all-amenities"],
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("amenities")
-        .eq("is_active", true)
-        .limit(200);
-      if (error) throw error;
-      const set = new Map<string, string>();
-      (data ?? []).forEach((row) => {
-        (row.amenities ?? []).forEach((a) => {
-          const key = a.trim().toLowerCase();
-          if (!key) return;
-          if (!set.has(key)) set.set(key, a.trim());
-        });
-      });
-      return [...set.values()].sort((a, b) => a.localeCompare(b));
-    },
-  });
 
   const toggleAmenity = (a: string) => {
     navigate({
