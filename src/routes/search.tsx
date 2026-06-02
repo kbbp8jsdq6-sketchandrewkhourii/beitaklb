@@ -120,7 +120,13 @@ async function fetchSearchPage(
   const { data, error } = await query.range(offset, offset + pageSize - 1);
   if (error) throw error;
 
-  const rows = data ?? [];
+  const rows = (data ?? []).filter((l) => {
+    if (selectedAmenities.length === 0) return true;
+    const unitAmenities = (l.amenities ?? []).map((a: string) => a.toLowerCase().trim());
+    return selectedAmenities.every((a) =>
+      unitAmenities.includes(a.toLowerCase().trim())
+    );
+  });
   const results: SearchListing[] = rows.map((l) => {
     const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
     return {
