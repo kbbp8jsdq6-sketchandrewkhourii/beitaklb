@@ -69,7 +69,7 @@ async function fetchSuggestionPool(): Promise<SuggestionUnit[]> {
 
 export function FindYourUnit() {
   const navigate = useNavigate();
-  const maxPrice = 3000;
+  const maxPrice = 2000;
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState<string>("All Cities");
   const [bed, setBed] = useState<AnyOption>("Any");
@@ -109,7 +109,7 @@ export function FindYourUnit() {
         location: city !== "All Cities" ? city : undefined,
         guests: guests > 1 ? guests : undefined,
         minBudget: minBudget > 0 ? minBudget : undefined,
-        maxBudget: maxBudget < 3000 ? maxBudget : undefined,
+        maxBudget: maxBudget < 2000 ? maxBudget : undefined,
         amenities: amenities.length > 0 ? amenities : [],
       },
     });
@@ -331,7 +331,7 @@ export function FindYourUnit() {
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-foreground">Budget per night</p>
                 <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
-                  ${minBudget.toLocaleString()} — ${maxBudget.toLocaleString()}
+                  ${minBudget.toLocaleString()} - ${maxBudget.toLocaleString()}
                 </span>
               </div>
               <div className="mt-4 px-1">
