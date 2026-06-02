@@ -159,6 +159,7 @@ function SearchPage() {
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
   const maxPrice = 3000;
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const { data: locationPool = [] } = useQuery<string[]>({
     queryKey: ["search-locations"],
@@ -457,49 +458,51 @@ function SearchPage() {
           )}
         </div>
 
-        {isLoading ? (
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: pageSize }).map((_, i) => (
-              <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
-            ))}
-          </div>
-        ) : filteredResults.length === 0 ? (
-          <div className="mt-12 rounded-3xl border border-dashed border-border bg-muted/40 p-12 text-center">
-            <p className="font-display text-2xl text-foreground">No stays found</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {selectedAmenities.length > 0
-                ? "Try removing some amenity filters."
-                : "Try a different village, city, or keyword."}
-            </p>
-            <Link
-              to="/"
-              className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
-            >
-              ← Back home
-            </Link>
-          </div>
-        ) : (
-          <>
+        <div ref={resultsRef}>
+          {isLoading ? (
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredResults.map((l, i) => (
-                <ListingCard key={l.id} listing={l} index={Math.min(i, 8)} />
+              {Array.from({ length: pageSize }).map((_, i) => (
+                <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
               ))}
             </div>
-
-            {hasNextPage && (
-              <div className="mt-10 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  className="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-transparent px-8 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background disabled:opacity-60"
-                >
-                  {isFetchingNextPage ? "Loading…" : "Load more"}
-                </button>
+          ) : filteredResults.length === 0 ? (
+            <div className="mt-12 rounded-3xl border border-dashed border-border bg-muted/40 p-12 text-center">
+              <p className="font-display text-2xl text-foreground">No stays found</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {selectedAmenities.length > 0
+                  ? "Try removing some amenity filters."
+                  : "Try a different village, city, or keyword."}
+              </p>
+              <Link
+                to="/"
+                className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
+              >
+                ← Back home
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredResults.map((l, i) => (
+                  <ListingCard key={l.id} listing={l} index={Math.min(i, 8)} />
+                ))}
               </div>
-            )}
-          </>
-        )}
+
+              {hasNextPage && (
+                <div className="mt-10 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    className="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-transparent px-8 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background disabled:opacity-60"
+                  >
+                    {isFetchingNextPage ? "Loading…" : "Load more"}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </section>
 
     </div>
