@@ -233,114 +233,134 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO — full-screen cinematic with subtle parallax */}
-      <section className="relative">
-        <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
-          <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
+      {/* 1. HERO — full-screen cinematic with subtle parallax (desktop only) */}
+      {isMobile ? (
+        <section className="relative">
+          <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
             <HeroSlideshow />
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
+              <LogoTransparent size="hero" />
+              <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
+                Find your perfect stay in Lebanon
+              </h1>
+              <p className="mt-5 max-w-xl text-base text-white/90">
+                Browse unique listings from trusted local hosts.
+              </p>
+              <p className="mt-8 text-xs uppercase tracking-[0.4em] text-primary">
+                Home is closer than you think
+              </p>
+            </div>
           </div>
-          {/* Extra premium dark gradient overlay for cinematic readability */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
+        </section>
+      ) : (
+        <section className="relative">
+          <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
+            <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
+              <HeroSlideshow />
+            </div>
+            {/* Extra premium dark gradient overlay for cinematic readability */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
 
 
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
-            <div ref={magneticRef} style={{ willChange: isMobile ? "auto" : "transform" }} className="relative">
-              {/* Atmospheric red radial gradient behind the logo only */}
-              <div className="hero-logo-aura" aria-hidden="true" />
-              {/* Floating particles around the logo (4 on mobile, 10 on desktop) */}
-              <div className="hero-particles" aria-hidden="true">
-                {Array.from({ length: isMobile ? 0 : 6 }).map((_, i) => {
-                  const isRed = i % 2 === 0;
-                  const size = 4 + ((i * 3) % 5); // 4..8px
-                  const left = (i * 97) % 100;
-                  const delay = (i * 0.7) % 6;
-                  const duration = 5 + ((i * 1.3) % 4); // 5..9s
-                  return (
-                    <span
-                      key={i}
-                      className="hero-particle"
-                      style={{
-                        left: `${left}%`,
-                        width: `${size}px`,
-                        height: `${size}px`,
-                        background: isRed ? "rgba(230,48,48,0.85)" : "rgba(255,255,255,0.85)",
-                        boxShadow: isRed
-                          ? "0 0 8px rgba(230,48,48,0.8)"
-                          : "0 0 8px rgba(255,255,255,0.8)",
-                        animationDelay: `${delay}s`,
-                        animationDuration: `${duration}s`,
-                      }}
-                    />
-                  );
-                })}
-              </div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
-                transition={{
-                  duration: 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                  scale: { type: "spring", stiffness: 120, damping: 12 },
-                }}
-              >
-                <div className="hero-logo-float">
-                  <div className="hero-logo-breathe">
-                    <div className="hero-logo-glow">
-                      <div className="hero-logo-stage">
-                        <div className="hero-logo-spin">
-                          {Array.from({ length: isMobile ? 1 : 8 }).map((_, i) => {
-                            const total = isMobile ? 1 : 8;
-                            const z = (i - (total - 1)) * 1.2;
-                            const darkness = total === 1 ? 1 : 0.55 + (i / (total - 1)) * 0.45;
-                            const sat = total === 1 ? 1 : 0.7 + (i / (total - 1)) * 0.3;
-                            return (
-                              <div
-                                key={i}
-                                className="hero-logo-layer"
-                                style={{
-                                  transform: `translateZ(${z}px)`,
-                                  filter: `brightness(${darkness}) saturate(${sat})`,
-                                }}
-                                aria-hidden={i !== total - 1}
-                              >
-                                <LogoTransparent size="hero" />
-                              </div>
-                            );
-                          })}
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
+              <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
+                {/* Atmospheric red radial gradient behind the logo only */}
+                <div className="hero-logo-aura" aria-hidden="true" />
+                {/* Floating particles around the logo */}
+                <div className="hero-particles" aria-hidden="true">
+                  {Array.from({ length: 6 }).map((_, i) => {
+                    const isRed = i % 2 === 0;
+                    const size = 4 + ((i * 3) % 5); // 4..8px
+                    const left = (i * 97) % 100;
+                    const delay = (i * 0.7) % 6;
+                    const duration = 5 + ((i * 1.3) % 4); // 5..9s
+                    return (
+                      <span
+                        key={i}
+                        className="hero-particle"
+                        style={{
+                          left: `${left}%`,
+                          width: `${size}px`,
+                          height: `${size}px`,
+                          background: isRed ? "rgba(230,48,48,0.85)" : "rgba(255,255,255,0.85)",
+                          boxShadow: isRed
+                            ? "0 0 8px rgba(230,48,48,0.8)"
+                            : "0 0 8px rgba(255,255,255,0.8)",
+                          animationDelay: `${delay}s`,
+                          animationDuration: `${duration}s`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
+                  transition={{
+                    duration: 0.9,
+                    ease: [0.22, 1, 0.36, 1],
+                    scale: { type: "spring", stiffness: 120, damping: 12 },
+                  }}
+                >
+                  <div className="hero-logo-float">
+                    <div className="hero-logo-breathe">
+                      <div className="hero-logo-glow">
+                        <div className="hero-logo-stage">
+                          <div className="hero-logo-spin">
+                            {Array.from({ length: 8 }).map((_, i) => {
+                              const total = 8;
+                              const z = (i - (total - 1)) * 1.2;
+                              const darkness = 0.55 + (i / (total - 1)) * 0.45;
+                              const sat = 0.7 + (i / (total - 1)) * 0.3;
+                              return (
+                                <div
+                                  key={i}
+                                  className="hero-logo-layer"
+                                  style={{
+                                    transform: `translateZ(${z}px)`,
+                                    filter: `brightness(${darkness}) saturate(${sat})`,
+                                  }}
+                                  aria-hidden={i !== total - 1}
+                                >
+                                  <LogoTransparent size="hero" />
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
+              <motion.h1
+                className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+              >
+                Find your perfect stay in Lebanon
+              </motion.h1>
+              <motion.p
+                className="mt-5 max-w-xl text-base text-white/90 sm:text-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+              >
+                Browse unique listings from trusted local hosts.
+              </motion.p>
+              <motion.p
+                className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
+              >
+                Home is closer than you think
+              </motion.p>
             </div>
-            <motion.h1
-              className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-            >
-              Find your perfect stay in Lebanon
-            </motion.h1>
-            <motion.p
-              className="mt-5 max-w-xl text-base text-white/90 sm:text-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-            >
-              Browse unique listings from trusted local hosts.
-            </motion.p>
-            <motion.p
-              className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
-            >
-              Home is closer than you think
-            </motion.p>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA BAR — sits below the hero so buttons are never cut off */}
       <section className="relative bg-background">
