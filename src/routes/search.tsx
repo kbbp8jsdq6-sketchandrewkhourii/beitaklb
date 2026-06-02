@@ -107,7 +107,9 @@ async function fetchSearchPage(
     );
   }
   if (selectedAmenities.length > 0) {
-    query = query.contains("amenities", selectedAmenities);
+    selectedAmenities.forEach((amenity) => {
+      query = query.ilike("amenities", `*${amenity}*`);
+    });
   }
   if (guests > 1) query = query.gte("max_guests", guests);
   query = query.gte("price_weekday", minBudget).lte("price_weekday", maxBudget);
