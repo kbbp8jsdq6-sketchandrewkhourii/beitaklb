@@ -69,11 +69,7 @@ const STEPS = [
   },
 ];
 
-import { STATIC_REVIEWS, HOME_REVIEW_SLUGS } from "@/lib/static-reviews";
-
-const HOME_REVIEWS = HOME_REVIEW_SLUGS
-  .map((slug) => STATIC_REVIEWS.find((r) => r.slug === slug)!)
-  .filter(Boolean);
+const ReviewsSection = lazy(() => import("@/components/home/ReviewsSection"));
 
 const FAQS = [
   {
