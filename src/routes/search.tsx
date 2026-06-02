@@ -236,6 +236,9 @@ function SearchPage() {
       }),
       resetScroll: false,
     });
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
 
