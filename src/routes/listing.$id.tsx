@@ -117,14 +117,35 @@ async function fetchListing(id: string) {
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, category, host_id, created_at,
       listing_photos(id, photo_url, display_order),
-      profiles:host_id (full_name, avatar_url, phone),
-      reviews(id, rating, comment, created_at, reviewer_id, profiles:reviewer_id(full_name))
+      reviews(id, rating, comment, created_at, reviewer_id)
     `)
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
   if (!data) throw notFound();
-  return data;
+
+  // Fetch host + reviewers from the public view (excludes phone)
+  const reviewerIds = Array.from(
+    new Set((data.reviews ?? []).map((r) => r.reviewer_id).filter(Boolean) as string[]),
+  );
+  const profileIds = Array.from(new Set([data.host_id, ...reviewerIds].filter(Boolean) as string[]));
+  let profilesById = new Map<string, { id: string; full_name: string | null; avatar_url: string | null }>();
+  if (profileIds.length > 0) {
+    const { data: profs } = await supabase
+      .from("public_profiles")
+      .select("id, full_name, avatar_url")
+      .in("id", profileIds);
+    profilesById = new Map((profs ?? []).filter((p): p is { id: string; full_name: string | null; avatar_url: string | null } => !!p.id).map((p) => [p.id, p]));
+  }
+
+  return {
+    ...data,
+    profiles: data.host_id ? profilesById.get(data.host_id) ?? null : null,
+    reviews: (data.reviews ?? []).map((r) => ({
+      ...r,
+      profiles: r.reviewer_id ? profilesById.get(r.reviewer_id) ?? null : null,
+    })),
+  };
 }
 
 const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
