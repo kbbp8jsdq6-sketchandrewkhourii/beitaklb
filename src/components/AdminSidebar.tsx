@@ -10,6 +10,7 @@ import {
   Megaphone,
   Settings,
   Star,
+  Images,
 } from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
@@ -18,6 +19,7 @@ type NavItem = {
     | "/admin"
     | "/admin/listings"
     | "/admin/featured"
+    | "/admin/hero-images"
     | "/admin/users"
     | "/admin/approvals"
     | "/admin/feedback"
@@ -33,6 +35,7 @@ const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/listings", label: "Listings", icon: HomeIcon },
   { to: "/admin/featured", label: "Featured Listings", icon: Star },
+  { to: "/admin/hero-images", label: "Hero Images", icon: Images },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck },
   { to: "/admin/feedback", label: "Feedback", icon: MessageCircle },

@@ -287,6 +287,30 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_images: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       listing_photos: {
         Row: {
           created_at: string
