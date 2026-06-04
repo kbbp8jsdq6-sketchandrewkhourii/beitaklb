@@ -31,6 +31,7 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-pas
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
+import { Route as AdminHeroImagesRouteImport } from './routes/admin.hero-images'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFeaturedRouteImport } from './routes/admin.featured'
 import { Route as AdminContactRouteImport } from './routes/admin.contact'
@@ -149,6 +150,11 @@ const AdminListingsRoute = AdminListingsRouteImport.update({
   path: '/listings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminHeroImagesRoute = AdminHeroImagesRouteImport.update({
+  id: '/hero-images',
+  path: '/hero-images',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -203,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByTo {
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -265,6 +273,7 @@ export interface FileRoutesById {
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -298,6 +307,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
+    | '/admin/hero-images'
     | '/admin/listings'
     | '/admin/settings'
     | '/admin/users'
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
+    | '/admin/hero-images'
     | '/admin/listings'
     | '/admin/settings'
     | '/admin/users'
@@ -359,6 +370,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
+    | '/admin/hero-images'
     | '/admin/listings'
     | '/admin/settings'
     | '/admin/users'
@@ -552,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/hero-images': {
+      id: '/admin/hero-images'
+      path: '/hero-images'
+      fullPath: '/admin/hero-images'
+      preLoaderRoute: typeof AdminHeroImagesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/feedback': {
       id: '/admin/feedback'
       path: '/feedback'
@@ -610,6 +629,7 @@ interface AdminRouteChildren {
   AdminContactRoute: typeof AdminContactRoute
   AdminFeaturedRoute: typeof AdminFeaturedRoute
   AdminFeedbackRoute: typeof AdminFeedbackRoute
+  AdminHeroImagesRoute: typeof AdminHeroImagesRoute
   AdminListingsRoute: typeof AdminListingsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -622,6 +642,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminContactRoute: AdminContactRoute,
   AdminFeaturedRoute: AdminFeaturedRoute,
   AdminFeedbackRoute: AdminFeedbackRoute,
+  AdminHeroImagesRoute: AdminHeroImagesRoute,
   AdminListingsRoute: AdminListingsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,

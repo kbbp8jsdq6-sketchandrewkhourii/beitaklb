@@ -10,6 +10,7 @@ import {
   Megaphone,
   Settings,
   Star,
+  Images,
 } from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
