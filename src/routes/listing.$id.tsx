@@ -135,7 +135,7 @@ async function fetchListing(id: string) {
       .from("public_profiles")
       .select("id, full_name, avatar_url")
       .in("id", profileIds);
-    profilesById = new Map((profs ?? []).map((p) => [p.id, p]));
+    profilesById = new Map((profs ?? []).filter((p): p is { id: string; full_name: string | null; avatar_url: string | null } => !!p.id).map((p) => [p.id, p]));
   }
 
   return {
