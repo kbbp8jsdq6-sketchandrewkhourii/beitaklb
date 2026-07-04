@@ -153,11 +153,11 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const ext = file.name.split(".").pop() || "jpg";
-        const path = `${adminUserId}/${created.id}/${Date.now()}-${i}.${ext}`;
+        const blob = await compressImage(file, { maxWidth: 1600, quality: 0.8 });
+        const path = `${adminUserId}/${created.id}/${Date.now()}-${i}.webp`;
         const { error: upErr } = await supabase.storage
           .from("listing-photos")
-          .upload(path, file, { contentType: file.type, upsert: false });
+          .upload(path, blob, { contentType: "image/webp", upsert: false });
         if (upErr) throw upErr;
         const { data: pub } = supabase.storage.from("listing-photos").getPublicUrl(path);
         const { error: phErr } = await supabase
