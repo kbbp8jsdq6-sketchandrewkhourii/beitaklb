@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/image-compress";
 
 export const Route = createFileRoute("/admin/hero-images")({
   head: () => ({
