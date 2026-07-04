@@ -11,6 +11,7 @@ import {
   Settings,
   Star,
   Images,
+  Wand2,
 } from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
