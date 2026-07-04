@@ -11,6 +11,7 @@ import { Save, X, ImagePlus, Loader2 } from "lucide-react";
 import { CustomAmenityInput } from "@/components/CustomAmenityInput";
 import { FieldError } from "@/components/FieldError";
 import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
+import { compressImage } from "@/lib/image-compress";
 
 const AMENITY_OPTIONS = [
   "Pool",
