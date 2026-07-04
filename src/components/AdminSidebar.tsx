@@ -21,6 +21,7 @@ type NavItem = {
     | "/admin/listings"
     | "/admin/featured"
     | "/admin/hero-images"
+    | "/admin/optimize-photos"
     | "/admin/users"
     | "/admin/approvals"
     | "/admin/feedback"
