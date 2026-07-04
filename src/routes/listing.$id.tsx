@@ -336,7 +336,7 @@ Could you help me with availability and booking?`;
               <div className="border-b border-border py-6">
                 <h3 className="font-display text-xl">Amenities</h3>
                 <ul className="mt-4 flex flex-wrap gap-2">
-                  {listing.amenities.map((a) => {
+                  {listing.amenities.map((a: string) => {
                     const isBreakfast = a.toLowerCase() === "breakfast included";
                     return (
                       <li
