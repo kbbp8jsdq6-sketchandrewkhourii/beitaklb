@@ -13,33 +13,8 @@ const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
 export const Route = createFileRoute("/listing/$id")({
   loader: async ({ params }) => {
-    const { data } = await supabase
-      .from("listings")
-      .select("title, description, location, price_weekday, price_weekend, listing_photos(photo_url, display_order)")
-      .eq("id", params.id)
-      .maybeSingle();
-    if (!data)
-      return {
-        meta: null as null | {
-          title: string;
-          description: string;
-          location: string;
-          image: string | null;
-          priceWeekday: number | null;
-          priceWeekend: number | null;
-        },
-      };
-    const photos = (data.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
-    return {
-      meta: {
-        title: data.title,
-        description: data.description,
-        location: data.location,
-        image: photos[0]?.photo_url ?? null,
-        priceWeekday: data.price_weekday != null ? Number(data.price_weekday) : null,
-        priceWeekend: data.price_weekend != null ? Number(data.price_weekend) : null,
-      },
-    };
+    const listing = await fetchListing(params.id);
+    return { listing };
   },
   head: ({ loaderData, params }) => {
     const m = loaderData?.meta;
