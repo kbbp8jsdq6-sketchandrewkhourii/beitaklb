@@ -223,11 +223,11 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           existingPhotos.filter((p) => !photosToDelete.includes(p.id)).length;
         for (let i = 0; i < newFiles.length; i++) {
           const file = newFiles[i];
-          const ext = file.name.split(".").pop() || "jpg";
-          const path = `${hostId}/${listingId}/${Date.now()}-${i}.${ext}`;
+          const blob = await compressImage(file, { maxWidth: 1600, quality: 0.8 });
+          const path = `${hostId}/${listingId}/${Date.now()}-${i}.webp`;
           const { error: upErr } = await supabase.storage
             .from("listing-photos")
-            .upload(path, file, { contentType: file.type, upsert: false });
+            .upload(path, blob, { contentType: "image/webp", upsert: false });
           if (upErr) throw upErr;
           const { data: pub } = supabase.storage.from("listing-photos").getPublicUrl(path);
           const { error: phErr } = await supabase
