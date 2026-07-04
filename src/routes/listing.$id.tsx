@@ -17,8 +17,8 @@ export const Route = createFileRoute("/listing/$id")({
     return { listing };
   },
   head: ({ loaderData, params }) => {
-    const m = loaderData?.meta;
-    if (!m) {
+    const listing = loaderData?.listing;
+    if (!listing) {
       return {
         meta: [
           { title: "Listing — Beitak.lb" },
@@ -27,22 +27,26 @@ export const Route = createFileRoute("/listing/$id")({
         ],
       };
     }
-    const title = `${m.title} in ${m.location} | Beitak.lb`;
-    const desc = (m.description ?? `Stay at ${m.title} in ${m.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
+    const title = `${listing.title} in ${listing.location} | Beitak.lb`;
+    const desc = (listing.description ?? `Stay at ${listing.title} in ${listing.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
     const url = `https://beitaklb.com/listing/${params.id}`;
+    const photos = (listing.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order);
+    const image = photos[0]?.photo_url ?? null;
+    const priceWeekday = listing.price_weekday != null ? Number(listing.price_weekday) : null;
+    const priceWeekend = listing.price_weekend != null ? Number(listing.price_weekend) : null;
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": "LodgingBusiness",
-      name: m.title,
+      name: listing.title,
       description: desc,
-      ...(m.image ? { image: m.image } : {}),
+      ...(image ? { image } : {}),
       address: {
         "@type": "PostalAddress",
-        addressLocality: m.location,
+        addressLocality: listing.location,
         addressCountry: "LB",
       },
-      ...(m.priceWeekday != null && m.priceWeekend != null
-        ? { priceRange: `$${m.priceWeekday} - $${m.priceWeekend}` }
+      ...(priceWeekday != null && priceWeekend != null
+        ? { priceRange: `$${priceWeekday} - $${priceWeekend}` }
         : {}),
       url,
     };
@@ -55,7 +59,7 @@ export const Route = createFileRoute("/listing/$id")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "place" },
         { property: "og:url", content: url },
-        ...(m.image ? [{ property: "og:image", content: m.image }, { name: "twitter:image", content: m.image }] : []),
+        ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
       ],
       scripts: [
         {
