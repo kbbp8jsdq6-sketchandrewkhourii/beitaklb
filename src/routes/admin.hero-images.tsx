@@ -68,7 +68,7 @@ function AdminHeroImagesPage() {
     try {
       for (const file of files) {
         try {
-          const blob = await compressImage(file);
+          const blob = await compressImage(file, { maxWidth: 1920, quality: 0.82 });
           const base = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
           const fileName = `${Date.now()}_${base}.webp`;
           const { error } = await supabase.storage
