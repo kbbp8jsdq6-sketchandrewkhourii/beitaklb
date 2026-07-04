@@ -30,6 +30,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminOptimizePhotosRouteImport } from './routes/admin.optimize-photos'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
 import { Route as AdminHeroImagesRouteImport } from './routes/admin.hero-images'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
@@ -145,6 +146,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOptimizePhotosRoute = AdminOptimizePhotosRouteImport.update({
+  id: '/optimize-photos',
+  path: '/optimize-photos',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminListingsRoute = AdminListingsRouteImport.update({
   id: '/listings',
   path: '/listings',
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
+  '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
+  '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
+  '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/hero-images'
     | '/admin/listings'
+    | '/admin/optimize-photos'
     | '/admin/settings'
     | '/admin/users'
     | '/auth/forgot-password'
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/hero-images'
     | '/admin/listings'
+    | '/admin/optimize-photos'
     | '/admin/settings'
     | '/admin/users'
     | '/auth/forgot-password'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/hero-images'
     | '/admin/listings'
+    | '/admin/optimize-photos'
     | '/admin/settings'
     | '/admin/users'
     | '/auth/forgot-password'
@@ -557,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/optimize-photos': {
+      id: '/admin/optimize-photos'
+      path: '/optimize-photos'
+      fullPath: '/admin/optimize-photos'
+      preLoaderRoute: typeof AdminOptimizePhotosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/listings': {
       id: '/admin/listings'
       path: '/listings'
@@ -631,6 +650,7 @@ interface AdminRouteChildren {
   AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminHeroImagesRoute: typeof AdminHeroImagesRoute
   AdminListingsRoute: typeof AdminListingsRoute
+  AdminOptimizePhotosRoute: typeof AdminOptimizePhotosRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -644,6 +664,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFeedbackRoute: AdminFeedbackRoute,
   AdminHeroImagesRoute: AdminHeroImagesRoute,
   AdminListingsRoute: AdminListingsRoute,
+  AdminOptimizePhotosRoute: AdminOptimizePhotosRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,

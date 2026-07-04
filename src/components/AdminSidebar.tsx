@@ -11,6 +11,7 @@ import {
   Settings,
   Star,
   Images,
+  Wand2,
 } from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
@@ -20,6 +21,7 @@ type NavItem = {
     | "/admin/listings"
     | "/admin/featured"
     | "/admin/hero-images"
+    | "/admin/optimize-photos"
     | "/admin/users"
     | "/admin/approvals"
     | "/admin/feedback"
@@ -36,6 +38,7 @@ const NAV: NavItem[] = [
   { to: "/admin/listings", label: "Listings", icon: HomeIcon },
   { to: "/admin/featured", label: "Featured Listings", icon: Star },
   { to: "/admin/hero-images", label: "Hero Images", icon: Images },
+  { to: "/admin/optimize-photos", label: "Optimize Photos", icon: Wand2 },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck },
   { to: "/admin/feedback", label: "Feedback", icon: MessageCircle },
