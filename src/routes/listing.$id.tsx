@@ -359,7 +359,7 @@ Could you help me with availability and booking?`;
               <div className="border-t border-border py-6">
                 <h3 className="font-display text-xl">Reviews</h3>
                 <ul className="mt-4 space-y-4">
-                  {listing.reviews.map((r) => (
+                  {listing.reviews.map((r: { id: string; rating: number; comment: string | null; profiles?: { full_name: string | null } | null }) => (
                     <li key={r.id} className="rounded-2xl border border-border p-4">
                       <div className="flex items-center justify-between">
                         <p className="font-semibold">{r.profiles?.full_name ?? "Guest"}</p>
