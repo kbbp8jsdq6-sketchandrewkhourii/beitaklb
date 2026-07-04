@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
@@ -14,37 +13,12 @@ const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
 export const Route = createFileRoute("/listing/$id")({
   loader: async ({ params }) => {
-    const { data } = await supabase
-      .from("listings")
-      .select("title, description, location, price_weekday, price_weekend, listing_photos(photo_url, display_order)")
-      .eq("id", params.id)
-      .maybeSingle();
-    if (!data)
-      return {
-        meta: null as null | {
-          title: string;
-          description: string;
-          location: string;
-          image: string | null;
-          priceWeekday: number | null;
-          priceWeekend: number | null;
-        },
-      };
-    const photos = (data.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
-    return {
-      meta: {
-        title: data.title,
-        description: data.description,
-        location: data.location,
-        image: photos[0]?.photo_url ?? null,
-        priceWeekday: data.price_weekday != null ? Number(data.price_weekday) : null,
-        priceWeekend: data.price_weekend != null ? Number(data.price_weekend) : null,
-      },
-    };
+    const listing = await fetchListing(params.id);
+    return { listing };
   },
   head: ({ loaderData, params }) => {
-    const m = loaderData?.meta;
-    if (!m) {
+    const listing = loaderData?.listing;
+    if (!listing) {
       return {
         meta: [
           { title: "Listing — Beitak.lb" },
@@ -53,22 +27,26 @@ export const Route = createFileRoute("/listing/$id")({
         ],
       };
     }
-    const title = `${m.title} in ${m.location} | Beitak.lb`;
-    const desc = (m.description ?? `Stay at ${m.title} in ${m.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
+    const title = `${listing.title} in ${listing.location} | Beitak.lb`;
+    const desc = (listing.description ?? `Stay at ${listing.title} in ${listing.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
     const url = `https://beitaklb.com/listing/${params.id}`;
+    const photos = (listing.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order);
+    const image = photos[0]?.photo_url ?? null;
+    const priceWeekday = listing.price_weekday != null ? Number(listing.price_weekday) : null;
+    const priceWeekend = listing.price_weekend != null ? Number(listing.price_weekend) : null;
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": "LodgingBusiness",
-      name: m.title,
+      name: listing.title,
       description: desc,
-      ...(m.image ? { image: m.image } : {}),
+      ...(image ? { image } : {}),
       address: {
         "@type": "PostalAddress",
-        addressLocality: m.location,
+        addressLocality: listing.location,
         addressCountry: "LB",
       },
-      ...(m.priceWeekday != null && m.priceWeekend != null
-        ? { priceRange: `$${m.priceWeekday} - $${m.priceWeekend}` }
+      ...(priceWeekday != null && priceWeekend != null
+        ? { priceRange: `$${priceWeekday} - $${priceWeekend}` }
         : {}),
       url,
     };
@@ -81,7 +59,7 @@ export const Route = createFileRoute("/listing/$id")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "place" },
         { property: "og:url", content: url },
-        ...(m.image ? [{ property: "og:image", content: m.image }, { name: "twitter:image", content: m.image }] : []),
+        ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
       ],
       scripts: [
         {
@@ -164,10 +142,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 function ListingPage() {
   const { id } = useParams({ from: "/listing/$id" });
-  const { data: listing, isLoading } = useQuery({
-    queryKey: ["listing", id],
-    queryFn: () => fetchListing(id),
-  });
+  const { listing } = Route.useLoaderData();
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
@@ -189,25 +164,15 @@ function ListingPage() {
   };
 
   const photos = useMemo(
-    () => (listing?.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order),
+    () => (listing?.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order),
     [listing]
   );
 
   const avgRating = useMemo(() => {
     if (!listing?.reviews?.length) return null;
-    return listing.reviews.reduce((s, r) => s + r.rating, 0) / listing.reviews.length;
+    return listing.reviews.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / listing.reviews.length;
   }, [listing]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="mx-auto max-w-7xl px-4 py-8">
-          <div className="aspect-[16/9] w-full animate-pulse rounded-3xl bg-muted" />
-        </div>
-      </div>
-    );
-  }
   if (!listing) return null;
 
   const heroPhoto = photos[0];
@@ -280,7 +245,7 @@ Could you help me with availability and booking?`;
         {restPhotos.length > 0 && (
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {restPhotos.map((p, i) => (
+              {restPhotos.map((p: { id: string; photo_url: string }, i: number) => (
                 <button
                   key={p.id}
                   onClick={() => setLightboxIdx(i + 1)}
@@ -371,7 +336,7 @@ Could you help me with availability and booking?`;
               <div className="border-b border-border py-6">
                 <h3 className="font-display text-xl">Amenities</h3>
                 <ul className="mt-4 flex flex-wrap gap-2">
-                  {listing.amenities.map((a) => {
+                  {listing.amenities.map((a: string) => {
                     const isBreakfast = a.toLowerCase() === "breakfast included";
                     return (
                       <li
@@ -394,7 +359,7 @@ Could you help me with availability and booking?`;
               <div className="border-t border-border py-6">
                 <h3 className="font-display text-xl">Reviews</h3>
                 <ul className="mt-4 space-y-4">
-                  {listing.reviews.map((r) => (
+                  {listing.reviews.map((r: { id: string; rating: number; comment: string | null; profiles?: { full_name: string | null } | null }) => (
                     <li key={r.id} className="rounded-2xl border border-border p-4">
                       <div className="flex items-center justify-between">
                         <p className="font-semibold">{r.profiles?.full_name ?? "Guest"}</p>
