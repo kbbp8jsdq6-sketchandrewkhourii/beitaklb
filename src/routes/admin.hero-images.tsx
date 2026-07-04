@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin/hero-images")({
 });
 
 const BUCKET = "hero";
-const SIGNED_URL_TTL = 60 * 60 * 24 * 365; // 1 year
+
 
 type HeroFile = { name: string; url: string };
 
@@ -61,7 +61,7 @@ function AdminHeroImagesPage() {
 
   // Ensure bucket exists (idempotent — ignore if already there)
   useEffect(() => {
-    supabase.storage.createBucket(BUCKET, { public: false }).catch(() => {});
+    supabase.storage.createBucket(BUCKET, { public: true }).catch(() => {});
   }, []);
 
   const filesQ = useQuery({
@@ -72,15 +72,10 @@ function AdminHeroImagesPage() {
         .list("", { limit: 200, sortBy: { column: "name", order: "asc" } });
       if (error) throw error;
       const files = (data ?? []).filter((f) => f.name && !f.name.startsWith("."));
-      const signed = await Promise.all(
-        files.map(async (f) => {
-          const { data: s } = await supabase.storage
-            .from(BUCKET)
-            .createSignedUrl(f.name, SIGNED_URL_TTL);
-          return { name: f.name, url: s?.signedUrl ?? "" };
-        }),
-      );
-      return signed;
+      return files.map((f) => {
+        const { data } = supabase.storage.from(BUCKET).getPublicUrl(f.name);
+        return { name: f.name, url: data.publicUrl };
+      });
     },
   });
 
