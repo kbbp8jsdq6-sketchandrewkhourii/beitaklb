@@ -245,7 +245,7 @@ Could you help me with availability and booking?`;
         {restPhotos.length > 0 && (
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {restPhotos.map((p, i) => (
+              {restPhotos.map((p: { id: string; photo_url: string }, i: number) => (
                 <button
                   key={p.id}
                   onClick={() => setLightboxIdx(i + 1)}
