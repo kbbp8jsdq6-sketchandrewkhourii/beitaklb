@@ -142,10 +142,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 function ListingPage() {
   const { id } = useParams({ from: "/listing/$id" });
-  const { data: listing, isLoading } = useQuery({
-    queryKey: ["listing", id],
-    queryFn: () => fetchListing(id),
-  });
+  const { listing } = Route.useLoaderData();
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
@@ -167,25 +164,15 @@ function ListingPage() {
   };
 
   const photos = useMemo(
-    () => (listing?.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order),
+    () => (listing?.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order),
     [listing]
   );
 
   const avgRating = useMemo(() => {
     if (!listing?.reviews?.length) return null;
-    return listing.reviews.reduce((s, r) => s + r.rating, 0) / listing.reviews.length;
+    return listing.reviews.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / listing.reviews.length;
   }, [listing]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="mx-auto max-w-7xl px-4 py-8">
-          <div className="aspect-[16/9] w-full animate-pulse rounded-3xl bg-muted" />
-        </div>
-      </div>
-    );
-  }
   if (!listing) return null;
 
   const heroPhoto = photos[0];
