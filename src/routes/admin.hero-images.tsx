@@ -22,36 +22,6 @@ const BUCKET = "hero";
 
 type HeroFile = { name: string; url: string };
 
-async function compressImage(file: File): Promise<Blob> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const i = new Image();
-      i.onload = () => resolve(i);
-      i.onerror = reject;
-      i.src = url;
-    });
-    const maxW = 1920;
-    const scale = Math.min(1, maxW / img.width);
-    const w = Math.round(img.width * scale);
-    const h = Math.round(img.height * scale);
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Canvas 2D unavailable");
-    ctx.drawImage(img, 0, 0, w, h);
-    return await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
-        "image/webp",
-        0.82,
-      );
-    });
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
 
 function AdminHeroImagesPage() {
   const qc = useQueryClient();
