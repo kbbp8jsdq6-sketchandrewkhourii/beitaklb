@@ -42,8 +42,17 @@ async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   });
 }
 
+async function fetchHeroImages(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("hero_images")
+    .select("url")
+    .order("display_order", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((r) => r.url as string);
+}
+
 export const Route = createFileRoute("/")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
       { title: "Beitak - Find Your Perfect Stay" },
       {
@@ -61,10 +70,24 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
       { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
+    links:
+      loaderData?.heroImages?.[0]
+        ? [
+            {
+              rel: "preload",
+              as: "image",
+              href: loaderData.heroImages[0],
+              fetchpriority: "high",
+            } as unknown as { rel: string; href: string },
+          ]
+        : [],
   }),
   loader: async () => {
-    const featuredListings = await fetchFeaturedListings();
-    return { featuredListings };
+    const [featuredListings, heroImages] = await Promise.all([
+      fetchFeaturedListings(),
+      fetchHeroImages(),
+    ]);
+    return { featuredListings, heroImages };
   },
   component: HomePage,
 });
