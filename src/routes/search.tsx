@@ -48,6 +48,25 @@ export const Route = createFileRoute("/search")({
     links: [{ rel: "canonical", href: "https://beitaklb.com/search" }],
   }),
   validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search }: { search: SearchParams }) => ({ ...search }),
+  loader: async ({ deps }: { deps: SearchParams }) => {
+    const result = await fetchSearchPage(
+      deps.q,
+      deps.district,
+      deps.category as ListingCategory | undefined,
+      deps.bedrooms,
+      deps.bathrooms,
+      deps.amenities,
+      deps.guests,
+      deps.minBudget,
+      deps.maxBudget,
+      deps.sortPrice as SortPrice,
+      deps.location,
+      0,
+      8,
+    );
+    return { initialPage: result };
+  },
   component: SearchPage,
 });
 
@@ -161,6 +180,7 @@ function SearchPage() {
   const { q, district, category, bedrooms, bathrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
+  const loaderResult = Route.useLoaderData();
 
   const selectedAmenities: string[] = amenities ?? [];
 
@@ -224,6 +244,9 @@ function SearchPage() {
     initialPageParam: 0,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
+    initialData: loaderResult?.initialPage
+      ? { pages: [loaderResult.initialPage], pageParams: [0] }
+      : undefined,
   });
 
   const filteredResults = useMemo(

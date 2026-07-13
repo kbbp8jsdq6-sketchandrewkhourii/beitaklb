@@ -25,6 +25,7 @@ export const Route = createFileRoute("/listing/$id")({
           { name: "description", content: "Stay in Lebanon with Beitak." },
           { name: "robots", content: "index, follow" },
         ],
+        links: [{ rel: "canonical", href: `https://beitaklb.com/listing/${params.id}` }],
       };
     }
     const title = `${listing.title} in ${listing.location} | Beitak.lb`;
@@ -61,6 +62,7 @@ export const Route = createFileRoute("/listing/$id")({
         { property: "og:url", content: url },
         ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
       ],
+      links: [{ rel: "canonical", href: url }],
       scripts: [
         {
           type: "application/ld+json",
