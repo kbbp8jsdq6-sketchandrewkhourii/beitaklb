@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MessageCircle, Sparkles, Instagram, ChevronDown, Heart } from "lucide-react";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { Search, MessageCircle, Sparkles, ChevronDown, Heart } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LogoTransparent } from "@/components/LogoTransparent";
@@ -15,6 +14,33 @@ import { SectionDivider } from "@/components/SectionDivider";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
+
+const DesktopHero = lazy(() => import("@/components/home/DesktopHero"));
+
+async function fetchFeaturedListings(): Promise<ListingCardData[]> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
+    .eq("is_active", true)
+    .eq("featured", true)
+    .order("created_at", { ascending: false })
+    .limit(6);
+  if (error) throw error;
+  return (data ?? []).map((l) => {
+    const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
+    return {
+      id: l.id,
+      title: l.title,
+      location: l.location,
+      price_per_night: Number(l.price_per_night),
+      price_weekday: Number(l.price_weekday),
+      price_weekend: Number(l.price_weekend),
+      amenities: l.amenities ?? [],
+      cover: photos[0]?.photo_url ?? null,
+      photos: photos.map((p) => p.photo_url),
+    };
+  });
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,19 +62,23 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
   }),
+  loader: async () => {
+    const featuredListings = await fetchFeaturedListings();
+    return { featuredListings };
+  },
   component: HomePage,
 });
 
 const DISTRICTS = [
-  { name: "Batroun", search: { district: "Batroun" }, bg: "linear-gradient(135deg, #0c2340 0%, #1a4a6e 50%, #2d8a9e 100%)", image: "/batroun.jpg" },
-  { name: "Chouf", search: { district: "Chouf" }, bg: "linear-gradient(135deg, #1a3c2a 0%, #2d5a3d 50%, #5a8a5c 100%)", image: "/chouf.jpg" },
-  { name: "Keserwan", search: { district: "Keserwan" }, bg: "linear-gradient(135deg, #3a2a1a 0%, #6b4423 50%, #a0522d 100%)", image: "/keserwan.jpg" },
-  { name: "North Lebanon", search: { district: "North Lebanon" }, bg: "linear-gradient(135deg, #1a1a3a 0%, #3a3a6a 50%, #5a5a9a 100%)", image: "/north-lebanon.jpg" },
-  { name: "Byblos", search: { district: "Byblos" }, bg: "linear-gradient(135deg, #5a4a2a 0%, #8b7355 50%, #c9a84c 100%)", image: "/byblos.jpg" },
-  { name: "Aley", search: { district: "Aley" }, bg: "linear-gradient(135deg, #2a3c3a 0%, #4a6a5a 50%, #7a9a8a 100%)", image: "/aley.jpg" },
+  { name: "Batroun", search: { district: "Batroun" }, bg: "linear-gradient(135deg, #0c2340 0%, #1a4a6e 50%, #2d8a9e 100%)", image: "/batroun.webp" },
+  { name: "Chouf", search: { district: "Chouf" }, bg: "linear-gradient(135deg, #1a3c2a 0%, #2d5a3d 50%, #5a8a5c 100%)", image: "/chouf.webp" },
+  { name: "Keserwan", search: { district: "Keserwan" }, bg: "linear-gradient(135deg, #3a2a1a 0%, #6b4423 50%, #a0522d 100%)", image: "/keserwan.webp" },
+  { name: "North Lebanon", search: { district: "North Lebanon" }, bg: "linear-gradient(135deg, #1a1a3a 0%, #3a3a6a 50%, #5a5a9a 100%)", image: "/north-lebanon.webp" },
+  { name: "Byblos", search: { district: "Byblos" }, bg: "linear-gradient(135deg, #5a4a2a 0%, #8b7355 50%, #c9a84c 100%)", image: "/byblos.webp" },
+  { name: "Aley", search: { district: "Aley" }, bg: "linear-gradient(135deg, #2a3c3a 0%, #4a6a5a 50%, #7a9a8a 100%)", image: "/aley.webp" },
   { name: "Maten", search: { district: "Maten" }, bg: "linear-gradient(135deg, #3a4a2a 0%, #5a7a4a 50%, #8aaa6a 100%)", image: "/__l5e/assets-v1/16670cbd-70d9-4c38-941d-55f0dd918a2f/maten.jpg" },
-  { name: "Baabda", search: { district: "Baabda" }, bg: "linear-gradient(135deg, #3a2a2a 0%, #5a3a3a 50%, #8b6f5e 100%)", image: "/baabda.jpg" },
-  { name: "Couples", search: { bedrooms: 1 }, bg: "linear-gradient(135deg, #4a1520 0%, #7a2535 50%, #c0392b 100%)", image: "/couples.jpg", icon: true },
+  { name: "Baabda", search: { district: "Baabda" }, bg: "linear-gradient(135deg, #3a2a2a 0%, #5a3a3a 50%, #8b6f5e 100%)", image: "/baabda.webp" },
+  { name: "Couples", search: { bedrooms: 1 }, bg: "linear-gradient(135deg, #4a1520 0%, #7a2535 50%, #c0392b 100%)", image: "/couples.webp", icon: true },
 ];
 
 const STEPS = [
@@ -91,150 +121,22 @@ const FAQS = [
 ];
 
 function HomePage() {
+  const { featuredListings: initialFeatured } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  // Detect mobile to render a static single-layer logo instead of the
-  // expensive 30-layer 3D extrusion. Defaults to false so SSR matches desktop.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 768px), (pointer: coarse)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
-  // Disabled on touch / mobile devices for performance.
-  const magneticRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = magneticRef.current;
-    if (!el) return;
-    if (typeof window === "undefined") return;
-    // Skip magnetic effect entirely on coarse pointer (mobile/tablet) devices.
-    if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const RANGE = 150; // px
-    const STRENGTH = 0.25; // how strongly the logo follows the cursor
-    let rafId = 0;
-    let targetX = 0;
-    let targetY = 0;
-    let currentX = 0;
-    let currentY = 0;
-
-    const animate = () => {
-      // Smooth easing toward target
-      currentX += (targetX - currentX) * 0.12;
-      currentY += (targetY - currentY) * 0.12;
-      el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-      if (Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05) {
-        rafId = requestAnimationFrame(animate);
-      } else {
-        rafId = 0;
-      }
-    };
-
-    const handleMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.hypot(dx, dy);
-      if (dist < RANGE) {
-        // Inside range — fall-off so closer pulls more
-        const falloff = 1 - dist / RANGE;
-        targetX = dx * STRENGTH * falloff;
-        targetY = dy * STRENGTH * falloff;
-      } else {
-        targetX = 0;
-        targetY = 0;
-      }
-      if (!rafId) rafId = requestAnimationFrame(animate);
-    };
-
-    const handleLeave = () => {
-      targetX = 0;
-      targetY = 0;
-      if (!rafId) rafId = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("mousemove", handleMove, { passive: true });
-    window.addEventListener("mouseleave", handleLeave, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseleave", handleLeave);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, []);
-
-  // Hero parallax — translate the slideshow background slower than scroll
-  // for a luxurious, cinematic depth effect. Updates a CSS var on the
-  // element so the actual transform stays GPU-accelerated.
-  // Disabled on mobile / coarse pointers and when the user prefers reduced motion.
-  const heroParallaxRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = heroParallaxRef.current;
-    if (!el) return;
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // Skip parallax on touch / mobile devices for performance.
-    if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) return;
-    let raf = 0;
-    const update = () => {
-      const y = window.scrollY;
-      // Move at 35% of scroll speed — subtle but noticeable.
-      el.style.setProperty("--hero-parallax", `${y * 0.35}px`);
-      raf = 0;
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
 
   const { data: featuredListings = [] } = useQuery({
     queryKey: ["home-featured-listings"],
     staleTime: 2 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order)")
-        .eq("is_active", true)
-        .eq("featured", true)
-        .order("created_at", { ascending: false })
-        .limit(6);
-      if (error) throw error;
-      return (data ?? []).map((l) => {
-        const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
-        return {
-          id: l.id,
-          title: l.title,
-          location: l.location,
-          price_per_night: Number(l.price_per_night),
-          price_weekday: Number(l.price_weekday),
-          price_weekend: Number(l.price_weekend),
-          amenities: l.amenities ?? [],
-          cover: photos[0]?.photo_url ?? null,
-          photos: photos.map((p) => p.photo_url),
-        };
-      });
-    },
+    initialData: initialFeatured,
+    queryFn: fetchFeaturedListings,
   });
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO — full-screen cinematic with subtle parallax (desktop only) */}
-      {isMobile ? (
+      {/* 1. HERO — CSS-driven responsive split; mobile gets lightweight static version, desktop lazy-loads the 3D hero */}
+      <div className="block md:hidden">
         <section className="relative">
           <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
             <HeroSlideshow />
@@ -252,115 +154,12 @@ function HomePage() {
             </div>
           </div>
         </section>
-      ) : (
-        <section className="relative">
-          <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
-            <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
-              <HeroSlideshow />
-            </div>
-            {/* Extra premium dark gradient overlay for cinematic readability */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
-
-
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
-              <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
-                {/* Atmospheric red radial gradient behind the logo only */}
-                <div className="hero-logo-aura" aria-hidden="true" />
-                {/* Floating particles around the logo */}
-                <div className="hero-particles" aria-hidden="true">
-                  {Array.from({ length: 6 }).map((_, i) => {
-                    const isRed = i % 2 === 0;
-                    const size = 4 + ((i * 3) % 5); // 4..8px
-                    const left = (i * 97) % 100;
-                    const delay = (i * 0.7) % 6;
-                    const duration = 5 + ((i * 1.3) % 4); // 5..9s
-                    return (
-                      <span
-                        key={i}
-                        className="hero-particle"
-                        style={{
-                          left: `${left}%`,
-                          width: `${size}px`,
-                          height: `${size}px`,
-                          background: isRed ? "rgba(230,48,48,0.85)" : "rgba(255,255,255,0.85)",
-                          boxShadow: isRed
-                            ? "0 0 8px rgba(230,48,48,0.8)"
-                            : "0 0 8px rgba(255,255,255,0.8)",
-                          animationDelay: `${delay}s`,
-                          animationDuration: `${duration}s`,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
-                  transition={{
-                    duration: 0.9,
-                    ease: [0.22, 1, 0.36, 1],
-                    scale: { type: "spring", stiffness: 120, damping: 12 },
-                  }}
-                >
-                  <div className="hero-logo-float">
-                    <div className="hero-logo-breathe">
-                      <div className="hero-logo-glow">
-                        <div className="hero-logo-stage">
-                          <div className="hero-logo-spin">
-                            {Array.from({ length: 8 }).map((_, i) => {
-                              const total = 8;
-                              const z = (i - (total - 1)) * 1.2;
-                              const darkness = 0.55 + (i / (total - 1)) * 0.45;
-                              const sat = 0.7 + (i / (total - 1)) * 0.3;
-                              return (
-                                <div
-                                  key={i}
-                                  className="hero-logo-layer"
-                                  style={{
-                                    transform: `translateZ(${z}px)`,
-                                    filter: `brightness(${darkness}) saturate(${sat})`,
-                                  }}
-                                  aria-hidden={i !== total - 1}
-                                >
-                                  <LogoTransparent size="hero" />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-              <motion.h1
-                className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-              >
-                Find your perfect stay in Lebanon
-              </motion.h1>
-              <motion.p
-                className="mt-5 max-w-xl text-base text-white/90 sm:text-lg"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-              >
-                Browse unique listings from trusted local hosts.
-              </motion.p>
-              <motion.p
-                className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
-              >
-                Home is closer than you think
-              </motion.p>
-            </div>
-          </div>
-        </section>
-      )}
+      </div>
+      <div className="hidden md:block">
+        <Suspense fallback={null}>
+          <DesktopHero />
+        </Suspense>
+      </div>
 
       {/* CTA BAR — sits below the hero so buttons are never cut off */}
       <section className="relative bg-background">
@@ -408,11 +207,21 @@ function HomePage() {
                   search={d.search}
                   className="group relative block aspect-[4/3] overflow-hidden rounded-2xl"
                 >
-                  {/* Background placeholder */}
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={d.image ? { backgroundImage: `url(${d.image})` } : { background: d.bg }}
-                  />
+                  {/* Photo layer */}
+                  {d.image ? (
+                    <img
+                      src={d.image}
+                      alt={d.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div
+                      className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+                      style={{ background: d.bg }}
+                    />
+                  )}
                   {/* Subtle texture overlay */}
                   <div
                     className="absolute inset-0 opacity-20"
