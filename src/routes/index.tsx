@@ -308,7 +308,7 @@ function HomePage() {
                 <p className="mt-2 text-muted-foreground">Our favorite picks across Lebanon</p>
               </Reveal>
               <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {featuredListings.map((l, i) => (
+                {featuredListings.map((l: ListingCardData, i: number) => (
                   <div key={l.id}>
                     <ListingCard
                       listing={l as ListingCardData}
