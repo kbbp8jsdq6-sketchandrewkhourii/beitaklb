@@ -52,13 +52,6 @@ export const Route = createRootRoute({
       { rel: "canonical", href: "https://beitaklb.com/" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
-      {
-        rel: "preload",
-        as: "image",
-        href: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=55",
-        imagesrcset: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=55 800w",
-        fetchpriority: "high",
-      } as unknown as { rel: string; href: string },
     ],
   }),
   shellComponent: RootShell,
