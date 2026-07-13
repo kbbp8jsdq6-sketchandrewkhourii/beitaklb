@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, MessageCircle, Sparkles, ChevronDown, Heart } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LogoTransparent } from "@/components/LogoTransparent";
@@ -42,8 +42,17 @@ async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   });
 }
 
+async function fetchHeroImages(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("hero_images")
+    .select("url")
+    .order("display_order", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((r) => r.url as string);
+}
+
 export const Route = createFileRoute("/")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
       { title: "Beitak - Find Your Perfect Stay" },
       {
@@ -61,10 +70,24 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
       { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
+    links:
+      loaderData?.heroImages?.[0]
+        ? [
+            {
+              rel: "preload",
+              as: "image",
+              href: loaderData.heroImages[0],
+              fetchpriority: "high",
+            } as unknown as { rel: string; href: string },
+          ]
+        : [],
   }),
   loader: async () => {
-    const featuredListings = await fetchFeaturedListings();
-    return { featuredListings };
+    const [featuredListings, heroImages] = await Promise.all([
+      fetchFeaturedListings(),
+      fetchHeroImages(),
+    ]);
+    return { featuredListings, heroImages };
   },
   component: HomePage,
 });
@@ -121,8 +144,17 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, heroImages } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const { data: featuredListings = [] } = useQuery({
     queryKey: ["home-featured-listings"],
@@ -135,11 +167,11 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO — CSS-driven responsive split; mobile gets lightweight static version, desktop lazy-loads the 3D hero */}
+      {/* 1. HERO — mobile-first: mobile block always mounted; desktop hero only mounted after JS confirms desktop breakpoint */}
       <div className="block md:hidden">
         <section className="relative">
           <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
-            <HeroSlideshow />
+            <HeroSlideshow initialImages={heroImages} />
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
               <LogoTransparent size="hero" />
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
@@ -155,11 +187,13 @@ function HomePage() {
           </div>
         </section>
       </div>
-      <div className="hidden md:block">
-        <Suspense fallback={null}>
-          <DesktopHero />
-        </Suspense>
-      </div>
+      {isDesktop && (
+        <div className="hidden md:block">
+          <Suspense fallback={null}>
+            <DesktopHero initialImages={heroImages} />
+          </Suspense>
+        </div>
+      )}
 
       {/* CTA BAR — sits below the hero so buttons are never cut off */}
       <section className="relative bg-background">

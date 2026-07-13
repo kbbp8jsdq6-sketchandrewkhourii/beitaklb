@@ -16,7 +16,7 @@ const isUnsplash = (u: string) => u.includes("images.unsplash.com");
 const slideUrl = (base: string, w: number, q: number) =>
   isUnsplash(base) ? `${base}&w=${w}&q=${q}` : base;
 
-export function HeroSlideshow() {
+export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = {}) {
   const [index, setIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -31,6 +31,7 @@ export function HeroSlideshow() {
       return (data ?? []).map((r) => r.url as string);
     },
     staleTime: 5 * 60_000,
+    initialData: initialImages && initialImages.length > 0 ? initialImages : undefined,
   });
 
   const BASE_URLS = heroQ.data && heroQ.data.length > 0 ? heroQ.data : FALLBACK_URLS;

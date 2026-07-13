@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { LogoTransparent } from "@/components/LogoTransparent";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 
-export default function DesktopHero() {
+export default function DesktopHero({ initialImages }: { initialImages?: string[] } = {}) {
   // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
   // Disabled on touch / mobile devices for performance.
   const magneticRef = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export default function DesktopHero() {
     <section className="relative">
       <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
         <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
-          <HeroSlideshow />
+          <HeroSlideshow initialImages={initialImages} />
         </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
 
