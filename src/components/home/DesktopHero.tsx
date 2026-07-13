@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { LogoTransparent } from "@/components/LogoTransparent";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 
-export default function DesktopHero() {
+export default function DesktopHero({ initialImages }: { initialImages?: string[] } = {}) {
   // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
   // Disabled on touch / mobile devices for performance.
   const magneticRef = useRef<HTMLDivElement>(null);
