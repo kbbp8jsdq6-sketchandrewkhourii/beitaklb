@@ -73,7 +73,7 @@ function AdminHeroImagesPage() {
           const fileName = `${Date.now()}_${base}.webp`;
           const { error } = await supabase.storage
             .from(BUCKET)
-            .upload(fileName, blob, { upsert: true, contentType: "image/webp" });
+            .upload(fileName, blob, { upsert: true, contentType: "image/webp", cacheControl: "31536000" });
           if (error) throw error;
         } catch (err) {
           toast.error(`Failed to upload ${file.name}: ${(err as Error).message}`);
