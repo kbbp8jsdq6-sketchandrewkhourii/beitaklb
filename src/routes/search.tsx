@@ -180,6 +180,7 @@ function SearchPage() {
   const { q, district, category, bedrooms, bathrooms, amenities, guests, minBudget, maxBudget, sortPrice, location } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const pageSize = usePageSize();
+  const loaderResult = Route.useLoaderData();
 
   const selectedAmenities: string[] = amenities ?? [];
 
@@ -243,6 +244,9 @@ function SearchPage() {
     initialPageParam: 0,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
+    initialData: loaderResult?.initialPage
+      ? { pages: [loaderResult.initialPage], pageParams: [0] }
+      : undefined,
   });
 
   const filteredResults = useMemo(
