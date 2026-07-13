@@ -167,11 +167,11 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO — CSS-driven responsive split; mobile gets lightweight static version, desktop lazy-loads the 3D hero */}
+      {/* 1. HERO — mobile-first: mobile block always mounted; desktop hero only mounted after JS confirms desktop breakpoint */}
       <div className="block md:hidden">
         <section className="relative">
           <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
-            <HeroSlideshow />
+            <HeroSlideshow initialImages={heroImages} />
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
               <LogoTransparent size="hero" />
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
@@ -187,11 +187,13 @@ function HomePage() {
           </div>
         </section>
       </div>
-      <div className="hidden md:block">
-        <Suspense fallback={null}>
-          <DesktopHero />
-        </Suspense>
-      </div>
+      {isDesktop && (
+        <div className="hidden md:block">
+          <Suspense fallback={null}>
+            <DesktopHero initialImages={heroImages} />
+          </Suspense>
+        </div>
+      )}
 
       {/* CTA BAR — sits below the hero so buttons are never cut off */}
       <section className="relative bg-background">
