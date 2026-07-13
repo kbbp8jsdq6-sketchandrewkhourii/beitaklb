@@ -48,6 +48,25 @@ export const Route = createFileRoute("/search")({
     links: [{ rel: "canonical", href: "https://beitaklb.com/search" }],
   }),
   validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search }: { search: SearchParams }) => ({ ...search }),
+  loader: async ({ deps }: { deps: SearchParams }) => {
+    const result = await fetchSearchPage(
+      deps.q,
+      deps.district,
+      deps.category as ListingCategory | undefined,
+      deps.bedrooms,
+      deps.bathrooms,
+      deps.amenities,
+      deps.guests,
+      deps.minBudget,
+      deps.maxBudget,
+      deps.sortPrice as SortPrice,
+      deps.location,
+      0,
+      8,
+    );
+    return { initialPage: result };
+  },
   component: SearchPage,
 });
 
