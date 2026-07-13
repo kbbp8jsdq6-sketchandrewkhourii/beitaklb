@@ -144,8 +144,17 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, heroImages } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const { data: featuredListings = [] } = useQuery({
     queryKey: ["home-featured-listings"],
