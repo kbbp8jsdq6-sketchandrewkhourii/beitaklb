@@ -227,7 +227,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           const path = `${hostId}/${listingId}/${Date.now()}-${i}.webp`;
           const { error: upErr } = await supabase.storage
             .from("listing-photos")
-            .upload(path, blob, { contentType: "image/webp", upsert: false });
+            .upload(path, blob, { contentType: "image/webp", upsert: false, cacheControl: "31536000" });
           if (upErr) throw upErr;
           const { data: pub } = supabase.storage.from("listing-photos").getPublicUrl(path);
           const { error: phErr } = await supabase
