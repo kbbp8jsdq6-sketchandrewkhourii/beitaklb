@@ -102,11 +102,15 @@ export function FindYourUnit() {
     setAmenities((prev) => prev.filter((x) => x !== a));
 
   const handleSearch = () => {
+    const bedrooms = bed === "Any" ? undefined : bed === "5+" ? 5 : Number(bed);
+    const bathrooms = bath === "Any" ? undefined : bath === "5+" ? 5 : Number(bath);
     navigate({
       to: "/search",
       search: {
         q: keyword.trim() || undefined,
         location: city !== "All Cities" ? city : undefined,
+        bedrooms,
+        bathrooms,
         guests: guests > 1 ? guests : undefined,
         minBudget: minBudget > 0 ? minBudget : undefined,
         maxBudget: maxBudget < 2000 ? maxBudget : undefined,
