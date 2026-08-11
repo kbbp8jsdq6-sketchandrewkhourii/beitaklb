@@ -245,9 +245,11 @@ function SearchPage() {
     initialPageParam: 0,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
-    initialData: loaderResult?.initialPage
-      ? { pages: [loaderResult.initialPage], pageParams: [0] }
-      : undefined,
+    initialData:
+      loaderResult?.initialPage &&
+      JSON.stringify(appliedParams) === JSON.stringify(initialAppliedParamsRef.current)
+        ? { pages: [loaderResult.initialPage], pageParams: [0] }
+        : undefined,
   });
 
   const filteredResults = useMemo(
