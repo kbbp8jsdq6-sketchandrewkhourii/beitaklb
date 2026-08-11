@@ -27,7 +27,7 @@ function FavoritesPage() {
       const { data, error } = await supabase
         .from("favorites")
         .select(
-          "listing_id, listings(id, title, location, price_per_night, price_weekday, price_weekend, amenities, listing_photos(photo_url, display_order))",
+          "listing_id, listings(id, title, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, listing_photos(photo_url, display_order))",
         )
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
@@ -45,6 +45,7 @@ function FavoritesPage() {
             price_weekday: Number(l.price_weekday),
             price_weekend: Number(l.price_weekend),
             amenities: l.amenities ?? [],
+            max_guests: l.max_guests ?? null,
             cover: photos[0]?.photo_url ?? null,
             photos: photos.map((p) => p.photo_url),
           };

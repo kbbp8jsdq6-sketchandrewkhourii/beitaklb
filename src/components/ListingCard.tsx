@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { MapPin, Star, Instagram, Heart, Coffee, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Star, Instagram, Heart, Coffee, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { saveListingReturnState } from "@/lib/listing-return";
@@ -9,6 +9,7 @@ export interface ListingCardData {
   id: string;
   title: string;
   location: string;
+  max_guests?: number | null;
   /** Lower of weekday/weekend (used for "From $X / night" display). */
   price_per_night: number;
   price_weekday?: number | null;
@@ -282,6 +283,13 @@ export function ListingCard({
           <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3 w-3" />
             {listing.location}
+            {listing.max_guests != null && (
+              <>
+                <span className="mx-1.5 h-3 w-px shrink-0 bg-border" />
+                <Users className="h-3 w-3 shrink-0" />
+                <span>{listing.max_guests}</span>
+              </>
+            )}
           </p>
           <p className="mt-1.5 text-sm">
             <span className="text-muted-foreground">From </span>

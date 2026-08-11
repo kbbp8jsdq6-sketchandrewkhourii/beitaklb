@@ -199,6 +199,7 @@ async function fetchSearchPage(
       price_weekday: Number(l.price_weekday),
       price_weekend: Number(l.price_weekend),
       amenities: l.amenities ?? [],
+      max_guests: l.max_guests ?? null,
       category: l.category as ListingCategory,
       cover: photos[0]?.photo_url ?? null,
       photos: photos.map((p: any) => p.photo_url),
