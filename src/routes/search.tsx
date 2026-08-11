@@ -415,7 +415,7 @@ function SearchPage() {
               <button type="button" onClick={() => setLocalBedrooms((b) => Math.max(0, b - 1))} disabled={localBedrooms <= 0} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary disabled:opacity-40">
                 <Minus className="h-3 w-3" />
               </button>
-              <span className="w-4 text-center text-sm font-bold">{localBedrooms === 0 ? "Any" : localBedrooms}</span>
+              <span className="min-w-[28px] text-center text-sm font-bold whitespace-nowrap">{localBedrooms === 0 ? "Any" : localBedrooms}</span>
               <button type="button" onClick={() => setLocalBedrooms((b) => Math.min(20, b + 1))} className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted transition hover:border-primary hover:text-primary">
                 <Plus className="h-3 w-3" />
               </button>
