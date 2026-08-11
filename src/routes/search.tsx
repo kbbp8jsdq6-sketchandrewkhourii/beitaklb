@@ -93,6 +93,43 @@ function usePageSize(): number {
   return size;
 }
 
+function applyListingFilters(
+  qb: any,
+  q: string | undefined,
+  district: string | undefined,
+  category: ListingCategory | undefined,
+  bedrooms: number | undefined,
+  bathrooms: number | undefined,
+  selectedAmenities: string[],
+  minBudget: number,
+  maxBudget: number,
+  location: string | undefined,
+) {
+  let query = qb.eq("is_active", true);
+  if (category) query = query.eq("category", category);
+  if (bedrooms != null && bedrooms > 0) query = query.eq("bedrooms", bedrooms);
+  if (bathrooms != null && bathrooms > 0) query = query.eq("bathrooms", bathrooms);
+  if (district) query = query.eq("district", district);
+  if (q) {
+    const term = q.replace(/[%,]/g, " ");
+    query = query.or(
+      `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`,
+    );
+  }
+  if (selectedAmenities.length > 0) {
+    query = query.contains("amenities", selectedAmenities);
+  }
+  query = query.gte("price_weekday", minBudget).lte("price_weekday", maxBudget);
+  if (location) query = query.ilike("location", `${location}%`);
+  return query;
+}
+
+function getGuestCapacityRange(guests: number): { min: number; max: number } | null {
+  if (guests <= 1) return null;
+  const cap = guests <= 8 ? Math.floor(guests * 1.7) : Math.floor(guests * 1.5);
+  return { min: guests, max: cap };
+}
+
 async function fetchSearchPage(
   q: string | undefined,
   district: string | undefined,
@@ -108,32 +145,37 @@ async function fetchSearchPage(
   offset: number,
   pageSize: number,
 ): Promise<PageResult> {
-  let query = supabase
-    .from("listings")
-    .select(
-      "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, bedrooms, listing_photos(photo_url, display_order)",
-    )
-    .eq("is_active", true);
+  const selectCols =
+    "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, bedrooms, listing_photos(photo_url, display_order)";
 
-  if (category) query = query.eq("category", category);
-  if (bedrooms != null && bedrooms > 0) query = query.eq("bedrooms", bedrooms);
-  if (bathrooms != null && bathrooms > 0) query = query.eq("bathrooms", bathrooms);
-  if (district) query = query.eq("district", district);
-  if (q) {
-    const term = q.replace(/[%,]/g, " ");
-    query = query.or(
-      `title.ilike.%${term}%,location.ilike.%${term}%,description.ilike.%${term}%,amenities.cs.{${term}}`,
-    );
+  const guestRange = getGuestCapacityRange(guests);
+  let usedFallback = false;
+
+  if (guestRange) {
+    const countQuery = applyListingFilters(
+      supabase.from("listings").select("id", { count: "exact", head: true }),
+      q, district, category, bedrooms, bathrooms, selectedAmenities, minBudget, maxBudget, location,
+    ).gte("max_guests", guestRange.min).lte("max_guests", guestRange.max);
+    const { count } = await countQuery;
+    if (!count) usedFallback = true;
   }
-  if (selectedAmenities.length > 0) {
-    query = query.contains("amenities", selectedAmenities);
+
+  let query = applyListingFilters(
+    supabase.from("listings").select(selectCols),
+    q, district, category, bedrooms, bathrooms, selectedAmenities, minBudget, maxBudget, location,
+  );
+
+  if (guestRange) {
+    if (usedFallback) {
+      query = query.lt("max_guests", guestRange.min);
+    } else {
+      query = query.gte("max_guests", guestRange.min).lte("max_guests", guestRange.max);
+    }
   }
-  if (guests > 1) query = query.gte("max_guests", guests);
-  query = query.gte("price_weekday", minBudget).lte("price_weekday", maxBudget);
-  if (location) query = query.ilike("location", `${location}%`);
 
   if (sortPrice === "asc") query = query.order("price_weekday", { ascending: true });
   else if (sortPrice === "desc") query = query.order("price_weekday", { ascending: false });
+  else if (usedFallback) query = query.order("max_guests", { ascending: false });
   else query = query.order("created_at", { ascending: false });
 
   const { data, error } = await query.range(offset, offset + pageSize - 1);
