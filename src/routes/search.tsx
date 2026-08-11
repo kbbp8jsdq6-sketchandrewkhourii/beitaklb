@@ -181,15 +181,15 @@ async function fetchSearchPage(
   const { data, error } = await query.range(offset, offset + pageSize - 1);
   if (error) throw error;
 
-  const rows = (data ?? []).filter((l) => {
+  const rows = (data ?? []).filter((l: any) => {
     if (selectedAmenities.length === 0) return true;
     const unitAmenities = (l.amenities ?? []).map((a: string) => a.toLowerCase().trim());
     return selectedAmenities.every((a) =>
       unitAmenities.includes(a.toLowerCase().trim())
     );
   });
-  const results: SearchListing[] = rows.map((l) => {
-    const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
+  const results: SearchListing[] = rows.map((l: any) => {
+    const photos = (l.listing_photos ?? []).slice().sort((a: any, b: any) => a.display_order - b.display_order);
     return {
       id: l.id,
       title: l.title,
@@ -201,7 +201,7 @@ async function fetchSearchPage(
       amenities: l.amenities ?? [],
       category: l.category as ListingCategory,
       cover: photos[0]?.photo_url ?? null,
-      photos: photos.map((p) => p.photo_url),
+      photos: photos.map((p: any) => p.photo_url),
     };
   });
 
