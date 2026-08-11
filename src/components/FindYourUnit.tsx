@@ -144,7 +144,7 @@ export function FindYourUnit() {
             Find It. Book It. Love It
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Search by keyword, city, size, amenities and budget — all in one place.
+            Search by keyword, city, size, amenities and budget - all in one place.
           </p>
         </div>
 
