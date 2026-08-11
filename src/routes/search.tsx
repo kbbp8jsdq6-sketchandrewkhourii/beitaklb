@@ -204,6 +204,7 @@ function SearchPage() {
     category,
     bathrooms: bathrooms ?? 0,
   });
+  const initialAppliedParamsRef = useRef(appliedParams);
   const maxPrice = 2000;
   const resultsRef = useRef<HTMLDivElement>(null);
 
