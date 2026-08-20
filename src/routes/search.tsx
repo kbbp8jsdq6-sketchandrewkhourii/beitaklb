@@ -371,21 +371,23 @@ function SearchPage() {
         <div className="mt-6 rounded-2xl border border-border bg-card p-4 space-y-4">
           {/* Row 1: Location + Guests + Sort + Apply */}
           <div className="flex flex-wrap items-center gap-3">
-            {/* Location dropdown */}
-            <div className="relative min-w-[200px] flex-1">
-              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
-              <select
-                value={localLocation}
-                onChange={(e) => setLocalLocation(e.target.value)}
-                className="h-10 w-full appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">All Locations</option>
-                {locationPool.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
+            {/* Location dropdown — hidden when browsing a specific district */}
+            {!district && (
+              <div className="relative min-w-[200px] flex-1">
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
+                <select
+                  value={localLocation}
+                  onChange={(e) => setLocalLocation(e.target.value)}
+                  className="h-10 w-full appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="">All Locations</option>
+                  {locationPool.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              </div>
+            )}
 
             {/* Guests stepper */}
             <div className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-3">
