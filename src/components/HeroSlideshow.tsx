@@ -45,21 +45,19 @@ export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = 
   }, []);
 
   useEffect(() => {
-    if (isMobile) return;
     if (BASE_URLS.length < 2) return;
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % BASE_URLS.length);
-    }, 6000);
+    }, 4500);
     return () => window.clearInterval(id);
-  }, [isMobile, BASE_URLS.length]);
+  }, [BASE_URLS.length]);
 
   // Preload next slide for smoother crossfade
   useEffect(() => {
-    if (isMobile) return;
     if (BASE_URLS.length < 2) return;
     const next = (index + 1) % BASE_URLS.length;
     const img = new Image();
-    img.src = slideUrl(BASE_URLS[next], 1920, 75);
+    img.src = isMobile ? slideUrl(BASE_URLS[next], 480, 40) : slideUrl(BASE_URLS[next], 1920, 75);
   }, [index, isMobile, BASE_URLS]);
 
   // Keep index in range if list shrinks
@@ -72,49 +70,35 @@ export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = 
   return (
     <>
       <div className="absolute inset-0 overflow-hidden bg-foreground">
-        {isMobile ? (
-          <img
-            src={slideUrl(BASE_URLS[0], 480, 40)}
+        <AnimatePresence mode="sync">
+          <motion.img
+            key={currentBase}
+            src={isMobile ? slideUrl(currentBase, 480, 40) : slideUrl(currentBase, 1920, 75)}
+            srcSet={
+              !isMobile && isUnsplash(currentBase)
+                ? `${slideUrl(currentBase, 1200, 70)} 1200w, ${slideUrl(currentBase, 1920, 75)} 1920w`
+                : undefined
+            }
+            sizes={isMobile ? "480px" : "1920px"}
             alt=""
             aria-hidden="true"
             decoding="async"
-            loading="eager"
-            fetchPriority="high"
-            crossOrigin="anonymous"
-            width={480}
-            height={360}
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "low"}
+            crossOrigin={isMobile ? "anonymous" : undefined}
+            width={isMobile ? 480 : 1920}
+            height={isMobile ? 360 : 1280}
             className="absolute inset-0 h-full w-full object-cover"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ opacity: { duration: 1.2, ease: "easeInOut" } }}
           />
-        ) : (
-          <AnimatePresence mode="sync">
-            <motion.img
-              key={currentBase}
-              src={slideUrl(currentBase, 1920, 75)}
-              srcSet={
-                isUnsplash(currentBase)
-                  ? `${slideUrl(currentBase, 1200, 70)} 1200w, ${slideUrl(currentBase, 1920, 75)} 1920w`
-                  : undefined
-              }
-              sizes="1920px"
-              alt=""
-              aria-hidden="true"
-              decoding="async"
-              loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : "low"}
-              width={1920}
-              height={1280}
-              className="absolute inset-0 h-full w-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ opacity: { duration: 1.2, ease: "easeInOut" } }}
-            />
-          </AnimatePresence>
-        )}
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/70" />
       </div>
 
-      {!isMobile && BASE_URLS.length > 1 && (
+      {BASE_URLS.length > 1 && (
         <div className="pointer-events-auto absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
           {BASE_URLS.map((_, i) => (
             <button
