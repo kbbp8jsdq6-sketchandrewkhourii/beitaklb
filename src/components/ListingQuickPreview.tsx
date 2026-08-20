@@ -27,24 +27,10 @@ export function ListingQuickPreview({
   open: boolean;
   onClose: () => void;
 }) {
+  const [reserveOpen, setReserveOpen] = useState(false);
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const listingUrl = listing ? `${origin}/listing/${listing.id}` : "";
-  const message = listing
-    ? `Hi Beitak! 👋
 
-I'm interested in the following listing:
-
-🏠 *${listing.title}*
-📍 *${listing.location}*
-💰 Weekday: $${listing.price_weekday ?? listing.price_per_night} / night | Weekend: $${listing.price_weekend ?? listing.price_per_night} / night
-
-⚠️ I understand prices may vary on public holidays and that the final price is confirmed after inquiry.
-
-View listing: ${listingUrl}
-
-Could you help me with availability and booking?`
-    : "";
-  const whatsappURL = `https://wa.me/96181160435?text=${encodeURIComponent(message)}`;
 
   return (
     <AnimatePresence>
