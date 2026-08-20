@@ -147,6 +147,8 @@ function ListingPage() {
   const { listing } = Route.useLoaderData();
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [reserveOpen, setReserveOpen] = useState(false);
+
 
   // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
   useEffect(() => {
