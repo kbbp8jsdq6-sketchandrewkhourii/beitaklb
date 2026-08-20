@@ -423,15 +423,15 @@ function ListingPage() {
             </p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">Up to {listing.max_guests} guests</p>
           </div>
-          <a
-            href={whatsappURL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setReserveOpen(true)}
             className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             <WhatsAppIcon className="h-4 w-4" />
             Reserve
-          </a>
+          </button>
+
         </div>
         <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
           <p>⚠️ Prices may vary on public holidays and special occasions</p>
