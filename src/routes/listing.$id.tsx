@@ -389,17 +389,17 @@ function ListingPage() {
                   <p className="text-sm font-semibold">{listing.profiles?.full_name ?? "Host"}</p>
                 </div>
               </div>
-              <a
-                href={whatsappURL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => setReserveOpen(true)}
                 className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-70"
               >
                 <>
                   <WhatsAppIcon className="h-5 w-5" />
                   Reserve via WhatsApp
                 </>
-              </a>
+              </button>
+
               <div className="mt-3 space-y-1 text-sm text-muted-foreground">
                 <p>⚠️ Prices may vary on public holidays and special occasions</p>
                 <p>✅ Final price is confirmed after inquiry with the host</p>
