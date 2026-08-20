@@ -453,6 +453,18 @@ function ListingPage() {
           onNext={() => setLightboxIdx((i) => (i === null ? 0 : (i + 1) % photos.length))}
         />
       )}
+
+      <ReserveDetailsModal
+        open={reserveOpen}
+        onCancel={() => setReserveOpen(false)}
+        listingTitle={listing.title}
+        listingLocation={listing.location}
+        priceWeekday={listing.price_weekday != null ? Number(listing.price_weekday) : null}
+        priceWeekend={listing.price_weekend != null ? Number(listing.price_weekend) : null}
+        listingUrl={listingUrl}
+        defaultGuests={listing.max_guests ?? 1}
+      />
+
     </div>
   );
 }
