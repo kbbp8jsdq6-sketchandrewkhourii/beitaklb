@@ -105,22 +105,32 @@ Could you help me with availability and booking?`
 >
   View full listing
 </Link>
-                <a
-                  href={whatsappURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setReserveOpen(true)}
                   className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
                 >
                   <>
                     <WhatsAppIcon className="h-4 w-4" />
                     Reserve
                   </>
-                </a>
+                </button>
               </div>
             </div>
           </motion.div>
+          <ReserveDetailsModal
+            open={reserveOpen}
+            onCancel={() => setReserveOpen(false)}
+            listingTitle={listing.title}
+            listingLocation={listing.location}
+            priceWeekday={listing.price_weekday ?? listing.price_per_night ?? null}
+            priceWeekend={listing.price_weekend ?? listing.price_per_night ?? null}
+            listingUrl={listingUrl}
+            defaultGuests={listing.max_guests ?? 1}
+          />
         </motion.div>
       )}
     </AnimatePresence>
+
   );
 }
