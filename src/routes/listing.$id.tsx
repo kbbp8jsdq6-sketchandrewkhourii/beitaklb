@@ -179,18 +179,8 @@ function ListingPage() {
 
   const heroPhoto = photos[0];
   const restPhotos = photos.slice(1);
-  const message = `Hi Beitak! 👋
+  const listingUrl = `https://beitaklb.com/listing/${id}`;
 
-I'm interested in the following listing:
-
-🏠 *${listing.title}*
-📍 *${listing.location}*
-💰 Weekday: $${listing.price_weekday} / night | Weekend: $${listing.price_weekend} / night
-
-⚠️ I understand prices may vary on public holidays and that the final price is confirmed after inquiry.
-
-Could you help me with availability and booking?`;
-  const whatsappURL = `https://wa.me/96181160435?text=${encodeURIComponent(message)}`;
 
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
