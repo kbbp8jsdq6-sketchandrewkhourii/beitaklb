@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, X } from "lucide-react";
 import type { ListingCardData } from "./ListingCard";
+import { ReserveDetailsModal } from "./ReserveDetailsModal";
 import { saveListingReturnState } from "@/lib/listing-return";
+
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} fill="currentColor" aria-hidden="true">
@@ -24,24 +27,10 @@ export function ListingQuickPreview({
   open: boolean;
   onClose: () => void;
 }) {
+  const [reserveOpen, setReserveOpen] = useState(false);
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const listingUrl = listing ? `${origin}/listing/${listing.id}` : "";
-  const message = listing
-    ? `Hi Beitak! 👋
 
-I'm interested in the following listing:
-
-🏠 *${listing.title}*
-📍 *${listing.location}*
-💰 Weekday: $${listing.price_weekday ?? listing.price_per_night} / night | Weekend: $${listing.price_weekend ?? listing.price_per_night} / night
-
-⚠️ I understand prices may vary on public holidays and that the final price is confirmed after inquiry.
-
-View listing: ${listingUrl}
-
-Could you help me with availability and booking?`
-    : "";
-  const whatsappURL = `https://wa.me/96181160435?text=${encodeURIComponent(message)}`;
 
   return (
     <AnimatePresence>
@@ -102,22 +91,32 @@ Could you help me with availability and booking?`
 >
   View full listing
 </Link>
-                <a
-                  href={whatsappURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setReserveOpen(true)}
                   className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-70"
                 >
                   <>
                     <WhatsAppIcon className="h-4 w-4" />
                     Reserve
                   </>
-                </a>
+                </button>
               </div>
             </div>
           </motion.div>
+          <ReserveDetailsModal
+            open={reserveOpen}
+            onCancel={() => setReserveOpen(false)}
+            listingTitle={listing.title}
+            listingLocation={listing.location}
+            priceWeekday={listing.price_weekday ?? listing.price_per_night ?? null}
+            priceWeekend={listing.price_weekend ?? listing.price_per_night ?? null}
+            listingUrl={listingUrl}
+            defaultGuests={listing.max_guests ?? 1}
+          />
         </motion.div>
       )}
     </AnimatePresence>
+
   );
 }

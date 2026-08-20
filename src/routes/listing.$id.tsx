@@ -5,6 +5,8 @@ import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Cof
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { PhotoSlider } from "@/components/PhotoSlider";
+import { ReserveDetailsModal } from "@/components/ReserveDetailsModal";
+
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/integrations/supabase/client";
 import beitakLogo from "@/assets/logo-new.png";
@@ -147,6 +149,8 @@ function ListingPage() {
   const { listing } = Route.useLoaderData();
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [reserveOpen, setReserveOpen] = useState(false);
+
 
   // Record a listing view (fire-and-forget). RLS allows anon + authenticated insert.
   useEffect(() => {
@@ -179,18 +183,8 @@ function ListingPage() {
 
   const heroPhoto = photos[0];
   const restPhotos = photos.slice(1);
-  const message = `Hi Beitak! 👋
+  const listingUrl = `https://beitaklb.com/listing/${id}`;
 
-I'm interested in the following listing:
-
-🏠 *${listing.title}*
-📍 *${listing.location}*
-💰 Weekday: $${listing.price_weekday} / night | Weekend: $${listing.price_weekend} / night
-
-⚠️ I understand prices may vary on public holidays and that the final price is confirmed after inquiry.
-
-Could you help me with availability and booking?`;
-  const whatsappURL = `https://wa.me/96181160435?text=${encodeURIComponent(message)}`;
 
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
@@ -399,17 +393,17 @@ Could you help me with availability and booking?`;
                   <p className="text-sm font-semibold">{listing.profiles?.full_name ?? "Host"}</p>
                 </div>
               </div>
-              <a
-                href={whatsappURL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => setReserveOpen(true)}
                 className="mt-4 inline-flex w-full animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-[0_0_0_0_rgba(230,48,48,0.5)] transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-70"
               >
                 <>
                   <WhatsAppIcon className="h-5 w-5" />
                   Reserve via WhatsApp
                 </>
-              </a>
+              </button>
+
               <div className="mt-3 space-y-1 text-sm text-muted-foreground">
                 <p>⚠️ Prices may vary on public holidays and special occasions</p>
                 <p>✅ Final price is confirmed after inquiry with the host</p>
@@ -433,15 +427,15 @@ Could you help me with availability and booking?`;
             </p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">Up to {listing.max_guests} guests</p>
           </div>
-          <a
-            href={whatsappURL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setReserveOpen(true)}
             className="inline-flex flex-1 animate-[pulse-soft_2.4s_ease-in-out_infinite] items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             <WhatsAppIcon className="h-4 w-4" />
             Reserve
-          </a>
+          </button>
+
         </div>
         <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
           <p>⚠️ Prices may vary on public holidays and special occasions</p>
@@ -459,6 +453,18 @@ Could you help me with availability and booking?`;
           onNext={() => setLightboxIdx((i) => (i === null ? 0 : (i + 1) % photos.length))}
         />
       )}
+
+      <ReserveDetailsModal
+        open={reserveOpen}
+        onCancel={() => setReserveOpen(false)}
+        listingTitle={listing.title}
+        listingLocation={listing.location}
+        priceWeekday={listing.price_weekday != null ? Number(listing.price_weekday) : null}
+        priceWeekend={listing.price_weekend != null ? Number(listing.price_weekend) : null}
+        listingUrl={listingUrl}
+        defaultGuests={listing.max_guests ?? 1}
+      />
+
     </div>
   );
 }
