@@ -71,7 +71,7 @@ function AboutPage() {
                 className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-56 text-[#CC0000] opacity-20 sm:h-72 sm:w-72"
               />
               <div className="relative">
-                <p className="font-serif text-sm font-extrabold uppercase tracking-[0.35em] text-[#CC0000]">
+                <p className="font-serif text-sm font-extrabold uppercase tracking-[0.15em] text-[#CC0000]">
                   Our Mission
                 </p>
                 <h2 className="mt-4 font-display text-3xl leading-tight text-foreground sm:text-4xl">
@@ -80,7 +80,7 @@ function AboutPage() {
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-neutral-900 sm:text-lg">
                   We exist to remove the friction between travelers and the most beautiful homes in
                   Lebanon. From mountain cabins in Bcharre to seaside villas in Tyre, every BEITAK
-                  listing is curated, every host is real, and every booking happens directly — no
+                  listing is curated, every host is real, and every booking happens directly. No
                   middlemen, no surprises.
                 </p>
               </div>
@@ -99,14 +99,14 @@ function AboutPage() {
                 className="pointer-events-none absolute -bottom-6 -right-6 h-56 w-56 text-[#CC0000] opacity-20 sm:h-72 sm:w-72"
               />
               <div className="relative">
-                <p className="font-serif text-sm font-extrabold uppercase tracking-[0.35em] text-[#CC0000]">
+                <p className="font-serif text-sm font-extrabold uppercase tracking-[0.15em] text-[#CC0000]">
                   Our Vision
                 </p>
                 <h2 className="mt-4 font-display text-3xl leading-tight text-foreground sm:text-4xl">
                   Lebanon's most loved stays platform
                 </h2>
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-neutral-900 sm:text-lg">
-                  We see a future where Lebanese hospitality reaches every corner of the world — where
+                  We see a future where Lebanese hospitality reaches every corner of the world, where
                   hosts thrive and travelers fall in love with the country one home at a time. BEITAK
                   is building the platform that makes that future inevitable.
                 </p>
