@@ -57,7 +57,7 @@ function ContactForm() {
     // Silent honeypot drop — pretend success.
     if (payload.website) {
       setName(""); setEmail(""); setPhone(""); setSubject(""); setMessage("");
-      toast.success("Message sent — we'll get back to you soon.");
+      toast.success("Message sent - we'll get back to you soon.");
       return;
     }
 
@@ -82,7 +82,7 @@ function ContactForm() {
       toast.error(friendlyError(error, "We couldn't send your message. Please try again."));
       return;
     }
-    toast.success("Message sent — we'll get back to you soon.");
+    toast.success("Message sent - we'll get back to you soon.");
     setName("");
     setEmail("");
     setPhone("");
@@ -199,7 +199,7 @@ function ContactPage() {
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Contact</p>
           <h1 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">Say hello</h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            We typically reply within a few hours — reach us through any of the channels below.
+            We typically reply within a few hours - reach us through any of the channels below.
           </p>
         </div>
 

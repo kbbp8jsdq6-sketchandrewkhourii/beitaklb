@@ -213,7 +213,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             </datalist>
             <FieldError message={errors.location} />
             <p className="mt-1 text-xs text-muted-foreground">
-              Pick a suggestion or type any new city — it will appear in the search filter automatically.
+              Pick a suggestion or type any new city - it will appear in the search filter automatically.
             </p>
           </div>
 
@@ -247,7 +247,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               onChange={(e) => setDistrict(e.target.value)}
               className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
             >
-              <option value="">— None —</option>
+              <option value="">- None -</option>
               {DISTRICTS.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}

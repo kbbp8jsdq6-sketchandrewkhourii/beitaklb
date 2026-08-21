@@ -28,7 +28,7 @@ export function LogoTransparent({ size = "navbar", className }: LogoTransparentP
   return (
     <img
       src={src}
-      alt="BEITAK — Home is closer than you think"
+      alt="BEITAK - Home is closer than you think"
       width={isHero ? 440 : 120}
       height={isHero ? 280 : 80}
       decoding="async"

@@ -7,7 +7,7 @@ import { getStaticReviewBySlug, getInitials } from "@/lib/static-reviews";
 export const Route = createFileRoute("/profile/$slug")({
   head: ({ params }) => {
     const review = getStaticReviewBySlug(params.slug);
-    const title = review ? `${review.name} — BEITAK` : "Profile — BEITAK";
+    const title = review ? `${review.name} - BEITAK` : "Profile - BEITAK";
     return {
       meta: [
         { title },

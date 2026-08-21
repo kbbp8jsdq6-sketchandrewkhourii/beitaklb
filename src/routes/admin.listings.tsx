@@ -20,7 +20,7 @@ import { AdminListingEditForm } from "@/components/AdminListingEditForm";
 export const Route = createFileRoute("/admin/listings")({
   head: () => ({
     meta: [
-      { title: "Listings — Admin — BEITAK" },
+      { title: "Listings - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -174,7 +174,7 @@ function AdminListingsPage() {
                   </Link>
                 </td>
                 <td className="p-3 text-muted-foreground">
-                  {l.profiles?.full_name ?? "—"}
+                  {l.profiles?.full_name ?? "-"}
                 </td>
                 <td className="p-3 capitalize text-muted-foreground">
                   {l.category}

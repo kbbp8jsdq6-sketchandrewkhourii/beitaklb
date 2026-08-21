@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/admin/approvals")({
   head: () => ({
     meta: [
-      { title: "Approvals — Admin — BEITAK" },
+      { title: "Approvals - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -88,7 +88,7 @@ function AdminApprovalsPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Listing rejected — note saved to host");
+    toast.success("Listing rejected - note saved to host");
     setRejecting(null);
     setRejectionNote("");
     pendingQ.refetch();
@@ -111,7 +111,7 @@ function AdminApprovalsPage() {
       {items.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <p className="text-sm text-muted-foreground">
-            No pending listings — you're all caught up.
+            No pending listings - you're all caught up.
           </p>
         </div>
       ) : (

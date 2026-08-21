@@ -5,7 +5,7 @@ import { AdminSidebar, AdminMobileNav } from "@/components/AdminSidebar";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — BEITAK" },
+      { title: "Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

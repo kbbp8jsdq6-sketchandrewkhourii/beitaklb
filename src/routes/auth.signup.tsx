@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { signupSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/signup")({
-  head: () => ({ meta: [{ title: "Sign up — BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Sign up - BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
   component: SignupPage,
 });
 
@@ -112,7 +112,7 @@ function SignupPage() {
           <Link to="/">
             <img
               src={authLogoBlack}
-              alt="BEITAK — Home is closer than you think"
+              alt="BEITAK - Home is closer than you think"
               width={240}
               height={160}
               decoding="async"

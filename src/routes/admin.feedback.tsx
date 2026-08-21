@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/feedback")({
   head: () => ({
     meta: [
-      { title: "Feedback — Admin — BEITAK" },
+      { title: "Feedback - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

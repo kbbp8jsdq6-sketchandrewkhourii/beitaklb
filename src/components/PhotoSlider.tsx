@@ -91,7 +91,7 @@ export function PhotoSlider({
               >
                 <img
                   src={p.photo_url}
-                  alt={`${alt} — photo ${i + 1}`}
+                  alt={`${alt} - photo ${i + 1}`}
                   className="h-full w-full object-cover"
                   draggable={false}
                   decoding="async"

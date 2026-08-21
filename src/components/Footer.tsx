@@ -31,7 +31,7 @@ export function Footer() {
               {" "}
             </p>
             <p className="mt-3 max-w-xs text-sm text-foreground/70">
-              Discover unique stays across Lebanon — from coastal villas to mountain retreats.
+              Discover unique stays across Lebanon - from coastal villas to mountain retreats.
             </p>
           </div>
 

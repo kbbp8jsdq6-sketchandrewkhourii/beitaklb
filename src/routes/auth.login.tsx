@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { loginSchema, fieldErrors, friendlyError } from "@/lib/validation";
 
 export const Route = createFileRoute("/auth/login")({
-  head: () => ({ meta: [{ title: "Log in — BEITAK" }, { name: "description", content: "Log in to BEITAK to manage your stays in Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Log in - BEITAK" }, { name: "description", content: "Log in to BEITAK to manage your stays in Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
   component: LoginPage,
 });
 
@@ -56,7 +56,7 @@ function LoginPage() {
           <Link to="/">
             <img
               src={authLogoBlack}
-              alt="BEITAK — Home is closer than you think"
+              alt="BEITAK - Home is closer than you think"
               width={240}
               height={160}
               decoding="async"

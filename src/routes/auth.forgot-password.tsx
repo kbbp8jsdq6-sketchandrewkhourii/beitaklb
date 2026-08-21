@@ -13,7 +13,7 @@ import { forgotPasswordSchema, fieldErrors, friendlyError } from "@/lib/validati
 export const Route = createFileRoute("/auth/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Forgot password — BEITAK" },
+      { title: "Forgot password - BEITAK" },
       { name: "description", content: "Reset your BEITAK account password." },
       { name: "robots", content: "noindex, nofollow" },
     ],

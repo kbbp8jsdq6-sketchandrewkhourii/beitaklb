@@ -17,12 +17,12 @@ import { feedbackSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError } f
 export const Route = createFileRoute("/feedback")({
   head: () => ({
     meta: [
-      { title: "Feedback — BEITAK" },
+      { title: "Feedback - BEITAK" },
       {
         name: "description",
         content: "Real feedback from BEITAK guests across Lebanon.",
       },
-      { property: "og:title", content: "Feedback — BEITAK" },
+      { property: "og:title", content: "Feedback - BEITAK" },
       { property: "og:description", content: "What our guests say about BEITAK." },
     ],
   }),

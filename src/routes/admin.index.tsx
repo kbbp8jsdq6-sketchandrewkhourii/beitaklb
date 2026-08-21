@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
-      { title: "Overview — Admin — BEITAK" },
+      { title: "Overview - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -200,7 +200,7 @@ function AdminOverviewPage() {
       </div>
 
       <section className="mt-8 rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-display text-xl">Signups — last 30 days</h2>
+        <h2 className="font-display text-xl">Signups - last 30 days</h2>
         <div className="mt-3 h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={signupTrend}>

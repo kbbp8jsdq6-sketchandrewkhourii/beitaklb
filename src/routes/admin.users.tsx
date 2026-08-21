@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/users")({
   head: () => ({
     meta: [
-      { title: "Users — Admin — BEITAK" },
+      { title: "Users - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -164,9 +164,9 @@ function AdminUsersPage() {
               const role = inferRole(u);
               return (
                 <tr key={u.id} className="border-t border-border">
-                  <td className="p-3 font-medium">{u.full_name ?? "—"}</td>
+                  <td className="p-3 font-medium">{u.full_name ?? "-"}</td>
                   <td className="p-3 text-muted-foreground">
-                    {u.phone ?? "—"}
+                    {u.phone ?? "-"}
                   </td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
