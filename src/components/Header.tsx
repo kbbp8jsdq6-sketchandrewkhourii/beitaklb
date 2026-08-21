@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LogoTransparent } from "./LogoTransparent";
 import { Button } from "./ui/button";
@@ -18,7 +18,6 @@ export function Header() {
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const { pathname } = useLocation();
 
   useEffect(() => {
     let lastY = typeof window !== "undefined" ? window.scrollY : 0;
@@ -46,11 +45,7 @@ export function Header() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link
-          to="/"
-          className={`flex items-center transition-[margin] ${pathname !== "/" ? "ml-11 sm:ml-12" : ""}`}
-          aria-label="BEITAK home"
-        >
+        <Link to="/" className="flex items-center pl-12 sm:pl-2" aria-label="BEITAK home">
           <LogoTransparent size="navbar" />
         </Link>
 
