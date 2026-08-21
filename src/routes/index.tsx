@@ -173,7 +173,7 @@ function HomePage() {
         <section className="relative">
           <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
             <HeroSlideshow initialImages={heroImages} />
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pb-10 text-center">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pb-20 text-center">
               <LogoTransparent size="hero" />
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
                 Find your perfect stay in Lebanon
