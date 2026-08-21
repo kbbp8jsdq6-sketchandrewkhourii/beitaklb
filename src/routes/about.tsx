@@ -17,7 +17,7 @@ export const Route = createFileRoute("/about")({
       {
         property: "og:description",
         content:
-          "Our mission and vision — connecting travelers with the most unique homes across Lebanon.",
+          "Our mission and vision - connecting travelers with the most unique homes across Lebanon.",
       },
       { property: "og:url", content: "https://beitaklb.com/about" },
     ],

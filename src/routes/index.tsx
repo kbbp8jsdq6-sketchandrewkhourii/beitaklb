@@ -62,7 +62,7 @@ export const Route = createFileRoute("/")({
           "Browse unique listings from trusted local hosts across Lebanon. Reserve via WhatsApp and discover stays in Beirut, Byblos, Bcharre and beyond.",
       },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Beitak — Find Your Perfect Stay in Lebanon" },
+      { property: "og:title", content: "Beitak - Find Your Perfect Stay in Lebanon" },
       {
         property: "og:description",
         content: "Browse unique listings from trusted local hosts across Lebanon.",

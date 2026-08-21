@@ -37,7 +37,7 @@ export default function ReviewsSection() {
               </div>
               <blockquote className="mt-4 text-lg text-foreground">"{r.message}"</blockquote>
               <figcaption className="mt-5 text-sm font-semibold text-foreground">
-                —{" "}
+                -{" "}
                 <Link
                   to="/profile/$slug"
                   params={{ slug: r.slug }}

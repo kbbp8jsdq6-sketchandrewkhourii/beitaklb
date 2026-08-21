@@ -8,14 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms & Conditions — Beitak" },
+      { title: "Terms & Conditions - Beitak" },
       {
         name: "description",
         content:
           "Beitak Terms and Conditions: platform role, accounts, listings, intellectual property and liability.",
       },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Terms & Conditions — Beitak" },
+      { property: "og:title", content: "Terms & Conditions - Beitak" },
       { property: "og:description", content: "Beitak terms and conditions." },
       { property: "og:url", content: "https://beitaklb.com/terms" },
     ],

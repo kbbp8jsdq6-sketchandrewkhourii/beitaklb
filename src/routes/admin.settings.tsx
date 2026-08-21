@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Admin — BEITAK" },
+      { title: "Settings - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/listing/$id")({
     if (!listing) {
       return {
         meta: [
-          { title: "Listing — Beitak.lb" },
+          { title: "Listing - Beitak.lb" },
           { name: "description", content: "Stay in Lebanon with Beitak." },
           { name: "robots", content: "index, follow" },
         ],
@@ -249,7 +249,7 @@ function ListingPage() {
                 >
                   <img
                     src={p.photo_url}
-                    alt={`${listing.title} — photo ${i + 2}`}
+                    alt={`${listing.title} - photo ${i + 2}`}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"

@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { User as UserIcon, Trash2, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — BEITAK" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Profile - BEITAK" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ProfilePage,
 });
 
@@ -130,7 +130,7 @@ function ProfilePage() {
             <h2 className="font-display text-2xl">My listings</h2>
           </div>
           {myListings.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">You don't have any listings. Listings on BEITAK are managed by our team — message us on WhatsApp to get yours added.</p>
+            <p className="mt-4 text-sm text-muted-foreground">You don't have any listings. Listings on BEITAK are managed by our team - message us on WhatsApp to get yours added.</p>
           ) : (
             <ul className="mt-4 space-y-3">
               {myListings.map((l) => {

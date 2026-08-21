@@ -155,7 +155,7 @@ export function ListingCard({
                   >
                     <img
                       src={src}
-                      alt={`${listing.title} — photo ${i + 1}`}
+                      alt={`${listing.title} - photo ${i + 1}`}
                       loading={i === 0 ? "eager" : "lazy"}
                       decoding="async"
                       draggable={false}

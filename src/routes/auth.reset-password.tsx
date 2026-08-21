@@ -12,7 +12,7 @@ import { resetPasswordSchema, fieldErrors, friendlyError } from "@/lib/validatio
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — BEITAK" },
+      { title: "Reset password - BEITAK" },
       { name: "description", content: "Set a new password for your BEITAK account." },
       { name: "robots", content: "noindex, nofollow" },
     ],

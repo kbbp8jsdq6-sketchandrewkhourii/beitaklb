@@ -27,7 +27,7 @@ export function Logo({ size = "md", className }: LogoProps) {
   return (
     <img
       src={logoSrc}
-      alt="BEITAK — Home is closer than you think"
+      alt="BEITAK - Home is closer than you think"
       className={cn(sizeMap[size], "h-auto object-contain", className)}
     />
   );

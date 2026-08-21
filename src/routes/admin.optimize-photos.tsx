@@ -9,7 +9,7 @@ import { compressImage } from "@/lib/image-compress";
 export const Route = createFileRoute("/admin/optimize-photos")({
   head: () => ({
     meta: [
-      { title: "Optimize Photos — Admin — BEITAK" },
+      { title: "Optimize Photos - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -212,7 +212,7 @@ function OptimizePhotosPage() {
               <div>
                 <div className="text-muted-foreground">Saved</div>
                 <div className="font-medium text-green-600">
-                  {saved > 0 ? fmtBytes(saved) : "—"}
+                  {saved > 0 ? fmtBytes(saved) : "-"}
                 </div>
               </div>
             </div>
@@ -220,7 +220,7 @@ function OptimizePhotosPage() {
 
           {done && errors.length === 0 ? (
             <p className="rounded-xl border border-dashed p-4 text-sm text-green-600">
-              Done — all remaining photos optimized.
+              Done - all remaining photos optimized.
             </p>
           ) : null}
 

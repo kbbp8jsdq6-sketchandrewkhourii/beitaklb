@@ -42,7 +42,7 @@ export const Route = createFileRoute("/search")({
       { name: "description", content: "Browse unique guesthouses, villas, cabins and apartments across Lebanon. Filter by city to find your perfect Lebanese stay." },
       { name: "robots", content: "index, follow" },
       { property: "og:title", content: "Browse Listings in Lebanon | Beitak" },
-      { property: "og:description", content: "Browse unique stays across Lebanon — from Beirut to Bcharre." },
+      { property: "og:description", content: "Browse unique stays across Lebanon - from Beirut to Bcharre." },
       { property: "og:url", content: "https://beitaklb.com/search" },
     ],
     links: [{ rel: "canonical", href: "https://beitaklb.com/search" }],

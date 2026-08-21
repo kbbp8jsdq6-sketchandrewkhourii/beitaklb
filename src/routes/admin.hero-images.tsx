@@ -10,7 +10,7 @@ import { compressImage } from "@/lib/image-compress";
 export const Route = createFileRoute("/admin/hero-images")({
   head: () => ({
     meta: [
-      { title: "Hero Images — Admin — BEITAK" },
+      { title: "Hero Images - Admin - BEITAK" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -118,7 +118,7 @@ function AdminHeroImagesPage() {
         const { error: insErr } = await supabase.from("hero_images").insert(rows);
         if (insErr) throw insErr;
       }
-      toast.success("Order saved — homepage slideshow updated");
+      toast.success("Order saved - homepage slideshow updated");
     } catch (err) {
       toast.error((err as Error).message);
     } finally {

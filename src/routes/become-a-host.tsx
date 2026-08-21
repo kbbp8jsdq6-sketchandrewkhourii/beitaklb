@@ -6,7 +6,7 @@ import { MessageCircle, Sparkles, ShieldCheck, Users } from "lucide-react";
 export const Route = createFileRoute("/become-a-host")({
   head: () => ({
     meta: [
-      { title: "Become a host — BEITAK" },
+      { title: "Become a host - BEITAK" },
       {
         name: "description",
         content:
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/become-a-host")({
 
 const PERKS = [
   { icon: Users, title: "Reach travelers", desc: "Get discovered by guests across Lebanon and beyond." },
-  { icon: ShieldCheck, title: "No fees", desc: "Bookings happen direct via WhatsApp — no commissions." },
+  { icon: ShieldCheck, title: "No fees", desc: "Bookings happen direct via WhatsApp - no commissions." },
   { icon: Sparkles, title: "Curated platform", desc: "Each listing is personally onboarded by our team." },
 ];
 
@@ -45,7 +45,7 @@ function BecomeHostPage() {
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
             List your villa, cabin, or apartment on BEITAK. Our team handles onboarding so your
-            listing looks its best — you handle the welcomes.
+            listing looks its best - you handle the welcomes.
           </p>
           <a
             href={`https://wa.me/96181160435?text=${message}`}
