@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -495,6 +495,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reservation_clicks: {
+        Row: {
+          backup_date: string | null
+          created_at: string
+          guests: number
+          id: string
+          listing_id: string
+          requested_date: string | null
+        }
+        Insert: {
+          backup_date?: string | null
+          created_at?: string
+          guests?: number
+          id?: string
+          listing_id: string
+          requested_date?: string | null
+        }
+        Update: {
+          backup_date?: string | null
+          created_at?: string
+          guests?: number
+          id?: string
+          listing_id?: string
+          requested_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_clicks_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
