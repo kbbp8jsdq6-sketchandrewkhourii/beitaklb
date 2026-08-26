@@ -31,6 +31,7 @@ function formatDate(iso: string): string {
 export function ReserveDetailsModal({
   open,
   onCancel,
+  listingId,
   listingTitle,
   listingLocation,
   priceWeekday,
@@ -78,6 +79,20 @@ export function ReserveDetailsModal({
     ];
     const number = (phoneNumber ?? WHATSAPP_NUMBER).replace(/[^\d]/g, "");
     const url = `https://wa.me/${number}?text=${encodeURIComponent(lines.join("\n"))}`;
+
+    // Fire-and-forget: log the reservation click without blocking navigation.
+    supabase
+      .from("reservation_clicks")
+      .insert({
+        listing_id: listingId,
+        guests,
+        requested_date: date,
+        backup_date: altDate || null,
+      })
+      .then(({ error }) => {
+        if (error) console.error("Failed to log reservation click:", error);
+      });
+
     window.open(url, "_blank", "noopener,noreferrer");
     onCancel();
   };
