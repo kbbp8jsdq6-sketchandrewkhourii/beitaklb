@@ -217,7 +217,7 @@ function AdminOverviewPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
         <StatCard
           icon={HomeIcon}
           label="Total listings"
@@ -235,6 +235,11 @@ function AdminOverviewPage() {
           icon={ClipboardList}
           label="New this month"
           value={newThisMonth}
+        />
+        <StatCard
+          icon={MousePointerClick}
+          label="Reservation clicks"
+          value={reservationClicksCountQ.data ?? 0}
         />
       </div>
 
