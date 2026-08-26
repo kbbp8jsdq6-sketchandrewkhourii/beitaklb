@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 interface Props {
   open: boolean;
   onCancel: () => void;
+  listingId: string;
   listingTitle: string;
   listingLocation: string;
   priceWeekday: number | null;
