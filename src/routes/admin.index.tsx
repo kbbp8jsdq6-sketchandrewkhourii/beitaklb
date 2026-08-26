@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Users, Home as HomeIcon, UserCheck, ClipboardList, Eye, Heart } from "lucide-react";
+import { Users, Home as HomeIcon, UserCheck, ClipboardList, Eye, Heart, MousePointerClick } from "lucide-react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -129,6 +129,45 @@ function AdminOverviewPage() {
     },
   });
 
+  // Reservation clicks (total + most reserved)
+  const reservationClicksQ = useQuery({
+    queryKey: ["admin-overview-reservation-clicks"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reservation_clicks")
+        .select("id, listing_id, created_at");
+      if (error) throw error;
+      const counts = new Map<string, number>();
+      (data ?? []).forEach((c) =>
+        counts.set(c.listing_id, (counts.get(c.listing_id) ?? 0) + 1),
+      );
+      const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      if (top.length === 0) return [] as { id: string; title: string; clicks: number }[];
+      const { data: titles } = await supabase
+        .from("listings")
+        .select("id, title")
+        .in("id", top.map(([id]) => id));
+      const titleMap = new Map((titles ?? []).map((t) => [t.id, t.title]));
+      return top.map(([id, clicks]) => ({
+        id,
+        title: titleMap.get(id) ?? "(deleted)",
+        clicks,
+      }));
+    },
+  });
+
+  // Total reservation click count (separate fetch for the stat card)
+  const reservationClicksCountQ = useQuery({
+    queryKey: ["admin-overview-reservation-clicks-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("reservation_clicks")
+        .select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
   const profiles = usersQ.data ?? [];
   const hostIds = hostIdsQ.data ?? new Set<string>();
   const totalUsers = profiles.length;
@@ -178,7 +217,7 @@ function AdminOverviewPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
         <StatCard
           icon={HomeIcon}
           label="Total listings"
@@ -196,6 +235,11 @@ function AdminOverviewPage() {
           icon={ClipboardList}
           label="New this month"
           value={newThisMonth}
+        />
+        <StatCard
+          icon={MousePointerClick}
+          label="Reservation clicks"
+          value={reservationClicksCountQ.data ?? 0}
         />
       </div>
 
@@ -231,7 +275,7 @@ function AdminOverviewPage() {
         </div>
       </section>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <TopList
           title="Most viewed (last 30 days)"
           icon={Eye}
@@ -250,6 +294,16 @@ function AdminOverviewPage() {
             title: v.title,
             value: v.favorites,
             valueLabel: "favorites",
+          }))}
+        />
+        <TopList
+          title="Most reserved (clicks)"
+          icon={MousePointerClick}
+          items={(reservationClicksQ.data ?? []).map((v) => ({
+            id: v.id,
+            title: v.title,
+            value: v.clicks,
+            valueLabel: "clicks",
           }))}
         />
       </div>

@@ -457,6 +457,7 @@ function ListingPage() {
       <ReserveDetailsModal
         open={reserveOpen}
         onCancel={() => setReserveOpen(false)}
+        listingId={id}
         listingTitle={listing.title}
         listingLocation={listing.location}
         priceWeekday={listing.price_weekday != null ? Number(listing.price_weekday) : null}
