@@ -275,7 +275,7 @@ function AdminOverviewPage() {
         </div>
       </section>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <TopList
           title="Most viewed (last 30 days)"
           icon={Eye}
@@ -294,6 +294,16 @@ function AdminOverviewPage() {
             title: v.title,
             value: v.favorites,
             valueLabel: "favorites",
+          }))}
+        />
+        <TopList
+          title="Most reserved (clicks)"
+          icon={MousePointerClick}
+          items={(reservationClicksQ.data ?? []).map((v) => ({
+            id: v.id,
+            title: v.title,
+            value: v.clicks,
+            valueLabel: "clicks",
           }))}
         />
       </div>
