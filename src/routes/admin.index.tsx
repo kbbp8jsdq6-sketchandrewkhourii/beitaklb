@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Users, Home as HomeIcon, UserCheck, ClipboardList, Eye, Heart } from "lucide-react";
+import { Users, Home as HomeIcon, UserCheck, ClipboardList, Eye, Heart, MousePointerClick } from "lucide-react";
 import {
   ResponsiveContainer,
   BarChart,
