@@ -107,6 +107,7 @@ export function ListingQuickPreview({
           <ReserveDetailsModal
             open={reserveOpen}
             onCancel={() => setReserveOpen(false)}
+            listingId={listing.id}
             listingTitle={listing.title}
             listingLocation={listing.location}
             priceWeekday={listing.price_weekday ?? listing.price_per_night ?? null}
