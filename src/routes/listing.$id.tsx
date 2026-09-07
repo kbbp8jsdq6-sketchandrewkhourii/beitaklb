@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
-import { PhotoSlider } from "@/components/PhotoSlider";
+
 import { ReserveDetailsModal } from "@/components/ReserveDetailsModal";
 
 import { useFavorites } from "@/hooks/useFavorites";
@@ -181,8 +181,6 @@ function ListingPage() {
 
   if (!listing) return null;
 
-  const heroPhoto = photos[0];
-  const restPhotos = photos.slice(1);
   const listingUrl = `https://beitaklb.com/listing/${id}`;
 
 
@@ -190,37 +188,15 @@ function ListingPage() {
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <Header />
 
-      {/* Hero gallery */}
-      <section className="relative w-full">
-        {photos.length > 0 ? (
-          <PhotoSlider
-            photos={photos}
-            alt={listing.title}
-            onPhotoClick={(i) => setLightboxIdx(i)}
-            overlayChildren={
-              photos.length > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setLightboxIdx(0)}
-                  className="absolute bottom-4 left-4 z-10 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-black/85 md:left-1/2 md:-translate-x-1/2 md:bottom-14"
-                >
-                  View all {photos.length} photos
-                </button>
-              ) : null
-            }
-          />
-        ) : (
-          <div className="flex h-[50vh] w-full items-center justify-center bg-muted">
-            <MapPin className="h-16 w-16 text-primary/30" />
-          </div>
-        )}
+      {/* Photo gallery */}
+      <section className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
         {/* Floating favorite button */}
         <button
           type="button"
           onClick={handleFavoriteClick}
           aria-label={isFav ? "Remove from favorites" : "Save to favorites"}
           aria-pressed={isFav}
-          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 text-foreground shadow-lg backdrop-blur transition active:scale-90 hover:bg-background"
+          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 text-foreground shadow-lg backdrop-blur transition active:scale-90 hover:bg-background sm:right-6 lg:right-8"
         >
           <motion.span
             key={isFav ? "fav-on" : "fav-off"}
@@ -237,26 +213,27 @@ function ListingPage() {
           </motion.span>
         </button>
 
-        {/* Thumbnail grid */}
-        {restPhotos.length > 0 && (
-          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 gap-3">
-              {restPhotos.map((p: { id: string; photo_url: string }, i: number) => (
-                <button
-                  key={p.id}
-                  onClick={() => setLightboxIdx(i + 1)}
-                  className="group relative overflow-hidden rounded-2xl bg-muted"
-                >
-                  <img
-                    src={p.photo_url}
-                    alt={`${listing.title} - photo ${i + 2}`}
-                    className="h-auto w-full object-contain transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </button>
-              ))}
-            </div>
+        {photos.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3">
+            {photos.map((p: { id: string; photo_url: string }, i: number) => (
+              <button
+                key={p.id}
+                onClick={() => setLightboxIdx(i)}
+                className="group relative overflow-hidden rounded-2xl bg-muted"
+              >
+                <img
+                  src={p.photo_url}
+                  alt={`${listing.title} - photo ${i + 1}`}
+                  className="h-auto w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  loading={i < 2 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex h-[50vh] w-full items-center justify-center rounded-2xl bg-muted">
+            <MapPin className="h-16 w-16 text-primary/30" />
           </div>
         )}
       </section>
