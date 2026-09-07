@@ -240,17 +240,17 @@ function ListingPage() {
         {/* Thumbnail grid */}
         {restPhotos.length > 0 && (
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3">
               {restPhotos.map((p: { id: string; photo_url: string }, i: number) => (
                 <button
                   key={p.id}
                   onClick={() => setLightboxIdx(i + 1)}
-                  className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted"
+                  className="group relative overflow-hidden rounded-2xl bg-muted"
                 >
                   <img
                     src={p.photo_url}
                     alt={`${listing.title} - photo ${i + 2}`}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="h-auto w-full object-contain transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
                   />
