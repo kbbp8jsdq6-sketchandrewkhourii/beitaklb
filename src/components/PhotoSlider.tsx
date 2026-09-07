@@ -92,7 +92,7 @@ export function PhotoSlider({
                 <img
                   src={p.photo_url}
                   alt={`${alt} - photo ${i + 1}`}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover lg:object-contain"
                   draggable={false}
                   decoding="async"
                   loading={i === 0 ? "eager" : "lazy"}
