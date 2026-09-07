@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
+import { PhotoSlider } from "@/components/PhotoSlider";
 
 import { ReserveDetailsModal } from "@/components/ReserveDetailsModal";
 
@@ -181,6 +182,7 @@ function ListingPage() {
 
   if (!listing) return null;
 
+  const restPhotos = photos.slice(1);
   const listingUrl = `https://beitaklb.com/listing/${id}`;
 
 
@@ -188,8 +190,79 @@ function ListingPage() {
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <Header />
 
-      {/* Photo gallery */}
-      <section className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
+      {/* Hero gallery — mobile & tablet only */}
+      <section className="relative w-full lg:hidden">
+        {photos.length > 0 ? (
+          <PhotoSlider
+            photos={photos}
+            alt={listing.title}
+            onPhotoClick={(i) => setLightboxIdx(i)}
+            overlayChildren={
+              photos.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setLightboxIdx(0)}
+                  className="absolute bottom-4 left-4 z-10 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-black/85 md:left-1/2 md:-translate-x-1/2 md:bottom-14"
+                >
+                  View all {photos.length} photos
+                </button>
+              ) : null
+            }
+          />
+        ) : (
+          <div className="flex h-[50vh] w-full items-center justify-center bg-muted">
+            <MapPin className="h-16 w-16 text-primary/30" />
+          </div>
+        )}
+        {/* Floating favorite button */}
+        <button
+          type="button"
+          onClick={handleFavoriteClick}
+          aria-label={isFav ? "Remove from favorites" : "Save to favorites"}
+          aria-pressed={isFav}
+          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 text-foreground shadow-lg backdrop-blur transition active:scale-90 hover:bg-background"
+        >
+          <motion.span
+            key={isFav ? "fav-on" : "fav-off"}
+            initial={{ scale: 0.7 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 320, damping: 14 }}
+            className="inline-flex"
+          >
+            <Heart
+              className={`h-6 w-6 transition-colors ${
+                isFav ? "fill-primary text-primary" : "text-foreground"
+              }`}
+            />
+          </motion.span>
+        </button>
+
+        {/* Thumbnail grid */}
+        {restPhotos.length > 0 && (
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 gap-3">
+              {restPhotos.map((p: { id: string; photo_url: string }, i: number) => (
+                <button
+                  key={p.id}
+                  onClick={() => setLightboxIdx(i + 1)}
+                  className="group relative overflow-hidden rounded-2xl bg-muted"
+                >
+                  <img
+                    src={p.photo_url}
+                    alt={`${listing.title} - photo ${i + 2}`}
+                    className="h-auto w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Photo gallery — desktop only */}
+      <section className="relative mx-auto hidden max-w-6xl px-4 pt-6 sm:px-6 lg:block lg:px-8">
         {/* Floating favorite button */}
         <button
           type="button"
