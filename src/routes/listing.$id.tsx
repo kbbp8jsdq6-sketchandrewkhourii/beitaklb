@@ -182,6 +182,7 @@ function ListingPage() {
 
   if (!listing) return null;
 
+  const restPhotos = photos.slice(1);
   const listingUrl = `https://beitaklb.com/listing/${id}`;
 
 
