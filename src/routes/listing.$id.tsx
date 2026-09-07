@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
+import { PhotoSlider } from "@/components/PhotoSlider";
 
 import { ReserveDetailsModal } from "@/components/ReserveDetailsModal";
 
