@@ -414,7 +414,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
               {mapError && <p className="mt-1 text-xs text-destructive">{mapError}</p>}
               {latitude != null && longitude != null && (
                 <div className="mt-2">
-                  <LocationPreviewMap latitude={latitude} longitude={longitude} />
+                  <LocationPreviewMap key={`${latitude}-${longitude}`} latitude={latitude} longitude={longitude} />
                 </div>
               )}
             </div>
