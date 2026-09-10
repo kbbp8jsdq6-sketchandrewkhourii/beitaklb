@@ -166,7 +166,7 @@ export function FindYourUnit() {
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Search by name, city, location, description or amenity…"
-                className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-12 w-full rounded-full border border-border bg-background pl-11 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               {keyword.trim().length > 0 && suggestions.length > 0 && (
                 <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border bg-popover shadow-xl">
@@ -204,7 +204,7 @@ export function FindYourUnit() {
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="h-12 w-full appearance-none rounded-full border border-border bg-background pl-11 pr-10 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-12 w-full appearance-none rounded-full border border-border bg-background pl-11 pr-10 text-base text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="All Cities">All Cities</option>
                 {cities.map((c) => (

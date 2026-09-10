@@ -109,7 +109,7 @@ export function SearchBar({ initial, variant = "hero" }: SearchBarProps) {
                 }
               }}
               placeholder="Search by name, city, amenity…"
-              className="bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
           {showDropdown && (

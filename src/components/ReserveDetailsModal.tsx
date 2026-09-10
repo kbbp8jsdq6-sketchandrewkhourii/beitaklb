@@ -98,7 +98,7 @@ export function ReserveDetailsModal({
   };
 
   const inputClass =
-    "w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20";
+    "w-full rounded-full border border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20";
 
   return (
     <AnimatePresence>
