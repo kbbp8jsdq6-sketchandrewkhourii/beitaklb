@@ -89,9 +89,9 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
     setLocationLink(""); setLatitude(null); setLongitude(null); setMapError(null);
   };
 
-  const handleLocateMap = async () => {
+  const resolveMapLink = async (): Promise<{ lat: number; lng: number } | null> => {
     const link = locationLink.trim();
-    if (!link) return;
+    if (!link) return null;
     setLocatingMap(true);
     setMapError(null);
     try {
@@ -104,14 +104,18 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
       if (!res.ok) throw new Error(data.error || "Couldn't read that link");
       setLatitude(data.lat);
       setLongitude(data.lng);
+      return { lat: data.lat, lng: data.lng };
     } catch (err) {
       setLatitude(null);
       setLongitude(null);
       setMapError(err instanceof Error ? err.message : "Couldn't read that link");
+      return null;
     } finally {
       setLocatingMap(false);
     }
   };
+
+  const handleLocateMap = () => { void resolveMapLink(); };
 
   const toggleAmenity = (a: string) =>
     setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
@@ -136,6 +140,16 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+
+    let mapCoords: { lat: number; lng: number } | null =
+      latitude != null && longitude != null ? { lat: latitude, lng: longitude } : null;
+    if (locationLink.trim() && !mapCoords) {
+      mapCoords = await resolveMapLink();
+      if (!mapCoords) {
+        toast.error("Couldn't resolve the map link — fix it or clear the field, then try saving again");
+        return;
+      }
+    }
 
     const cleanTitle = sanitizeLine(title);
     const cleanDesc = stripHtml(description);
@@ -174,8 +188,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         amenities,
         is_active: true,
         location_link: locationLink.trim() || null,
-        latitude,
-        longitude,
+        latitude: mapCoords?.lat ?? null,
+        longitude: mapCoords?.lng ?? null,
         ...({ district: district || null } as Record<string, unknown>),
       };
       const { data: created, error: lErr } = await supabase
