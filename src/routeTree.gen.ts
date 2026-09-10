@@ -39,6 +39,7 @@ import { Route as AdminContactRouteImport } from './routes/admin.contact'
 import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 import { Route as BookingsIdConfirmationRouteImport } from './routes/bookings.$id.confirmation'
+import { Route as ApiPublicResolveMapsLinkRouteImport } from './routes/api/public/resolve-maps-link'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const TermsRoute = TermsRouteImport.update({
@@ -191,6 +192,12 @@ const BookingsIdConfirmationRoute = BookingsIdConfirmationRouteImport.update({
   path: '/bookings/$id/confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicResolveMapsLinkRoute =
+  ApiPublicResolveMapsLinkRouteImport.update({
+    id: '/api/public/resolve-maps-link',
+    path: '/api/public/resolve-maps-link',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -228,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/profile/$slug': typeof ProfileSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
+  '/api/public/resolve-maps-link': typeof ApiPublicResolveMapsLinkRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -260,6 +268,7 @@ export interface FileRoutesByTo {
   '/profile/$slug': typeof ProfileSlugRoute
   '/admin': typeof AdminIndexRoute
   '/bookings': typeof BookingsIndexRoute
+  '/api/public/resolve-maps-link': typeof ApiPublicResolveMapsLinkRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -294,6 +303,7 @@ export interface FileRoutesById {
   '/profile/$slug': typeof ProfileSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
+  '/api/public/resolve-maps-link': typeof ApiPublicResolveMapsLinkRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -329,6 +339,7 @@ export interface FileRouteTypes {
     | '/profile/$slug'
     | '/admin/'
     | '/bookings/'
+    | '/api/public/resolve-maps-link'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
@@ -361,6 +372,7 @@ export interface FileRouteTypes {
     | '/profile/$slug'
     | '/admin'
     | '/bookings'
+    | '/api/public/resolve-maps-link'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
   id:
@@ -394,6 +406,7 @@ export interface FileRouteTypes {
     | '/profile/$slug'
     | '/admin/'
     | '/bookings/'
+    | '/api/public/resolve-maps-link'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
@@ -416,6 +429,7 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   ListingIdRoute: typeof ListingIdRoute
   BookingsIndexRoute: typeof BookingsIndexRoute
+  ApiPublicResolveMapsLinkRoute: typeof ApiPublicResolveMapsLinkRoute
   BookingsIdConfirmationRoute: typeof BookingsIdConfirmationRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
@@ -632,6 +646,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsIdConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/resolve-maps-link': {
+      id: '/api/public/resolve-maps-link'
+      path: '/api/public/resolve-maps-link'
+      fullPath: '/api/public/resolve-maps-link'
+      preLoaderRoute: typeof ApiPublicResolveMapsLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -701,6 +722,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   ListingIdRoute: ListingIdRoute,
   BookingsIndexRoute: BookingsIndexRoute,
+  ApiPublicResolveMapsLinkRoute: ApiPublicResolveMapsLinkRoute,
   BookingsIdConfirmationRoute: BookingsIdConfirmationRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
