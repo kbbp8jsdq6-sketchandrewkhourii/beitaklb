@@ -79,6 +79,21 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const [queryClient] = useState(() => new QueryClient());
+
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) return;
+    const original = viewport.getAttribute("content");
+    if (!original) return;
+    viewport.setAttribute("content", `${original}, maximum-scale=1.0`);
+    const id = window.setTimeout(() => {
+      viewport.setAttribute("content", original);
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [pathname]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
