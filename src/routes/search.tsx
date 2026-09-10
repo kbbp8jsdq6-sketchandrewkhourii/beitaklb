@@ -378,7 +378,7 @@ function SearchPage() {
                 <select
                   value={localLocation}
                   onChange={(e) => setLocalLocation(e.target.value)}
-                  className="h-10 w-full appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="h-10 w-full appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-base text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">All Locations</option>
                   {locationPool.map((c) => (
@@ -436,7 +436,7 @@ function SearchPage() {
                     resetScroll: false,
                   })
                 }
-                className="h-10 appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-10 appearance-none rounded-full border border-border bg-background pl-9 pr-8 text-base text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="none">Sort: Default</option>
                 <option value="asc">Price: Low to High</option>

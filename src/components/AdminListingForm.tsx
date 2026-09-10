@@ -279,7 +279,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               id="district"
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
+              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-base text-foreground"
             >
               <option value="">- None -</option>
               {DISTRICTS.map((d) => (
