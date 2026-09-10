@@ -5,6 +5,7 @@ import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Cof
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { PhotoSlider } from "@/components/PhotoSlider";
+import { LocationPreviewMap } from "@/components/LocationPreviewMap";
 
 import { ReserveDetailsModal } from "@/components/ReserveDetailsModal";
 
@@ -98,7 +99,7 @@ async function fetchListing(id: string) {
     .from("listings")
     .select(`
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
-      amenities, category, host_id, created_at,
+      amenities, category, host_id, created_at, latitude, longitude,
       listing_photos(id, photo_url, display_order),
       reviews(id, rating, comment, created_at, reviewer_id)
     `)
@@ -398,6 +399,17 @@ function ListingPage() {
                     );
                   })}
                 </ul>
+              </div>
+            )}
+            {listing.latitude != null && listing.longitude != null && (
+              <div className="border-b border-border py-6">
+                <h3 className="font-display text-xl">Location</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Exact address shared after booking.
+                </p>
+                <div className="mt-4">
+                  <LocationPreviewMap latitude={listing.latitude} longitude={listing.longitude} className="h-[320px]" />
+                </div>
               </div>
             )}
             {/* Reviews */}
