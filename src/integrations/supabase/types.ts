@@ -380,7 +380,10 @@ export type Database = {
           id: string
           is_active: boolean
           is_couples: boolean | null
+          latitude: number | null
           location: string
+          location_link: string | null
+          longitude: number | null
           max_guests: number
           price_per_night: number
           price_weekday: number
@@ -407,7 +410,10 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_couples?: boolean | null
+          latitude?: number | null
           location: string
+          location_link?: string | null
+          longitude?: number | null
           max_guests?: number
           price_per_night: number
           price_weekday: number
@@ -434,7 +440,10 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_couples?: boolean | null
+          latitude?: number | null
           location?: string
+          location_link?: string | null
+          longitude?: number | null
           max_guests?: number
           price_per_night?: number
           price_weekday?: number
