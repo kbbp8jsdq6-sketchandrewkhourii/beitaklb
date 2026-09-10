@@ -408,7 +408,7 @@ function ListingPage() {
                   Exact address shared after booking.
                 </p>
                 <div className="mt-4">
-                  <LocationPreviewMap latitude={listing.latitude} longitude={listing.longitude} className="h-[320px]" />
+                  <LocationPreviewMap key={listing.id} latitude={listing.latitude} longitude={listing.longitude} className="h-[320px]" />
                 </div>
               </div>
             )}
