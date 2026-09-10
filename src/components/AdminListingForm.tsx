@@ -12,6 +12,7 @@ import { CustomAmenityInput } from "@/components/CustomAmenityInput";
 import { FieldError } from "@/components/FieldError";
 import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 import { compressImage } from "@/lib/image-compress";
+import { LocationPreviewMap } from "@/components/LocationPreviewMap";
 
 const AMENITY_OPTIONS = [
   "Pool",
@@ -73,6 +74,11 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [locationLink, setLocationLink] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locatingMap, setLocatingMap] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const reset = () => {
     setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
@@ -80,6 +86,31 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
     setPriceWeekday(""); setPriceWeekend("");
     setMaxGuests("2"); setBedrooms("1"); setBathrooms("1");
     setAmenities([]); setFiles([]);
+    setLocationLink(""); setLatitude(null); setLongitude(null); setMapError(null);
+  };
+
+  const handleLocateMap = async () => {
+    const link = locationLink.trim();
+    if (!link) return;
+    setLocatingMap(true);
+    setMapError(null);
+    try {
+      const res = await fetch("/api/public/resolve-maps-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: link }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Couldn't read that link");
+      setLatitude(data.lat);
+      setLongitude(data.lng);
+    } catch (err) {
+      setLatitude(null);
+      setLongitude(null);
+      setMapError(err instanceof Error ? err.message : "Couldn't read that link");
+    } finally {
+      setLocatingMap(false);
+    }
   };
 
   const toggleAmenity = (a: string) =>
@@ -142,6 +173,9 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         bathrooms: Number(bathrooms),
         amenities,
         is_active: true,
+        location_link: locationLink.trim() || null,
+        latitude,
+        longitude,
         ...({ district: district || null } as Record<string, unknown>),
       };
       const { data: created, error: lErr } = await supabase
@@ -255,6 +289,30 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             <p className="mt-1 text-xs text-muted-foreground">
               Listings with exactly 1 bedroom are automatically tagged as <span className="font-semibold">Couples</span>.
             </p>
+          </div>
+
+          <div>
+            <Label htmlFor="maplink">Map location (optional)</Label>
+            <div className="mt-1 flex gap-2">
+              <Input
+                id="maplink"
+                value={locationLink}
+                onChange={(e) => { setLocationLink(e.target.value); setMapError(null); }}
+                placeholder="Paste a Google Maps share link…"
+              />
+              <Button type="button" variant="outline" onClick={handleLocateMap} disabled={!locationLink.trim() || locatingMap}>
+                {locatingMap ? "Locating…" : "Preview"}
+              </Button>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Only an approximate pin is shown to guests — never the place name, so they can't look it up directly.
+            </p>
+            {mapError && <p className="mt-1 text-xs text-destructive">{mapError}</p>}
+            {latitude != null && longitude != null && (
+              <div className="mt-2">
+                <LocationPreviewMap latitude={latitude} longitude={longitude} />
+              </div>
+            )}
           </div>
 
           </div>
