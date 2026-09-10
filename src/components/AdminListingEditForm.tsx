@@ -12,6 +12,7 @@ import { CustomAmenityInput } from "@/components/CustomAmenityInput";
 import { FieldError } from "@/components/FieldError";
 import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 import { compressImage } from "@/lib/image-compress";
+import { LocationPreviewMap } from "@/components/LocationPreviewMap";
 
 const AMENITY_OPTIONS = [
   "Pool",
@@ -79,6 +80,11 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const [bedrooms, setBedrooms] = useState("1");
   const [bathrooms, setBathrooms] = useState("1");
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [locationLink, setLocationLink] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locatingMap, setLocatingMap] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>([]);
   const [photosToDelete, setPhotosToDelete] = useState<string[]>([]);
@@ -93,7 +99,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         const { data: l, error } = await supabase
           .from("listings")
           .select(
-            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities",
+            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities, location_link, latitude, longitude",
           )
           .eq("id", listingId)
           .single();
@@ -120,7 +126,11 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         setBedrooms(String(l.bedrooms ?? 1));
         setBathrooms(String(l.bathrooms ?? 1));
         setAmenities(l.amenities ?? []);
-        
+        setLocationLink((l as { location_link?: string | null }).location_link ?? "");
+        setLatitude((l as { latitude?: number | null }).latitude ?? null);
+        setLongitude((l as { longitude?: number | null }).longitude ?? null);
+        setMapError(null);
+
         setExistingPhotos(photos ?? []);
         setPhotosToDelete([]);
         setNewFiles([]);
@@ -164,6 +174,30 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const removeNewFile = (idx: number) =>
     setNewFiles((prev) => prev.filter((_, i) => i !== idx));
 
+  const handleLocateMap = async () => {
+    const link = locationLink.trim();
+    if (!link) return;
+    setLocatingMap(true);
+    setMapError(null);
+    try {
+      const res = await fetch("/api/public/resolve-maps-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: link }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Couldn't read that link");
+      setLatitude(data.lat);
+      setLongitude(data.lng);
+    } catch (err) {
+      setLatitude(null);
+      setLongitude(null);
+      setMapError(err instanceof Error ? err.message : "Couldn't read that link");
+    } finally {
+      setLocatingMap(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!listingId) return;
@@ -205,6 +239,9 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           bedrooms: Number(bedrooms),
           bathrooms: Number(bathrooms),
           amenities,
+          location_link: locationLink.trim() || null,
+          latitude,
+          longitude,
           ...({ district: district || null } as Record<string, unknown>),
         })
         .eq("id", listingId);
@@ -342,6 +379,30 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
               <p className="mt-1 text-xs text-muted-foreground">
                 Listings with exactly 1 bedroom are automatically tagged as <span className="font-semibold">Couples</span>.
               </p>
+            </div>
+
+            <div>
+              <Label htmlFor="maplink">Map location (optional)</Label>
+              <div className="mt-1 flex gap-2">
+                <Input
+                  id="maplink"
+                  value={locationLink}
+                  onChange={(e) => { setLocationLink(e.target.value); setMapError(null); }}
+                  placeholder="Paste a Google Maps share link…"
+                />
+                <Button type="button" variant="outline" onClick={handleLocateMap} disabled={!locationLink.trim() || locatingMap}>
+                  {locatingMap ? "Locating…" : "Preview"}
+                </Button>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Only an approximate pin is shown to guests — never the place name, so they can't look it up directly.
+              </p>
+              {mapError && <p className="mt-1 text-xs text-destructive">{mapError}</p>}
+              {latitude != null && longitude != null && (
+                <div className="mt-2">
+                  <LocationPreviewMap latitude={latitude} longitude={longitude} />
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
