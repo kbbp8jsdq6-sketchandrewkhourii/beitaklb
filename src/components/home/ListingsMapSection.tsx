@@ -58,16 +58,16 @@ export function ListingsMapSection() {
   return (
     <section className="relative bg-background">
       <PatternBackground />
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <Reveal className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Discover</p>
           <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
             Explore on the Map
           </h2>
-          <p className="mt-2 text-muted-foreground">Every stay, mapped across Lebanon</p>
+          <p className="mt-2 text-muted-foreground">Find your stay on the map</p>
         </Reveal>
 
-        <Reveal className="mt-10">
+        <Reveal className="mt-6">
           {mounted && (
             <Suspense fallback={null}>
               <ListingsMapInner
