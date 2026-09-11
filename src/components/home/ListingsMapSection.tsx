@@ -10,19 +10,33 @@ const ListingsMapInner = lazy(() => import("./ListingsMapInner"));
 interface MapListing {
   id: string;
   title: string;
+  location: string | null;
   latitude: number;
   longitude: number;
+  cover: string | null;
 }
 
 async function fetchMapListings(): Promise<MapListing[]> {
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, latitude, longitude")
+    .select("id, title, location, latitude, longitude, listing_photos(photo_url, display_order)")
     .eq("is_active", true)
     .not("latitude", "is", null)
     .not("longitude", "is", null);
   if (error) throw error;
-  return (data ?? []) as MapListing[];
+  return (data ?? []).map((row: any) => {
+    const photos = [...(row.listing_photos ?? [])].sort(
+      (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+    );
+    return {
+      id: row.id,
+      title: row.title,
+      location: row.location ?? null,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      cover: photos[0]?.photo_url ?? null,
+    } as MapListing;
+  });
 }
 
 export function ListingsMapSection() {
