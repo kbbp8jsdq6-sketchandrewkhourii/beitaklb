@@ -124,6 +124,7 @@ const STEPS = [
 ];
 
 const ReviewsSection = lazy(() => import("@/components/home/ReviewsSection"));
+const ListingsMapSection = lazy(() => import("@/components/home/ListingsMapSection"));
 
 const FAQS = [
   {
