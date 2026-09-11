@@ -296,6 +296,12 @@ function HomePage() {
         </div>
       </section>
 
+      <SectionDivider fill="var(--color-background)" flip />
+      <Suspense fallback={null}>
+        <ListingsMapSection />
+      </Suspense>
+      <SectionDivider fill="var(--color-background)" flip />
+
       <SectionDivider fill="var(--color-muted)" />
 
       {/* 2. HOW IT WORKS */}
