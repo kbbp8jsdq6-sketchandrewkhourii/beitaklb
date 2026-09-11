@@ -124,6 +124,7 @@ const STEPS = [
 ];
 
 const ReviewsSection = lazy(() => import("@/components/home/ReviewsSection"));
+const ListingsMapSection = lazy(() => import("@/components/home/ListingsMapSection"));
 
 const FAQS = [
   {
@@ -294,6 +295,12 @@ function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      <SectionDivider fill="var(--color-background)" flip />
+      <Suspense fallback={null}>
+        <ListingsMapSection />
+      </Suspense>
+      <SectionDivider fill="var(--color-background)" flip />
 
       <SectionDivider fill="var(--color-muted)" />
 
