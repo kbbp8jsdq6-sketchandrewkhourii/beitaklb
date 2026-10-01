@@ -7,7 +7,6 @@ import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 
-import aboutImage from "@/assets/about-guesthouse.jpg";
 import { PatternBackground } from "@/components/PatternBackground";
 import { Reveal } from "@/components/Reveal";
 import { SectionDivider } from "@/components/SectionDivider";
@@ -383,43 +382,12 @@ function HomePage() {
       {/* 5. ABOUT */}
       <section id="about" className="relative bg-background scroll-mt-20">
         <PatternBackground />
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 pb-14 pt-[72px] md:px-12 md:pb-20 md:pt-28 lg:px-16">
           <Reveal>
-            <p className="uppercase tracking-[0.3em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">About us</p>
-            <h2 className="mt-3 font-display text-5xl text-foreground sm:text-6xl">
-              We're <span className="text-primary">BEITAK</span>
+            <p className="text-sm font-semibold text-[#CC0000] md:text-[15px]">About us</p>
+            <h2 className="mt-5 font-display text-[88px] leading-[0.88] tracking-[0.01em] text-foreground md:text-[112px] lg:text-[136px]">
+              We're BEITAK
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-foreground/80">
-              BEITAK connects travelers with unique local stays across Lebanon. Whether you're hosting
-              or exploring, we make the experience simple, personal, and memorable.
-            </p>
-
-            <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
-              Home is closer than you think
-            </p>
-          </Reveal>
-          <Reveal delay={150} className="relative lg:scale-110 lg:-mx-6">
-            <div className="relative overflow-hidden rounded-3xl">
-              <img
-                src={aboutImage}
-                alt="Lebanese guesthouse with pool surrounded by palms"
-                width={1024}
-                height={896}
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-                style={{
-                  WebkitMaskImage:
-                    "radial-gradient(ellipse at center, black 75%, transparent 100%)",
-                  maskImage:
-                    "radial-gradient(ellipse at center, black 75%, transparent 100%)",
-                }}
-              />
-            </div>
-            <div className="absolute -bottom-5 -left-5 hidden rounded-2xl bg-primary px-6 py-4 text-primary-foreground shadow-xl sm:block opacity-0">
-              <p className="font-display text-2xl tracking-wider">BEITAK</p>
-              <p className="text-[10px] uppercase tracking-[0.3em]">Lebanon stays</p>
-            </div>
           </Reveal>
         </div>
       </section>
