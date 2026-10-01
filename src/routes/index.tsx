@@ -464,7 +464,7 @@ function HomePage() {
         </article>
       </section>
 
-      <SectionDivider fill="var(--color-background)" />
+      {/* 6. FAQ */}
 
       {/* 6. FAQ */}
       <section id="faq" className="relative border-t border-border bg-muted/30">
