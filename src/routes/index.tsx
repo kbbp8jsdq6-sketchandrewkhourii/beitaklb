@@ -394,22 +394,6 @@ function HomePage() {
               or exploring, we make the experience simple, personal, and memorable.
             </p>
 
-            <div id="mission" className="mt-8 scroll-mt-24 rounded-2xl border-l-4 border-primary bg-primary/5 p-5">
-              <p className="uppercase tracking-[0.15em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our Mission</p>
-              <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
-                Make every Lebanese stay effortless. We connect travelers directly with curated
-                hosts, with no middlemen and no surprises.
-              </p>
-            </div>
-
-            <div id="vision" className="mt-4 scroll-mt-24 rounded-2xl border-l-4 border-foreground bg-muted/40 p-5">
-              <p className="uppercase tracking-[0.15em] text-foreground font-extrabold text-base font-serif">Our Vision</p>
-              <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
-                To become Lebanon's most loved stays platform, where hosts thrive and travelers
-                fall in love with the country, one home at a time.
-              </p>
-            </div>
-
             <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
               Home is closer than you think
             </p>
