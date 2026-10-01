@@ -394,22 +394,6 @@ function HomePage() {
               or exploring, we make the experience simple, personal, and memorable.
             </p>
 
-            <div id="mission" className="mt-8 scroll-mt-24 rounded-2xl border-l-4 border-primary bg-primary/5 p-5">
-              <p className="uppercase tracking-[0.15em] text-primary text-base font-serif px-0 mx-0 text-left font-extrabold">Our Mission</p>
-              <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
-                Make every Lebanese stay effortless. We connect travelers directly with curated
-                hosts, with no middlemen and no surprises.
-              </p>
-            </div>
-
-            <div id="vision" className="mt-4 scroll-mt-24 rounded-2xl border-l-4 border-foreground bg-muted/40 p-5">
-              <p className="uppercase tracking-[0.15em] text-foreground font-extrabold text-base font-serif">Our Vision</p>
-              <p className="mt-2 text-base leading-relaxed text-foreground/80 text-black">
-                To become Lebanon's most loved stays platform, where hosts thrive and travelers
-                fall in love with the country, one home at a time.
-              </p>
-            </div>
-
             <p className="mt-6 font-display text-3xl uppercase tracking-wider text-primary">
               Home is closer than you think
             </p>
@@ -438,6 +422,46 @@ function HomePage() {
             </div>
           </Reveal>
         </div>
+      </section>
+
+      {/* 5.5 MISSION & VISION */}
+      <section aria-label="Our mission and vision" className="grid grid-cols-1 md:grid-cols-2">
+        <article
+          id="mission"
+          className="flex scroll-mt-24 flex-col justify-center bg-background px-6 py-16 md:min-h-[560px] md:px-12 md:py-24 lg:px-16"
+        >
+          <Reveal className="w-full md:ml-auto md:max-w-[36rem]">
+            <p className="text-sm font-semibold text-[#CC0000] md:text-[15px]">Our mission</p>
+            <h3 className="mt-4 max-w-[9.5em] font-display text-[52px] leading-[0.95] tracking-[0.01em] text-foreground md:mt-6 md:text-[64px] lg:text-[76px]">
+              Make every Lebanese stay effortless.
+            </h3>
+            <p className="mt-4 max-w-[30em] text-base leading-relaxed text-[#4A4444] md:mt-6 md:text-lg">
+              We connect travelers directly with curated hosts, with no middlemen and no surprises.
+            </p>
+          </Reveal>
+        </article>
+        <article
+          id="vision"
+          className="relative flex scroll-mt-24 flex-col justify-center overflow-hidden bg-[#161212] px-6 pb-[88px] pt-16 md:min-h-[560px] md:px-12 md:py-24 lg:px-16"
+        >
+          <span
+            aria-hidden="true"
+            lang="ar"
+            dir="rtl"
+            className="pointer-events-none absolute -bottom-11 -right-4 select-none font-['Noto_Kufi_Arabic',sans-serif] text-[160px] font-bold leading-none text-[#2A1818] md:-bottom-[72px] md:-right-6 md:text-[280px]"
+          >
+            بيتك
+          </span>
+          <Reveal delay={120} className="relative w-full md:mr-auto md:max-w-[36rem]">
+            <p className="text-sm font-semibold text-[#FF7A70] md:text-[15px]">Our vision</p>
+            <h3 className="mt-4 max-w-[9.5em] font-display text-[52px] leading-[0.95] tracking-[0.01em] text-white md:mt-6 md:text-[64px] lg:text-[76px]">
+              To become Lebanon's most loved stays platform.
+            </h3>
+            <p className="mt-4 max-w-[30em] text-base leading-relaxed text-[#C9C2C2] md:mt-6 md:text-lg">
+              Where hosts thrive and travelers fall in love with the country, one home at a time.
+            </p>
+          </Reveal>
+        </article>
       </section>
 
       <SectionDivider fill="var(--color-background)" />
