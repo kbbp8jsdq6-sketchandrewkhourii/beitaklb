@@ -465,8 +465,6 @@ function HomePage() {
       </section>
 
       {/* 6. FAQ */}
-
-      {/* 6. FAQ */}
       <section id="faq" className="relative border-t border-border bg-muted/30">
         <PatternBackground />
         <div className="relative z-10 mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
