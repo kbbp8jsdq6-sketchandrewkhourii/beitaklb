@@ -2,61 +2,111 @@ import { Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { PatternBackground } from "@/components/PatternBackground";
-import { STATIC_REVIEWS, HOME_REVIEW_SLUGS } from "@/lib/static-reviews";
+import { STATIC_REVIEWS, HOME_REVIEW_SLUGS, type StaticReview } from "@/lib/static-reviews";
 
 const HOME_REVIEWS = HOME_REVIEW_SLUGS
   .map((slug) => STATIC_REVIEWS.find((r) => r.slug === slug)!)
   .filter(Boolean);
 
+function Stars({ rating, size }: { rating: number; size: "lg" | "sm" }) {
+  const cls = size === "lg" ? "h-[18px] w-[18px]" : "h-[15px] w-[15px]";
+  return (
+    <div
+      role="img"
+      aria-label={`Rated ${rating} out of 5`}
+      className={`flex ${size === "lg" ? "gap-1" : "gap-[3px]"}`}
+    >
+      {Array.from({ length: 5 }).map((_, idx) => (
+        <Star
+          key={idx}
+          aria-hidden="true"
+          strokeWidth={1.5}
+          className={`${cls} text-foreground ${idx < rating ? "fill-foreground" : "fill-none"}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Attribution({ r, size }: { r: StaticReview; size: "lg" | "sm" }) {
+  return (
+    <figcaption className="flex flex-col gap-0.5">
+      <Link
+        to="/profile/$slug"
+        params={{ slug: r.slug }}
+        className={`w-fit font-semibold text-foreground underline decoration-transparent underline-offset-4 transition hover:text-[#CC0000] hover:decoration-[#CC0000] ${
+          size === "lg" ? "text-base" : "text-[15px]"
+        }`}
+      >
+        {r.name}
+      </Link>
+      <span className={`text-[#6B6363] ${size === "lg" ? "text-sm" : "text-[13px]"}`}>
+        Member since {r.memberSince}
+      </span>
+    </figcaption>
+  );
+}
+
 export default function ReviewsSection() {
+  const [featured, ...rest] = HOME_REVIEWS;
+  if (!featured) return null;
+
   return (
     <section className="relative border-y border-border bg-background">
       <PatternBackground />
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <Reveal className="text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Reviews</p>
-          <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-            Loved by guests
-          </h2>
-        </Reveal>
-        <div className="mt-12 -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 hide-scrollbar">
-          {HOME_REVIEWS.map((r, i) => (
-            <Reveal
-              key={r.slug}
-              delay={i * 130}
-              as="figure"
-              className="w-[85%] shrink-0 snap-center rounded-2xl border border-border bg-card p-7 sm:w-auto sm:shrink"
-            >
-              <div className="flex gap-1 text-[#F5B400]">
-                {Array.from({ length: 5 }).map((_, idx) => (
-                  <Star
-                    key={idx}
-                    className={`h-4 w-4 ${idx < r.rating ? "fill-[#F5B400] text-[#F5B400]" : "fill-none text-muted-foreground/40"}`}
-                  />
-                ))}
-              </div>
-              <blockquote className="mt-4 text-lg text-foreground">"{r.message}"</blockquote>
-              <figcaption className="mt-5 text-sm font-semibold text-foreground">
-                -{" "}
-                <Link
-                  to="/profile/$slug"
-                  params={{ slug: r.slug }}
-                  className="underline decoration-transparent underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                >
-                  {r.name}
-                </Link>
-              </figcaption>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-10 flex justify-center">
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-10 px-6 pb-16 pt-[72px] md:gap-14 md:px-12 md:pb-24 md:pt-28 lg:px-16">
+        <Reveal className="flex items-end justify-between gap-8">
+          <div className="flex flex-col gap-3.5 md:gap-4">
+            <p className="text-sm font-semibold text-[#CC0000] md:text-[15px]">Reviews</p>
+            <h2 className="font-display text-[56px] leading-[0.95] tracking-[0.01em] text-foreground md:text-[64px] lg:text-[76px]">
+              Loved by guests
+            </h2>
+          </div>
           <Link
             to="/feedback"
-            className="inline-flex items-center justify-center rounded-full bg-[#E63030] px-7 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#cc2626] hover:shadow-lg"
+            className="hidden min-h-12 shrink-0 items-center justify-center rounded-md border-2 border-foreground px-7 text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background md:inline-flex"
           >
             See all reviews
           </Link>
+        </Reveal>
+
+        <div className="grid grid-cols-1 items-start gap-y-8 md:grid-cols-12 md:gap-x-8">
+          <Reveal as="figure" className="flex flex-col gap-[18px] md:col-span-7 md:gap-6">
+            <Stars rating={featured.rating} size="lg" />
+            <blockquote className="max-w-[22em] text-[22px] font-medium leading-[1.42] tracking-[-0.01em] text-foreground md:text-[26px] lg:text-[30px] lg:leading-[1.4]">
+              “{featured.message}”
+            </blockquote>
+            <Attribution r={featured} size="lg" />
+          </Reveal>
+
+          <div className="flex flex-col md:col-span-4 md:col-start-9">
+            {rest.map((r, i) => (
+              <Reveal
+                key={r.slug}
+                as="figure"
+                delay={(i + 1) * 120}
+                className={`flex flex-col gap-3.5 md:gap-4 ${
+                  i === 0
+                    ? "border-t border-[#E8E4E4] pt-8 md:border-t-0 md:pb-8 md:pt-0"
+                    : "border-t border-[#E8E4E4] pt-8"
+                }`}
+              >
+                <Stars rating={r.rating} size="sm" />
+                <blockquote className="text-base leading-relaxed text-[#2E2828] md:text-[17px]">
+                  “{r.message}”
+                </blockquote>
+                <Attribution r={r} size="sm" />
+              </Reveal>
+            ))}
+          </div>
         </div>
+
+        <Link
+          to="/feedback"
+          className="flex min-h-12 items-center justify-center rounded-md border-2 border-foreground text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background md:hidden"
+        >
+          See all reviews
+        </Link>
       </div>
     </section>
   );
