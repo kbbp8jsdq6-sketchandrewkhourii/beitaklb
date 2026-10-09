@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MessageCircle, Sparkles, ChevronDown, Heart } from "lucide-react";
+import { ChevronDown, Heart } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -104,23 +104,6 @@ const DISTRICTS = [
   { name: "Couples", search: { bedrooms: 1 }, bg: "linear-gradient(135deg, #4a1520 0%, #7a2535 50%, #c0392b 100%)", image: "/couples.webp", icon: true },
 ];
 
-const STEPS = [
-  {
-    icon: Search,
-    title: "Browse listings",
-    desc: "Explore unique stays across Lebanon's most beautiful regions.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Reserve via WhatsApp",
-    desc: "Contact the host instantly to confirm dates and details.",
-  },
-  {
-    icon: Sparkles,
-    title: "Enjoy your stay",
-    desc: "Check in, unwind, and make memories that last.",
-  },
-];
 
 const ReviewsSection = lazy(() => import("@/components/home/ReviewsSection"));
 const ListingsMapSection = lazy(() => import("@/components/home/ListingsMapSection"));
@@ -299,40 +282,6 @@ function HomePage() {
       <Suspense fallback={null}>
         <ListingsMapSection />
       </Suspense>
-      <SectionDivider fill="var(--color-background)" flip />
-
-      <SectionDivider fill="var(--color-muted)" />
-
-      {/* 2. HOW IT WORKS */}
-      <section className="relative border-b border-border bg-background">
-        <PatternBackground />
-        <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <Reveal className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">How it works</p>
-            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-              Three steps to your stay
-            </h2>
-          </Reveal>
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Reveal
-                key={s.title}
-                delay={i * 120}
-                className="group relative rounded-2xl border border-border bg-card p-8 text-center transition hover:border-primary text-red-600"
-              >
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
-                  <s.icon className="h-7 w-7" strokeWidth={1.75} />
-                </div>
-                <p className="mt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Step {i + 1}
-                </p>
-                <h3 className="mt-1 font-display text-2xl text-foreground">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 3.5 FEATURED LISTINGS */}
       {featuredListings.length > 0 && (
