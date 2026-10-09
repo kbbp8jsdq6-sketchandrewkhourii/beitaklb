@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { PhotoSlider } from "@/components/PhotoSlider";
 import { LocationPreviewMap } from "@/components/LocationPreviewMap";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 import { ReserveDetailsModal } from "@/components/ReserveDetailsModal";
 

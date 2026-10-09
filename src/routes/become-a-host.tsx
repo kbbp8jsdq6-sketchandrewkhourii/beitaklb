@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { MessageCircle, Sparkles, ShieldCheck, Users } from "lucide-react";
+import { Sparkles, ShieldCheck, Users } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 export const Route = createFileRoute("/become-a-host")({
   head: () => ({
