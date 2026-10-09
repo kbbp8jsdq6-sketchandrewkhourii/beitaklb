@@ -282,9 +282,6 @@ function HomePage() {
       <Suspense fallback={null}>
         <ListingsMapSection />
       </Suspense>
-      <SectionDivider fill="var(--color-background)" flip />
-
-
 
       {/* 3.5 FEATURED LISTINGS */}
       {featuredListings.length > 0 && (
