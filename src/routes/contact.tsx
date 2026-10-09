@@ -210,7 +210,7 @@ function ContactPage() {
             rel="noopener noreferrer"
             className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-6 transition hover:border-primary hover:shadow-md"
           >
-            <MessageCircle className="h-8 w-8 text-primary" />
+            <WhatsAppIcon className="h-8 w-8 text-primary" />
             <p className="font-semibold">WhatsApp</p>
             <p className="text-xs text-muted-foreground">{whatsapp}</p>
           </a>

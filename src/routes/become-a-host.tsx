@@ -53,7 +53,7 @@ function BecomeHostPage() {
             rel="noopener noreferrer"
             className="mt-8 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-7 py-3.5 text-base font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90"
           >
-            <MessageCircle className="h-5 w-5" /> Start on WhatsApp
+            <WhatsAppIcon className="h-5 w-5" /> Start on WhatsApp
           </a>
         </div>
       </section>
