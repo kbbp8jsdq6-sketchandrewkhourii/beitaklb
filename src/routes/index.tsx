@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MessageCircle, Sparkles, ChevronDown, Heart } from "lucide-react";
+import { ChevronDown, Heart } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -104,23 +104,6 @@ const DISTRICTS = [
   { name: "Couples", search: { bedrooms: 1 }, bg: "linear-gradient(135deg, #4a1520 0%, #7a2535 50%, #c0392b 100%)", image: "/couples.webp", icon: true },
 ];
 
-const STEPS = [
-  {
-    icon: Search,
-    title: "Browse listings",
-    desc: "Explore unique stays across Lebanon's most beautiful regions.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Reserve via WhatsApp",
-    desc: "Contact the host instantly to confirm dates and details.",
-  },
-  {
-    icon: Sparkles,
-    title: "Enjoy your stay",
-    desc: "Check in, unwind, and make memories that last.",
-  },
-];
 
 const ReviewsSection = lazy(() => import("@/components/home/ReviewsSection"));
 const ListingsMapSection = lazy(() => import("@/components/home/ListingsMapSection"));
