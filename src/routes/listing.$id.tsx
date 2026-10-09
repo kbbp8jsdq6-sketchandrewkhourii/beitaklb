@@ -87,7 +87,7 @@ export const Route = createFileRoute("/listing/$id")({
   errorComponent: ({ error }) => (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <p className="text-destructive">{error.message}</p>
+        <p className="text-destructive">{error instanceof Error ? error.message : "Something went wrong"}</p>
         <Link to="/" className="mt-4 inline-block text-primary hover:underline">← Home</Link>
       </div>
     </div>
