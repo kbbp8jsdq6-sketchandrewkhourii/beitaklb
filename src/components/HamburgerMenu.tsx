@@ -17,7 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { WhatsAppLogo } from "@/components/icons/WhatsAppLogo";
 
 const TIKTOK_URL = "https://www.tiktok.com/@beitak.lb?_r=1&_t=ZS-95kaRlKp5d6";
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
@@ -309,7 +309,7 @@ export function HamburgerMenu() {
                         onClick={close}
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground transition hover:bg-primary/10 hover:text-[#25D366]"
                       >
-                        <WhatsAppIcon className="h-4 w-4" /> WhatsApp
+                        <WhatsAppLogo className="h-4 w-4" /> WhatsApp
                       </a>
                       <a
                         href={TIKTOK_URL}

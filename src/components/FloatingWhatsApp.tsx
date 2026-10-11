@@ -1,5 +1,5 @@
 import { useLocation } from "@tanstack/react-router";
-import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { WhatsAppLogo } from "@/components/icons/WhatsAppLogo";
 
 const WHATSAPP_URL = "https://wa.me/96181160435";
 
@@ -21,9 +21,9 @@ export function FloatingWhatsApp() {
         bottom: isListing ? "92px" : "20px",
         right: "20px",
       }}
-      className="fixed z-[9999] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:scale-105 hover:shadow-xl wa-pulse"
+      className="fixed z-[9999] flex h-14 w-14 items-center justify-center rounded-full transition hover:scale-105 drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]"
     >
-      <WhatsAppIcon className="h-7 w-7" />
+      <WhatsAppLogo className="h-14 w-14" />
     </a>
   );
 }
