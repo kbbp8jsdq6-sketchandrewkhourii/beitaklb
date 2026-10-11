@@ -3,6 +3,7 @@ import { Instagram, Mail } from "lucide-react";
 import { Logo } from "./Logo";
 import { PatternBackground } from "./PatternBackground";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { WhatsAppLogo } from "@/components/icons/WhatsAppLogo";
 
 const BECOME_HOST_MESSAGE = "Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?";
 const WHATSAPP_URL = `https://wa.me/96181160435?text=${encodeURIComponent(BECOME_HOST_MESSAGE)}`;
@@ -86,7 +87,7 @@ export function Footer() {
             <div className="mt-3 space-y-1.5 text-sm text-foreground/70">
               <p>@Beitak.lb</p>
               <p className="flex items-center gap-2">
-                <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
+                <WhatsAppLogo className="h-4 w-4 shrink-0" />
                 <span>+961 81 160 435</span>
               </p>
               <p className="flex items-center gap-2">
