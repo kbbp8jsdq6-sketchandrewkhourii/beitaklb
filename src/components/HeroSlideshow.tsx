@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,11 +46,30 @@ export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = 
 
   useEffect(() => {
     if (BASE_URLS.length < 2) return;
-    const id = window.setInterval(() => {
+    const id = window.setTimeout(() => {
       setIndex((i) => (i + 1) % BASE_URLS.length);
     }, 4500);
-    return () => window.clearInterval(id);
-  }, [BASE_URLS.length]);
+    return () => window.clearTimeout(id);
+  }, [BASE_URLS.length, index]);
+
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    swipeStart.current = { x: e.clientX, y: e.clientY };
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    const s = swipeStart.current;
+    swipeStart.current = null;
+    if (!s || BASE_URLS.length < 2) return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    const n = BASE_URLS.length;
+    setIndex((i) => (dx < 0 ? (i + 1) % n : (i - 1 + n) % n));
+  };
+  const onPointerCancel = () => {
+    swipeStart.current = null;
+  };
 
   // Preload next slide for smoother crossfade
   useEffect(() => {
@@ -69,7 +88,7 @@ export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = 
 
   return (
     <>
-      <div className="absolute inset-0 overflow-hidden bg-foreground">
+      <div className="absolute inset-0 overflow-hidden bg-foreground touch-pan-y select-none" onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={onPointerCancel}>
         <AnimatePresence mode="sync">
           <motion.img
             key={currentBase}
@@ -82,6 +101,7 @@ export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = 
             sizes={isMobile ? "480px" : "1920px"}
             alt=""
             aria-hidden="true"
+            draggable={false}
             decoding="async"
             loading={index === 0 ? "eager" : "lazy"}
             fetchPriority={index === 0 ? "high" : "low"}

@@ -19,7 +19,7 @@ const DesktopHero = lazy(() => import("@/components/home/DesktopHero"));
 async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, listing_photos(photo_url, display_order)")
+    .select("id, title, location, category, bedrooms, price_per_night, price_weekday, price_weekend, amenities, max_guests, listing_photos(photo_url, display_order)")
     .eq("is_active", true)
     .eq("featured", true)
     .order("created_at", { ascending: false })
@@ -36,6 +36,8 @@ async function fetchFeaturedListings(): Promise<ListingCardData[]> {
       price_weekend: Number(l.price_weekend),
       amenities: l.amenities ?? [],
       max_guests: l.max_guests ?? null,
+      bedrooms: l.bedrooms ?? null,
+      category: (l.category as ListingCardData["category"]) ?? null,
       cover: photos[0]?.photo_url ?? null,
       photos: photos.map((p) => p.photo_url),
     };
@@ -156,7 +158,7 @@ function HomePage() {
         <section className="relative">
           <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
             <HeroSlideshow initialImages={heroImages} />
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pb-20 text-center">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pb-20 text-center pointer-events-none">
               <LogoTransparent size="hero" />
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
                 Find your perfect stay in Lebanon
@@ -289,32 +291,36 @@ function HomePage() {
           <SectionDivider fill="var(--color-background)" flip />
           <section className="relative bg-muted/30">
             <PatternBackground />
-            <div className="relative z-10 mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-              <Reveal className="text-center">
-                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Handpicked</p>
-                <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-                  Featured Stays
-                </h2>
-                <p className="mt-2 text-muted-foreground">Our favorite picks across Lebanon</p>
+            <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-8 py-[72px] md:gap-12 md:px-12 md:py-28 lg:px-16">
+              <Reveal className="flex items-end justify-between gap-8 px-6 md:px-0">
+                <div className="flex flex-col gap-3.5 md:gap-4">
+                  <p className="text-sm font-semibold text-[#CC0000] md:text-[15px]">Handpicked</p>
+                  <h2 className="font-display text-[56px] leading-[0.95] tracking-[0.01em] text-foreground md:text-[64px] lg:text-[76px]">
+                    Featured stays
+                  </h2>
+                </div>
+                <Link
+                  to="/search"
+                  className="hidden min-h-12 shrink-0 items-center justify-center rounded-md border-2 border-foreground px-7 text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background md:inline-flex"
+                >
+                  View all listings
+                </Link>
               </Reveal>
-              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="hide-scrollbar flex snap-x snap-mandatory scroll-pl-6 gap-4 overflow-x-auto px-6 pb-2 md:grid md:snap-none md:grid-cols-2 md:gap-x-8 md:gap-y-12 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3">
                 {featuredListings.map((l: ListingCardData, i: number) => (
-                  <div key={l.id}>
-                    <ListingCard
-                      listing={l as ListingCardData}
-                      index={i}
-                    />
+                  <div key={l.id} className="w-[290px] shrink-0 snap-start md:w-auto">
+                    <ListingCard listing={l as ListingCardData} index={i} disablePhotoSwipe={!isDesktop} />
                   </div>
                 ))}
               </div>
-              <Reveal className="mt-10 flex justify-center" delay={150}>
+              <div className="px-6 md:hidden">
                 <Link
                   to="/search"
-                  className="inline-flex items-center justify-center rounded-md border-2 border-foreground bg-transparent px-7 py-3 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background"
+                  className="flex min-h-12 items-center justify-center rounded-md border-2 border-foreground text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background"
                 >
-                  View all listings →
+                  View all listings
                 </Link>
-              </Reveal>
+              </div>
             </div>
           </section>
         </>

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { MapPin, Star, Instagram, Heart, Coffee, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { MapPin, Star, Heart, Coffee, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { saveListingReturnState } from "@/lib/listing-return";
@@ -10,12 +10,13 @@ export interface ListingCardData {
   title: string;
   location: string;
   max_guests?: number | null;
-  /** Lower of weekday/weekend (used for "From $X / night" display). */
+  bedrooms?: number | null;
+  /** Lower of weekday/weekend. */
   price_per_night: number;
   price_weekday?: number | null;
   price_weekend?: number | null;
   cover?: string | null;
-  /** Full ordered photo list — enables card-level slider. Falls back to [cover] when missing. */
+  /** Full ordered photo list, enables card-level slider. Falls back to [cover] when missing. */
   photos?: string[];
   rating?: number | null;
   amenities?: string[];
@@ -28,17 +29,21 @@ const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
   apartment: "Apartment",
 };
 
+const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+
 export function ListingCard({
   listing,
   index = 0,
+  disablePhotoSwipe = false,
 }: {
   listing: ListingCardData;
   index?: number;
+  /** Turn off touch-swipe between photos (use inside horizontally scrolling rows). */
+  disablePhotoSwipe?: boolean;
 }) {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const isFav = favoriteIds.has(listing.id);
 
-  // Build the slider's photo list. Always falls back to cover if no photos array provided.
   const photos: string[] = (() => {
     if (listing.photos && listing.photos.length > 0) return listing.photos;
     if (listing.cover) return [listing.cover];
@@ -46,11 +51,9 @@ export function ListingCard({
   })();
 
   const [current, setCurrent] = useState(0);
-  const trackRef = useRef<HTMLDivElement | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchDeltaX = useRef(0);
 
-  // Preload neighbors to avoid flicker when sliding
   useEffect(() => {
     if (photos.length <= 1) return;
     const next = (current + 1) % photos.length;
@@ -64,8 +67,7 @@ export function ListingCard({
 
   const goTo = (i: number) => {
     if (photos.length === 0) return;
-    const clamped = Math.max(0, Math.min(photos.length - 1, i));
-    setCurrent(clamped);
+    setCurrent(Math.max(0, Math.min(photos.length - 1, i)));
   };
 
   const handleArrow = (e: React.MouseEvent, dir: -1 | 1) => {
@@ -80,7 +82,6 @@ export function ListingCard({
     goTo(i);
   };
 
-  // Touch swipe — passive listeners via React (touchmove uses passive: true by default in React 19)
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchDeltaX.current = 0;
@@ -94,27 +95,34 @@ export function ListingCard({
     const dx = touchDeltaX.current;
     touchStartX.current = null;
     touchDeltaX.current = 0;
-    const threshold = 40;
-    if (dx > threshold) goTo(current - 1);
-    else if (dx < -threshold) goTo(current + 1);
+    if (dx > 40) goTo(current - 1);
+    else if (dx < -40) goTo(current + 1);
   };
 
-  
   const handleHeart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     toggleFavorite(listing.id);
   };
 
-  const hasBreakfast = (listing.amenities ?? []).some(
-    (a) => a.toLowerCase() === "breakfast included",
-  );
+  const hasBreakfast = (listing.amenities ?? []).some((a) => a.toLowerCase() === "breakfast included");
 
-  const fromPrice = Math.min(
-    listing.price_weekday ?? listing.price_per_night,
-    listing.price_weekend ?? listing.price_per_night,
-  );
+  const weekday = listing.price_weekday ?? listing.price_per_night;
+  const weekend = listing.price_weekend ?? listing.price_per_night;
+  const nightly = Math.min(weekday, weekend);
+  const showWeekend = weekend > weekday;
 
+  const kindLine = listing.category
+    ? `${CATEGORY_LABEL[listing.category]} in ${listing.location}`
+    : listing.location;
+
+  const roomParts: string[] = [];
+  if (listing.bedrooms != null && listing.bedrooms > 0) {
+    roomParts.push(`${listing.bedrooms} bedroom${listing.bedrooms === 1 ? "" : "s"}`);
+  }
+  if (listing.max_guests != null && listing.max_guests > 0) {
+    roomParts.push(`Up to ${listing.max_guests} guest${listing.max_guests === 1 ? "" : "s"}`);
+  }
 
   return (
     <motion.div
@@ -133,12 +141,9 @@ export function ListingCard({
           {photos.length > 0 ? (
             <div
               className="absolute inset-0 h-full w-full overflow-hidden"
-              onTouchStart={onTouchStart}
-              onTouchMove={onTouchMove}
-              onTouchEnd={onTouchEnd}
+              {...(disablePhotoSwipe ? {} : { onTouchStart, onTouchMove, onTouchEnd })}
             >
               <div
-                ref={trackRef}
                 className="flex h-full w-full"
                 style={{
                   transform: `translate3d(-${current * 100}%, 0, 0)`,
@@ -171,15 +176,13 @@ export function ListingCard({
             </div>
           )}
 
-
-          {/* Desktop arrows — appear on hover */}
           {photos.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={(e) => handleArrow(e, -1)}
                 aria-label="Previous photo"
-                className={`absolute left-2 top-1/2 z-[2] h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100 ${
+                className={`absolute left-2 top-1/2 z-[2] h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white md:opacity-0 md:group-hover:opacity-100 ${
                   current === 0 ? "hidden md:inline-flex" : "inline-flex"
                 }`}
               >
@@ -189,7 +192,7 @@ export function ListingCard({
                 type="button"
                 onClick={(e) => handleArrow(e, 1)}
                 aria-label="Next photo"
-                className={`absolute right-2 top-1/2 z-[2] h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100 ${
+                className={`absolute right-2 top-1/2 z-[2] h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition-opacity duration-200 hover:bg-white md:opacity-0 md:group-hover:opacity-100 ${
                   current === photos.length - 1 ? "hidden md:inline-flex" : "inline-flex"
                 }`}
               >
@@ -198,9 +201,8 @@ export function ListingCard({
             </>
           )}
 
-          {/* Dot indicators */}
           {photos.length > 1 && photos.length <= 8 && (
-            <div className="pointer-events-auto absolute bottom-2 left-1/2 z-[2] flex -translate-x-1/2 gap-1">
+            <div className="pointer-events-auto absolute bottom-2.5 left-1/2 z-[2] flex -translate-x-1/2 gap-1">
               {photos.map((_, i) => (
                 <button
                   key={i}
@@ -215,27 +217,19 @@ export function ListingCard({
             </div>
           )}
 
-          <div className="absolute left-3 top-3 z-[2] flex flex-col gap-1.5">
-            <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-foreground backdrop-blur">
-              {listing.location.split(" (")[0]}
+          {hasBreakfast && (
+            <span className="absolute left-3 top-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1.5 text-xs font-semibold text-foreground shadow-sm">
+              <Coffee className="h-3.5 w-3.5 text-[#CC0000]" aria-hidden="true" />
+              Breakfast included
             </span>
-            {listing.category && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-background shadow backdrop-blur">
-                {CATEGORY_LABEL[listing.category]}
-              </span>
-            )}
-            {hasBreakfast && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow">
-                <Coffee className="h-3 w-3" /> Breakfast
-              </span>
-            )}
-          </div>
+          )}
+
           <button
             type="button"
             onClick={handleHeart}
             aria-label={isFav ? "Remove from favorites" : "Save to favorites"}
             aria-pressed={isFav}
-            className="absolute right-3 top-3 z-[2] inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition active:scale-90 hover:bg-background"
+            className="absolute right-3 top-3 z-[2] inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md backdrop-blur transition active:scale-90 hover:bg-white"
           >
             <motion.span
               key={isFav ? "on" : "off"}
@@ -244,60 +238,33 @@ export function ListingCard({
               transition={{ type: "spring", stiffness: 320, damping: 14 }}
               className="inline-flex"
             >
-              <Heart
-                className={`h-5 w-5 transition-colors ${
-                  isFav ? "fill-primary text-primary" : "text-foreground"
-                }`}
-              />
+              <Heart className={`h-[18px] w-[18px] transition-colors ${isFav ? "fill-primary text-primary" : "text-foreground"}`} />
             </motion.span>
           </button>
         </div>
-      </Link>
-      <div className="mt-3">
-        <div className="flex items-start justify-between gap-2">
-          <Link to="/listing/$id" params={{ id: listing.id }} onClick={() => saveListingReturnState()} className="min-w-0 flex-1">
-            <h3 className="line-clamp-1 font-sans text-base font-semibold text-foreground">
+
+        <div className="mt-3.5 flex flex-col gap-1">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="line-clamp-1 min-w-0 flex-1 font-sans text-base font-semibold leading-snug text-foreground md:text-[17px]">
               {listing.title}
             </h3>
-          </Link>
-          <div className="flex shrink-0 items-center gap-2">
             {listing.rating != null && (
-              <div className="flex items-center gap-1 text-sm">
-                <Star className="h-4 w-4 fill-foreground text-foreground" />
-                <span>{listing.rating.toFixed(1)}</span>
-              </div>
+              <span className="flex shrink-0 items-center gap-1 text-sm text-foreground">
+                <Star className="h-3.5 w-3.5 fill-foreground" aria-hidden="true" />
+                {listing.rating.toFixed(1)}
+              </span>
             )}
-            <a
-              href="https://instagram.com/beitak.lb"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Follow @beitak.lb on Instagram"
-              onClick={(e) => e.stopPropagation()}
-              className="text-muted-foreground transition-colors hover:text-[#E1306C]"
-            >
-              <Instagram className="h-4 w-4" />
-            </a>
           </div>
+          <p className="line-clamp-1 text-sm text-[#6B6363]">{kindLine}</p>
+          {roomParts.length > 0 && (
+            <p className="line-clamp-1 text-sm text-[#6B6363]">{roomParts.join(" · ")}</p>
+          )}
+          <p className="mt-1.5 text-[15px] text-foreground">
+            <span className="font-semibold">{usd(nightly)}</span> / night
+            {showWeekend && <span className="text-[#6B6363]"> · {usd(weekend)} weekends</span>}
+          </p>
         </div>
-        <Link to="/listing/$id" params={{ id: listing.id }} onClick={() => saveListingReturnState()} className="block">
-          <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-3 w-3" />
-            {listing.location}
-            {listing.max_guests != null && (
-              <>
-                <span className="mx-1.5 h-3 w-px shrink-0 bg-border" />
-                <Users className="h-3 w-3 shrink-0" />
-                <span>{listing.max_guests}</span>
-              </>
-            )}
-          </p>
-          <p className="mt-1.5 text-sm">
-            <span className="text-muted-foreground">From </span>
-            <span className="font-semibold text-foreground">${fromPrice.toFixed(0)}</span>
-            <span className="text-muted-foreground"> / night</span>
-          </p>
-        </Link>
-      </div>
+      </Link>
     </motion.div>
   );
 }
