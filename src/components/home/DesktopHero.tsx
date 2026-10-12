@@ -98,7 +98,7 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
         </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
 
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center pointer-events-none">
           <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
             <div className="hero-logo-aura" aria-hidden="true" />
             <div className="hero-particles" aria-hidden="true">
