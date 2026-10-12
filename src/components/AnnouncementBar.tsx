@@ -1,53 +1,41 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Home, MapPin, Users, BadgePercent, Check, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const FALLBACK_ITEMS = [
-  "🏠 500+ Customers Served",
-  "🏡 400+ Listings Available",
-  "📍 Covering All Areas in Lebanon",
-  "✅ 0% Service Fees",
+  "400+ stays listed",
+  "60+ towns across Lebanon",
+  "500+ customers served",
+  "0% service fees",
 ];
 
-// Render text with emojis swapped for high-quality Twemoji SVGs (Apple/Google style smoothness).
-function renderWithTwemoji(text: string) {
-  // Match emoji clusters (covers most pictographs + ZWJ sequences + variation selectors)
-  const regex =
-    /(\p{Extended_Pictographic}(?:\u200D\p{Extended_Pictographic})*\uFE0F?)/gu;
-  const parts = text.split(regex);
-  return parts.map((part, idx) => {
-    if (regex.test(part)) {
-      // Reset regex state since we used .test() with /g
-      regex.lastIndex = 0;
-      // Convert to hex codepoints for jsdelivr Twemoji CDN (skip variation selector FE0F where appropriate)
-      const codepoints = Array.from(part)
-        .map((c) => c.codePointAt(0)!.toString(16))
-        .filter((cp) => cp !== "fe0f")
-        .join("-");
-      return (
-        <img
-          key={idx}
-          src={`https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/${codepoints}.svg`}
-          alt=""
-          aria-hidden="true"
-          className="inline-block h-[1.1em] w-[1.1em] align-[-0.15em]"
-          loading="lazy"
-        />
-      );
-    }
-    return <span key={idx}>{part}</span>;
-  });
+const EMOJI = /\p{Extended_Pictographic}|\u200D|\uFE0F/gu;
+
+function pickIcon(text: string): LucideIcon {
+  const t = text.toLowerCase();
+  if (/(listing|stay|home|house|unit)/.test(t)) return Home;
+  if (/(area|town|lebanon|location|district|village)/.test(t)) return MapPin;
+  if (/(customer|guest|client|traveler|traveller)/.test(t)) return Users;
+  if (/(fee|%|commission|free)/.test(t)) return BadgePercent;
+  return Check;
 }
 
-function LoopContent({ items }: { items: string[] }) {
+function Item({ text }: { text: string }) {
+  const clean = text.replace(EMOJI, "").replace(/\s+/g, " ").trim();
+  const m = clean.match(/^([\d.,]+[+%]?)\s+(.*)$/);
+  const Icon = pickIcon(clean);
   return (
-    <div className="flex shrink-0 items-center gap-6 pr-6">
-      {items.map((item, i) => (
-        <span key={i} className="flex items-center gap-6 whitespace-nowrap">
-          <span className="inline-flex items-center gap-1.5">{renderWithTwemoji(item)}</span>
-          <span aria-hidden className="text-white/80">⬥</span>
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
+      <Icon className="h-[15px] w-[15px] shrink-0 opacity-85" strokeWidth={2} aria-hidden="true" />
+      {m ? (
+        <span>
+          <b className="font-bold">{m[1]}</b> {m[2]}
         </span>
-      ))}
-    </div>
+      ) : (
+        <span>{clean}</span>
+      )}
+    </span>
   );
 }
 
@@ -64,25 +52,77 @@ export function AnnouncementBar() {
       if (error) throw error;
       return (data ?? []).map((r) => r.message);
     },
-    // Refresh every 60s so admin changes appear quickly without a hard reload
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
 
-  const items = q.data && q.data.length > 0 ? q.data : FALLBACK_ITEMS;
+  const items: string[] = q.data && q.data.length > 0 ? q.data : FALLBACK_ITEMS;
+
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (index >= items.length) setIndex(0);
+  }, [items.length, index]);
+
+  useEffect(() => {
+    if (paused || reduced || items.length < 2) return;
+    const id = window.setTimeout(() => setIndex((i) => (i + 1) % items.length), 4000);
+    return () => window.clearTimeout(id);
+  }, [index, paused, reduced, items.length]);
 
   return (
     <div
-      className="relative w-full overflow-hidden"
-      style={{ backgroundColor: "#CC0000" }}
+      className="relative w-full overflow-hidden bg-[#CC0000] font-sans text-[13px] font-medium tracking-[0.01em] text-white"
       role="region"
       aria-label="Announcements"
     >
-      <div className="flex py-3 font-serif text-sm font-bold leading-relaxed tracking-wide text-white announcement-track">
-        {/* Two copies for seamless loop */}
-        <LoopContent items={items} />
-        <LoopContent items={items} />
-      </div>
+      {/* Desktop: static row */}
+      <ul className="mx-auto hidden h-11 max-w-7xl items-center justify-center overflow-hidden px-12 md:flex lg:px-16">
+        {items.map((t, i) => (
+          <li key={i} className="flex items-center">
+            {i > 0 && <span aria-hidden="true" className="h-3.5 w-px bg-white/35" />}
+            <span className="px-7">
+              <Item text={t} />
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Mobile: one item at a time; tap to pause */}
+      <ul className="sr-only md:hidden">
+        {items.map((t, i) => (
+          <li key={i}>{t.replace(EMOJI, "").trim()}</li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        onClick={() => setPaused((p) => !p)}
+        aria-pressed={paused}
+        aria-label={paused ? "Resume announcements" : "Pause announcements"}
+        className="relative block h-10 w-full md:hidden"
+      >
+        {items.map((t, i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={`absolute inset-0 flex items-center justify-center px-4 transition-all duration-500 ease-out ${
+              i === index ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
+            }`}
+          >
+            <Item text={t} />
+          </span>
+        ))}
+      </button>
     </div>
   );
 }
