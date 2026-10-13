@@ -40,6 +40,8 @@ import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 import { Route as BookingsIdConfirmationRouteImport } from './routes/bookings.$id.confirmation'
 import { Route as ApiPublicResolveMapsLinkRouteImport } from './routes/api/public/resolve-maps-link'
+import { Route as ApiPublicChatEventRouteImport } from './routes/api/public/chat-event'
+import { Route as ApiPublicChatRouteImport } from './routes/api/public/chat'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const TermsRoute = TermsRouteImport.update({
@@ -198,6 +200,16 @@ const ApiPublicResolveMapsLinkRoute =
     path: '/api/public/resolve-maps-link',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicChatEventRoute = ApiPublicChatEventRouteImport.update({
+  id: '/api/public/chat-event',
+  path: '/api/public/chat-event',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicChatRoute = ApiPublicChatRouteImport.update({
+  id: '/api/public/chat',
+  path: '/api/public/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -235,6 +247,8 @@ export interface FileRoutesByFullPath {
   '/profile/$slug': typeof ProfileSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
+  '/api/public/chat': typeof ApiPublicChatRoute
+  '/api/public/chat-event': typeof ApiPublicChatEventRoute
   '/api/public/resolve-maps-link': typeof ApiPublicResolveMapsLinkRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -268,6 +282,8 @@ export interface FileRoutesByTo {
   '/profile/$slug': typeof ProfileSlugRoute
   '/admin': typeof AdminIndexRoute
   '/bookings': typeof BookingsIndexRoute
+  '/api/public/chat': typeof ApiPublicChatRoute
+  '/api/public/chat-event': typeof ApiPublicChatEventRoute
   '/api/public/resolve-maps-link': typeof ApiPublicResolveMapsLinkRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -303,6 +319,8 @@ export interface FileRoutesById {
   '/profile/$slug': typeof ProfileSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/bookings/': typeof BookingsIndexRoute
+  '/api/public/chat': typeof ApiPublicChatRoute
+  '/api/public/chat-event': typeof ApiPublicChatEventRoute
   '/api/public/resolve-maps-link': typeof ApiPublicResolveMapsLinkRoute
   '/bookings/$id/confirmation': typeof BookingsIdConfirmationRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -339,6 +357,8 @@ export interface FileRouteTypes {
     | '/profile/$slug'
     | '/admin/'
     | '/bookings/'
+    | '/api/public/chat'
+    | '/api/public/chat-event'
     | '/api/public/resolve-maps-link'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
@@ -372,6 +392,8 @@ export interface FileRouteTypes {
     | '/profile/$slug'
     | '/admin'
     | '/bookings'
+    | '/api/public/chat'
+    | '/api/public/chat-event'
     | '/api/public/resolve-maps-link'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
@@ -406,6 +428,8 @@ export interface FileRouteTypes {
     | '/profile/$slug'
     | '/admin/'
     | '/bookings/'
+    | '/api/public/chat'
+    | '/api/public/chat-event'
     | '/api/public/resolve-maps-link'
     | '/bookings/$id/confirmation'
     | '/lovable/email/queue/process'
@@ -429,6 +453,8 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   ListingIdRoute: typeof ListingIdRoute
   BookingsIndexRoute: typeof BookingsIndexRoute
+  ApiPublicChatRoute: typeof ApiPublicChatRoute
+  ApiPublicChatEventRoute: typeof ApiPublicChatEventRoute
   ApiPublicResolveMapsLinkRoute: typeof ApiPublicResolveMapsLinkRoute
   BookingsIdConfirmationRoute: typeof BookingsIdConfirmationRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -653,6 +679,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicResolveMapsLinkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/chat-event': {
+      id: '/api/public/chat-event'
+      path: '/api/public/chat-event'
+      fullPath: '/api/public/chat-event'
+      preLoaderRoute: typeof ApiPublicChatEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/chat': {
+      id: '/api/public/chat'
+      path: '/api/public/chat'
+      fullPath: '/api/public/chat'
+      preLoaderRoute: typeof ApiPublicChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -722,6 +762,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   ListingIdRoute: ListingIdRoute,
   BookingsIndexRoute: BookingsIndexRoute,
+  ApiPublicChatRoute: ApiPublicChatRoute,
+  ApiPublicChatEventRoute: ApiPublicChatEventRoute,
   ApiPublicResolveMapsLinkRoute: ApiPublicResolveMapsLinkRoute,
   BookingsIdConfirmationRoute: BookingsIdConfirmationRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
