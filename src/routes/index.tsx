@@ -112,20 +112,28 @@ const ListingsMapSection = lazy(() => import("@/components/home/ListingsMapSecti
 
 const FAQS = [
   {
-    q: "How do I book a listing?",
-    a: "Open any listing, then tap “Reserve via WhatsApp” to chat directly with the host about dates, guests and pricing.",
+    q: "How do I book a stay?",
+    a: "Open any listing and tap “Reserve via WhatsApp”. Our team replies, usually within an hour between 9am and midnight, and confirms availability and the final price with you.",
   },
   {
-    q: "How do I become a host?",
-    a: "Reach out to us on WhatsApp and we'll guide you through listing your place. Listings are added by the BEITAK team to keep the experience curated.",
+    q: "How do I pay?",
+    a: "A 50% deposit paid to Beitak via Whish or OMT confirms your booking, and the remaining 50% is paid on arrival. Listed prices are updated every season and include all charges except special requests.",
   },
   {
-    q: "Is my payment secure?",
-    a: "Payment is arranged directly with your host. We recommend confirming all details over WhatsApp before transferring.",
+    q: "Can I cancel or change my dates?",
+    a: "Date changes are possible depending on availability and how close your stay is. Deposit refunds depend on each guesthouse's policy. If a host cancels, your deposit is refunded and we'll help you find another place.",
   },
   {
-    q: "How do I contact the host?",
-    a: "Every listing has a “Reserve via WhatsApp” button that opens a pre-filled message to the host with the listing link.",
+    q: "Are the listings verified?",
+    a: "Yes. Our team checks every guesthouse before it goes live, and photos and details are kept up to date.",
+  },
+  {
+    q: "What's included in a stay?",
+    a: "Most guesthouses include 24/7 electricity (solar, generator or both), hot water, Wi-Fi, sheets, towels and free parking. House rules like pets, smoking, quiet hours and check-in times vary and are listed on each guesthouse.",
+  },
+  {
+    q: "How do I list my property?",
+    a: "Fill in the short form in our chat assistant, or message us on WhatsApp. Our team verifies every guesthouse before it goes live.",
   },
 ];
 
