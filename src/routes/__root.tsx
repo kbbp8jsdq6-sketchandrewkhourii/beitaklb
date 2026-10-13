@@ -56,6 +56,10 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700&text=%D8%A8%D9%8A%D8%AA%D9%83&display=swap",
       },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&text=Beitak%20assistant&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
       { rel: "canonical", href: "https://beitaklb.com/" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
