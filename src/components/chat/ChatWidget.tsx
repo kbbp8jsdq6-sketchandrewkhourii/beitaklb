@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { WhatsAppLogo } from "@/components/icons/WhatsAppLogo";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { buildWhatsAppHref } from "@/lib/whatsapp";
+import { OPEN_CHAT_EVENT, type OpenChatDetail } from "@/lib/chat-events";
 
 // The existing JSON transport and single allowed UI file require local UI primitives,
 // rather than AI Elements' UIMessage transport and additional registry source files.
@@ -71,17 +72,29 @@ export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [hint, setHint] = useState(false);
   const [ready, setReady] = useState(false);
+  const [listingCtx, setListingCtx] = useState<OpenChatDetail['listing']>();
+  const pathListingId = pathname.startsWith('/listing/') ? pathname.split('/')[2] : undefined;
+  const listingIdFromPath = pathListingId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pathListingId) ? pathListingId : undefined;
+  const [used, setUsed] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [launcherW, setLauncherW] = useState(56);
+  const [viewportW, setViewportW] = useState(390);
+  const launcher = useRef<HTMLButtonElement>(null);
+  const expanded = !open && !used && !scrolled;
+  const hintType = pathname === '/' ? 'home' : pathname.startsWith('/search') ? 'search' : pathname.startsWith('/listing/') ? 'listing' : undefined;
+  const hintText = hintType === 'home' ? 'Need help finding a stay?' : hintType === 'search' ? "Can't find the right fit? I can help." : 'Questions about this place?';
   const [conversationId, setConversationId] = useState<string>();
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState('');
   const visitor = useRef('');
   const busy = useRef(false);
-  const opened = useRef(false);
+  const seenHints = useRef(new Set<string>());
   const textarea = useRef<HTMLTextAreaElement>(null);
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     visitor.current = getVisitor();
+    try { setUsed(localStorage.getItem('beitak_chat_used') === '1'); } catch { /* Storage is optional. */ }
     try {
       const raw = sessionStorage.getItem('beitak_chat_state');
       if (raw) {
@@ -97,19 +110,50 @@ export function ChatWidget() {
     try { sessionStorage.setItem('beitak_chat_state', JSON.stringify({ conversationId, messages })); } catch { /* In-memory conversation remains usable. */ }
   }, [conversationId, messages, ready]);
   useEffect(() => {
-    if (hidden || opened.current) return;
-    try { if (sessionStorage.getItem('beitak_chat_hint_seen')) return; } catch { /* Use in-memory state. */ }
+    const handleOpen = (event: Event) => {
+      const detail = (event as CustomEvent<OpenChatDetail>).detail;
+      if (detail?.listing) setListingCtx(detail.listing);
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_CHAT_EVENT, handleOpen);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, handleOpen);
+  }, []);
+  useEffect(() => { if (!pathname.startsWith('/listing/')) setListingCtx(undefined); }, [pathname]);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => { setScrolled(window.scrollY > 400); frame = 0; });
+    };
+    setScrolled(window.scrollY > 400);
+    window.addEventListener('scroll', update, { passive: true });
+    return () => { window.removeEventListener('scroll', update); window.cancelAnimationFrame(frame); };
+  }, []);
+  useEffect(() => {
+    const measure = () => { setLauncherW(launcher.current?.getBoundingClientRect().width ?? 56); setViewportW(window.innerWidth); };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (launcher.current) observer.observe(launcher.current);
+    window.addEventListener('resize', measure);
+    return () => { observer.disconnect(); window.removeEventListener('resize', measure); };
+  }, [expanded, open]);
+  useEffect(() => {
+    setHint(false);
+    if (hidden || open || !hintType || seenHints.current.has(hintType)) return;
+    const key = `beitak_chat_hint_seen:${hintType}`;
+    try { if (sessionStorage.getItem(key)) return; } catch { /* Use in-memory state. */ }
     const timer = window.setTimeout(() => {
-      if (opened.current) return;
       setHint(true);
-      try { sessionStorage.setItem('beitak_chat_hint_seen', '1'); } catch { /* Optional hint. */ }
+      seenHints.current.add(hintType);
+      try { sessionStorage.setItem(key, '1'); } catch { /* Optional hint. */ }
     }, 4000);
     return () => window.clearTimeout(timer);
-  }, [hidden]);
+  }, [pathname, hintType, hidden, open]);
   useEffect(() => { if (hidden) setOpen(false); }, [hidden]);
   useEffect(() => {
     if (!open || hidden) return;
-    opened.current = true;
+    setUsed(true);
+    try { localStorage.setItem('beitak_chat_used', '1'); } catch { /* Storage is optional. */ }
     setHint(false);
     textarea.current?.focus();
     const media = window.matchMedia('(max-width: 639px)');
@@ -132,7 +176,7 @@ export function ChatWidget() {
     setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', text: message }]);
     textarea.current?.focus();
     try {
-      const response = await fetch('/api/public/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversationId, visitorId: visitor.current, message, pageUrl: window.location.href }) });
+      const response = await fetch('/api/public/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversationId, visitorId: visitor.current, message, pageUrl: window.location.href, contextListingId: listingIdFromPath }) });
       const data = await response.json();
       if (typeof data.conversationId === 'string') setConversationId(data.conversationId);
       setMessages(prev => [...prev, response.ok ? { id: crypto.randomUUID(), role: 'assistant', text: data.reply, listings: data.listings, handoff: data.handoff, showHostForm: data.showHostForm } : { id: crypto.randomUUID(), role: 'error', text: data.error ?? fallbackError }]);
@@ -140,11 +184,13 @@ export function ChatWidget() {
     finally { busy.current = false; setLoading(false); if (document.activeElement === document.body || document.activeElement === textarea.current) textarea.current?.focus(); }
   }
   if (hidden) return null;
-  const visible = messages.length ? messages : [{ id: 'greeting', role: 'assistant' as const, text: greeting }];
+  const localGreeting = pathname.startsWith('/listing/') ? listingCtx?.id === listingIdFromPath && listingCtx?.title ? `Hi! Ask me anything about ${listingCtx.title}, like what's included, house rules or check-in.` : "Hi! Ask me anything about this place, like what's included, house rules or check-in." : greeting;
+  const chips = pathname.startsWith('/listing/') ? [["What's included?", "What's included in this place?"], ['House rules', 'What are the house rules here?'], ['Book this place', "I'd like to book this place"]] : [['Find a stay', "I'm looking for a place to stay"], ['How booking works', 'How does booking work?'], ['List my property', 'I want to list my property']];
+  const visible = messages.length ? messages : [{ id: 'greeting', role: 'assistant' as const, text: localGreeting }];
   return <>
     {!open && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp" style={{ bottom: base + 68, right: 24 }} className="fixed z-[9999] h-12 w-12 drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)] hover:scale-105 transition"><WhatsAppLogo className="h-12 w-12" /></a>}
-    {!open && hint && <div style={{ bottom: base + 10, right: 88 }} className="fixed z-[9999] hidden min-[380px]:flex items-center gap-2 bg-white rounded-[10px] shadow-[0_6px_18px_-6px_rgba(0,0,0,0.25)] text-[13px] font-semibold text-foreground px-3 py-2"><Button variant="ghost" onClick={() => setOpen(true)} className="p-0 h-auto hover:bg-transparent">Need help finding a stay?</Button><Button variant="ghost" size="icon" aria-label="Dismiss" className="h-5 w-5" onClick={() => setHint(false)}><X className="h-3 w-3" /></Button></div>}
-    <Button aria-label={open ? 'Close Beitak assistant' : 'Open Beitak assistant'} aria-expanded={open} onClick={() => setOpen(prev => !prev)} style={{ bottom: base, right: 20 }} className={`fixed z-[9999] h-14 w-14 rounded-full text-white transition ${open ? 'hidden sm:flex bg-foreground hover:bg-foreground/90' : 'bg-[#CC0000] shadow-[0_8px_20px_-6px_rgba(204,0,0,0.55)] hover:bg-[#A30000]'}`}>{open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}</Button>
+    {!open && hint && <div style={{ bottom: base + 6, right: 20 + launcherW + 12, maxWidth: Math.min(200, viewportW - (20 + launcherW + 12) - 16) }} className="fixed z-[9999] bg-white rounded-xl shadow-[0_6px_18px_-6px_rgba(0,0,0,0.25)] pl-[13px] pr-2.5 py-[9px] text-[13px] font-semibold leading-snug text-foreground flex items-center gap-2"><Button variant="ghost" onClick={() => setOpen(true)} className="min-w-0 whitespace-normal text-left text-[13px] leading-snug p-0 h-auto hover:bg-transparent">{hintText}</Button><Button variant="ghost" size="icon" aria-label="Dismiss" className="h-5 w-5 shrink-0" onClick={() => setHint(false)}><X className="h-3 w-3" /></Button></div>}
+    <Button ref={launcher} aria-label={open ? 'Close Beitak assistant' : 'Open Beitak assistant'} aria-expanded={open} onClick={() => setOpen(prev => !prev)} style={{ bottom: base, right: 20 }} className={`fixed z-[9999] rounded-full text-white transition-all duration-300 motion-reduce:transition-none ${open ? 'h-14 w-14 hidden sm:flex bg-foreground hover:bg-foreground/90' : `${expanded ? 'h-[52px] px-5 pl-[17px] inline-flex items-center gap-2.5 text-[15px] font-semibold whitespace-nowrap' : 'h-14 w-14'} bg-[#CC0000] shadow-[0_8px_20px_-6px_rgba(204,0,0,0.55)] hover:bg-[#A30000]'}`}>{open ? <X className="h-6 w-6" /> : expanded ? <><MessageCircle className="h-5 w-5" /><span>Ask Beitak</span></> : <MessageCircle className="h-6 w-6" />}</Button>
     {open && <div role="dialog" aria-label="Beitak assistant" aria-modal="true" style={{ '--chat-bottom': `${base + 72}px` } as React.CSSProperties} className="fixed inset-0 z-[10000] h-[100dvh] flex flex-col overflow-hidden bg-white text-foreground sm:inset-auto sm:right-5 sm:bottom-[var(--chat-bottom)] sm:z-[9999] sm:w-[384px] sm:h-[min(600px,calc(100dvh-140px))] sm:rounded-[18px] sm:shadow-[0_24px_60px_-12px_rgba(22,18,18,0.35)] sm:ring-1 sm:ring-black/5">
       <div className="px-5 py-4 pt-[calc(1rem+env(safe-area-inset-top))] sm:pt-4 border-b border-[#EFEAEA] flex items-center gap-3 shrink-0"><p className="min-w-0 flex-1 font-['Fraunces',Georgia,'Times_New_Roman',serif] text-[21px] font-medium leading-tight tracking-[-0.01em] normal-case text-foreground">Beitak assistant</p><Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-muted shrink-0" aria-label="Close" onClick={() => setOpen(false)}><X className="h-[18px] w-[18px]" /></Button></div>
       <div ref={list} className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-2.5" aria-live="polite" aria-busy={loading}>
@@ -160,7 +206,7 @@ export function ChatWidget() {
           {message.handoff && <a href={message.handoff.href} target="_blank" rel="noopener noreferrer" onClick={() => track({ conversationId, visitorId: visitor.current, type: 'handoff', listingId: message.handoff?.listingId, guests: message.handoff?.guests ?? undefined, checkIn: message.handoff?.checkIn ?? undefined }, true)} className="self-start inline-flex items-center gap-2 min-h-10 px-3.5 rounded-lg bg-[#CC0000] text-white text-[13.5px] font-semibold hover:bg-[#A30000]"><WhatsAppIcon className="h-4 w-4" />Continue on WhatsApp</a>}
           {message.showHostForm && !message.hostFormDone && <HostForm onComplete={form => { track({ conversationId, visitorId: visitor.current, type: 'host_form', form }); setMessages(prev => [...prev.map(m => m.id === message.id ? { ...m, hostFormDone: true } : m), { id: crypto.randomUUID(), role: 'assistant', text: 'Thanks! WhatsApp should open with your details, just press Send. Our team will get back to you soon.' }]); }} />}
         </div>)}
-        {!messages.some(m => m.role === 'user') && <div className="flex flex-wrap gap-2">{[['Find a stay', "I'm looking for a place to stay"], ['How booking works', 'How does booking work?'], ['List my property', 'I want to list my property']].map(([label, value]) => <Button key={label} variant="outline" disabled={!ready || loading} className="rounded-full border-[1.5px] border-foreground px-3 min-h-[34px] h-auto py-1.5 text-[13px] font-semibold bg-white hover:bg-foreground hover:text-white" onClick={() => void send(value)}>{label}</Button>)}</div>}
+        {!messages.some(m => m.role === 'user') && <div className="flex flex-wrap gap-2">{chips.map(([label, value]) => <Button key={label} variant="outline" disabled={!ready || loading} className="rounded-full border-[1.5px] border-foreground px-3 min-h-[34px] h-auto py-1.5 text-[13px] font-semibold bg-white hover:bg-foreground hover:text-white" onClick={() => void send(value)}>{label}</Button>)}</div>}
         {loading && <div aria-label="Assistant is typing" className={`${bubble} self-start bg-[#F3F0F0] flex gap-1.5`}>{[0, 1, 2].map(i => <span key={i} style={{ animationDelay: `${i * 150}ms` }} className="h-2 w-2 rounded-full bg-[#8A8282] animate-pulse motion-reduce:animate-none" />)}</div>}
       </div>
       <form onSubmit={event => { event.preventDefault(); void send(text); }} className="border-t border-[#EFEAEA] px-3 pt-2.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-3 shrink-0"><div className="rounded-xl border-[1.5px] border-[#E2DCDC] focus-within:border-foreground p-1 pl-3.5 flex items-end gap-2"><textarea ref={textarea} rows={1} value={text} onChange={event => setText(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(text); } }} className="min-w-0 flex-1 max-h-[108px] resize-none bg-transparent outline-none text-base leading-6 py-1.5" placeholder="Ask about stays, dates, prices…" maxLength={800} aria-label="Message" /><Button type="submit" aria-label="Send" disabled={!text.trim() || loading || !ready} className="h-9 w-9 shrink-0 p-0 rounded-[9px] bg-foreground text-white hover:bg-foreground/90 disabled:opacity-40"><ArrowRight className="h-4 w-4" /></Button></div><p className="mt-2 text-[11.5px] leading-snug text-[#8A8282]">AI assistant. Chats are saved to help us improve. Availability and final prices are confirmed by our team on WhatsApp.</p></form>
