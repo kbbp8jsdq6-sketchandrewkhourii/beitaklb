@@ -7,7 +7,8 @@ import { z } from "zod";
 import { Header } from "@/components/Header";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { supabase } from "@/integrations/supabase/client";
-import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown, Bed } from "lucide-react";
+import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronDown, Bed, Search, MessageCircle } from "lucide-react";
+import { openChat } from "@/lib/chat-events";
 import { cn } from "@/lib/utils";
 import { restoreListingReturnScroll } from "@/lib/listing-return";
 
@@ -556,19 +557,21 @@ function SearchPage() {
               ))}
             </div>
           ) : filteredResults.length === 0 ? (
-            <div className="mt-12 rounded-3xl border border-dashed border-border bg-muted/40 p-12 text-center">
-              <p className="font-display text-2xl text-foreground">No stays found</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {selectedAmenities.length > 0
-                  ? "Try removing some amenity filters."
-                  : "Try a different village, city, or keyword."}
-              </p>
-              <Link
-                to="/"
-                className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
-              >
-                ← Back home
-              </Link>
+            <div className="mx-auto flex max-w-xl flex-col items-center gap-2.5 rounded-2xl border border-dashed border-[#D9D3D3] bg-white px-6 py-10 text-center">
+              <Search className="h-7 w-7 text-[#8A8282]" aria-hidden="true" />
+              <p className="text-[17px] font-semibold text-foreground">No stays match these filters</p>
+              <p className="max-w-[34ch] text-sm leading-relaxed text-[#6B6363]">Tell our assistant what you're looking for and it will suggest the closest options.</p>
+              <div className="mt-1.5 flex flex-wrap justify-center gap-2.5">
+                <button type="button" onClick={() => openChat()} className="inline-flex h-11 items-center gap-2 rounded-lg bg-[#CC0000] px-4 text-sm font-semibold text-white hover:bg-[#A30000]">
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" /> Ask our assistant
+                </button>
+                <button type="button" onClick={() => {
+                  setLocalGuests(1); setLocalMin(0); setLocalMax(2000); setLocalLocation("");
+                  setLocalBedrooms(0); setLocalAmenities([]);
+                  setAppliedParams({ guests: 1, minBudget: 0, maxBudget: 2000, location: "", bedrooms: 0, amenities: [], sortPrice: "none", q: undefined, district: undefined, category: undefined, bathrooms: 0 });
+                  navigate({ search: () => ({}), resetScroll: false });
+                }} className="inline-flex h-11 items-center rounded-lg border-2 border-foreground px-4 text-sm font-semibold text-foreground hover:bg-foreground hover:text-white">Clear filters</button>
+              </div>
             </div>
           ) : (
             <>

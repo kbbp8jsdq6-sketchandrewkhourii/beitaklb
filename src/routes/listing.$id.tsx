@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle } from "lucide-react";
+import { openChat } from "@/lib/chat-events";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
 import { PhotoSlider } from "@/components/PhotoSlider";
@@ -346,6 +347,13 @@ function ListingPage() {
           </div>
         </header>
 
+        <div className="lg:hidden my-6 rounded-xl border border-[#E8E4E4] bg-white px-4 py-3.5 text-center">
+          <button type="button" onClick={() => openChat({ listing: { id: listing.id, title: listing.title } })} className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-[#CC0000] transition">
+            <MessageCircle className="h-4 w-4 text-[#CC0000]" aria-hidden="true" />
+            Questions about this place? <span className="underline underline-offset-[3px]">Ask our assistant</span>
+          </button>
+        </div>
+
         <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px]">
           {/* Left */}
           <section>
@@ -459,6 +467,12 @@ function ListingPage() {
                   Reserve via WhatsApp
                 </>
               </button>
+              <div className="mt-4 border-t border-[#EFEAEA] pt-4 text-center">
+                <button type="button" onClick={() => openChat({ listing: { id: listing.id, title: listing.title } })} className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-[#CC0000] transition">
+                  <MessageCircle className="h-4 w-4 text-[#CC0000]" aria-hidden="true" />
+                  Questions about this place? <span className="underline underline-offset-[3px]">Ask our assistant</span>
+                </button>
+              </div>
 
               <div className="mt-3 space-y-1 text-sm text-muted-foreground">
                 <p>⚠️ Prices may vary on public holidays and special occasions</p>
