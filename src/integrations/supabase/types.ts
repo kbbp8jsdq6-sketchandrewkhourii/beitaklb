@@ -99,6 +99,91 @@ export type Database = {
           },
         ]
       }
+      chat_conversations: {
+        Row: {
+          created_at: string
+          handoff_clicked: boolean
+          handoff_listing_id: string | null
+          host_form: Json | null
+          id: string
+          ip_hash: string | null
+          last_message_at: string
+          message_count: number
+          page_url: string | null
+          user_agent: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          handoff_clicked?: boolean
+          handoff_listing_id?: string | null
+          host_form?: Json | null
+          id?: string
+          ip_hash?: string | null
+          last_message_at?: string
+          message_count?: number
+          page_url?: string | null
+          user_agent?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          handoff_clicked?: boolean
+          handoff_listing_id?: string | null
+          host_form?: Json | null
+          id?: string
+          ip_hash?: string | null
+          last_message_at?: string
+          message_count?: number
+          page_url?: string | null
+          user_agent?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_handoff_listing_id_fkey"
+            columns: ["handoff_listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          listing_ids: string[] | null
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          listing_ids?: string[] | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          listing_ids?: string[] | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
