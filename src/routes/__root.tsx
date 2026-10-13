@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { VerifyEmailGate } from "@/components/VerifyEmailGate";
 import { BackButton } from "@/components/BackButton";
-import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 
 
@@ -103,7 +103,7 @@ function RootComponent() {
       <AuthProvider>
         <SiteGate />
         <BackButton />
-        <FloatingWhatsApp />
+        <ChatWidget />
         
         <Toaster richColors position="top-center" />
       </AuthProvider>
