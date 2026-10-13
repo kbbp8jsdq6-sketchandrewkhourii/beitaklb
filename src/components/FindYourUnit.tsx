@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus } from "lucide-react";
+import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus, MessageCircle } from "lucide-react";
+import { openChat } from "@/lib/chat-events";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -367,6 +368,13 @@ export function FindYourUnit() {
               Search
             </button>
           </div>
+          <p className="mt-4 text-center text-sm text-[#6B6363]">
+            Not sure where to start?{" "}
+            <button type="button" onClick={() => openChat()} className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-[#CC0000] transition">
+              <MessageCircle className="h-4 w-4 text-[#CC0000]" aria-hidden="true" />
+              <span className="underline underline-offset-[3px]">Ask our assistant</span>
+            </button>
+          </p>
         </div>
       </div>
     </section>

@@ -246,7 +246,12 @@ export const Route = createFileRoute("/api/public/chat")({
           timeZone: "Asia/Beirut", weekday: "long", month: "long", day: "numeric", year: "numeric",
           hour: "numeric", minute: "2-digit",
         }).format(new Date());
-        const system = buildSystemPrompt(now);
+        let system = buildSystemPrompt(now);
+        if (typeof body?.contextListingId === "string" && UUID_RE.test(body.contextListingId)) {
+          const { data: contextListing } = await db.from("listings").select("id, title")
+            .eq("id", body.contextListingId).eq("is_active", true).eq("status", "approved").maybeSingle();
+          if (contextListing) system += `\n\nCURRENT PAGE CONTEXT\nThe guest is currently viewing the listing "${contextListing.title}" (id ${contextListing.id}). When they say "this place", "here", "it", or ask about house rules, check-in, amenities, capacity or price without naming another listing, they mean this one: call get_listing_details with this id before answering. If they want to book it, confirm dates and guests, then call show_booking_handoff with this id.`;
+        }
 
         const callApi = async () => {
           const res = await fetch("https://api.anthropic.com/v1/messages", {
