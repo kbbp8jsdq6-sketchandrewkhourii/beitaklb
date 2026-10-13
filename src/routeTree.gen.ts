@@ -36,6 +36,7 @@ import { Route as AdminHeroImagesRouteImport } from './routes/admin.hero-images'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFeaturedRouteImport } from './routes/admin.featured'
 import { Route as AdminContactRouteImport } from './routes/admin.contact'
+import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 import { Route as BookingsIdConfirmationRouteImport } from './routes/bookings.$id.confirmation'
@@ -179,6 +180,11 @@ const AdminContactRoute = AdminContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminChatsRoute = AdminChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/chats': typeof AdminChatsRoute
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/chats': typeof AdminChatsRoute
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
@@ -303,6 +311,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/chats': typeof AdminChatsRoute
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
@@ -341,6 +350,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/announcements'
     | '/admin/approvals'
+    | '/admin/chats'
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
@@ -376,6 +386,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/announcements'
     | '/admin/approvals'
+    | '/admin/chats'
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/announcements'
     | '/admin/approvals'
+    | '/admin/chats'
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
@@ -651,6 +663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminContactRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/chats': {
+      id: '/admin/chats'
+      path: '/chats'
+      fullPath: '/admin/chats'
+      preLoaderRoute: typeof AdminChatsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/approvals': {
       id: '/admin/approvals'
       path: '/approvals'
@@ -706,6 +725,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminApprovalsRoute: typeof AdminApprovalsRoute
+  AdminChatsRoute: typeof AdminChatsRoute
   AdminContactRoute: typeof AdminContactRoute
   AdminFeaturedRoute: typeof AdminFeaturedRoute
   AdminFeedbackRoute: typeof AdminFeedbackRoute
@@ -720,6 +740,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminApprovalsRoute: AdminApprovalsRoute,
+  AdminChatsRoute: AdminChatsRoute,
   AdminContactRoute: AdminContactRoute,
   AdminFeaturedRoute: AdminFeaturedRoute,
   AdminFeedbackRoute: AdminFeedbackRoute,

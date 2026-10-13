@@ -12,6 +12,7 @@ import {
   Star,
   Images,
   Wand2,
+  Bot,
 } from "lucide-react";
 import { LogoTransparent } from "@/components/LogoTransparent";
 
@@ -26,6 +27,7 @@ type NavItem = {
     | "/admin/approvals"
     | "/admin/feedback"
     | "/admin/contact"
+    | "/admin/chats"
     | "/admin/announcements"
     | "/admin/settings";
   label: string;
@@ -43,6 +45,7 @@ const NAV: NavItem[] = [
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck },
   { to: "/admin/feedback", label: "Feedback", icon: MessageCircle },
   { to: "/admin/contact", label: "Contact", icon: Mail },
+  { to: "/admin/chats", label: "Chats", icon: Bot },
   { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
