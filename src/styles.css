@@ -604,3 +604,9 @@ body.no-scroll {
     animation-duration: 60s;
   }
 }
+
+@keyframes housebot-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes housebot-look { 0%, 40% { transform: translateX(0); } 50%, 70% { transform: translateX(1.5px); } 80%, 100% { transform: translateX(0); } }
+.housebot-eyes { animation: housebot-look 6s ease-in-out infinite; }
+.housebot-eye { transform-box: fill-box; transform-origin: center; animation: housebot-blink 4.5s infinite; }
+@media (prefers-reduced-motion: reduce) { .housebot-eyes, .housebot-eye { animation: none; } }

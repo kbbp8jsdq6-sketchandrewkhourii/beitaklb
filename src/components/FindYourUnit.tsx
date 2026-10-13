@@ -372,7 +372,7 @@ export function FindYourUnit() {
             Not sure where to start?{" "}
             <button type="button" onClick={() => openChat()} className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-[#CC0000] transition">
               <MessageCircle className="h-4 w-4 text-[#CC0000]" aria-hidden="true" />
-              <span className="underline underline-offset-[3px]">Ask our assistant</span>
+              <span className="underline underline-offset-[3px]">Ask our AI assistant</span>
             </button>
           </p>
         </div>
