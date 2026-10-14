@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Ruler, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub } from "lucide-react";
 import { detailsFromRow, type ListingDetails } from "@/lib/listing-details";
 import { openChat } from "@/lib/chat-events";
 import { Header } from "@/components/Header";
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/listing/$id")({
       };
     }
     const title = `${listing.title} in ${listing.location} | Beitak.lb`;
-    const desc = (listing.about ?? listing.description ?? `Stay at ${listing.title} in ${listing.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
+    const desc = (listing.about?.trim() || listing.description?.trim() || `Stay at ${listing.title} in ${listing.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
     const url = `https://beitaklb.com/listing/${params.id}`;
     const photos = (listing.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order);
     const image = photos[0]?.photo_url ?? null;
@@ -66,6 +66,7 @@ export const Route = createFileRoute("/listing/$id")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "place" },
+        { name: "twitter:card", content: "summary_large_image" },
         { property: "og:url", content: url },
         ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
       ],
@@ -103,7 +104,7 @@ async function fetchListing(id: string) {
     .select(`
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, category, host_id, created_at, latitude, longitude,
-      min_guests, bedroom_details, bathroom_details, kitchens, living_area_m2, check_in_time, check_out_time, stay_types,
+      bedroom_details, check_in_time, check_out_time, stay_types,
       extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about, details_converted_at,
       listing_photos(id, photo_url, display_order),
       reviews(id, rating, comment, created_at, reviewer_id)
@@ -282,16 +283,12 @@ function ListingPage() {
   const beds = pos(listing.bedrooms);
   const baths = pos(listing.bathrooms);
   const specs = [
-    maxGuests ? { icon: Users, value: `Up to ${maxGuests} guests`, detail: d.min_guests ? `Minimum ${d.min_guests}` : null } : null,
+    maxGuests ? { icon: Users, value: `Up to ${maxGuests} guests`, detail: null } : null,
     beds ? { icon: BedDouble, value: `${beds} bedroom${beds === 1 ? "" : "s"}`, detail: d.bedroom_details } : null,
-    baths ? { icon: Bath, value: `${baths} bathroom${baths === 1 ? "" : "s"}`, detail: d.bathroom_details } : null,
-    d.living_area_m2
-      ? { icon: Ruler, value: `${d.living_area_m2.toLocaleString()} m²`, detail: d.kitchens ? `${d.kitchens} kitchen${d.kitchens === 1 ? "" : "s"}` : null }
-      : d.kitchens
-        ? { icon: Ruler, value: `${d.kitchens} kitchen${d.kitchens === 1 ? "" : "s"}`, detail: null }
-        : null,
+    baths ? { icon: Bath, value: `${baths} bathroom${baths === 1 ? "" : "s"}`, detail: null } : null,
   ].filter((x): x is { icon: typeof Check; value: string; detail: string | null } => !!x);
   const amenityList: string[] = listing.amenities ?? [];
+  const aboutText = d.about?.trim() || listing.description;
 
   const restPhotos = photos.slice(1);
   const listingUrl = `https://beitaklb.com/listing/${id}`;
@@ -502,14 +499,14 @@ function ListingPage() {
               </div>}
             </div>
             {converted && specs.length > 0 && (
-              <div className="grid grid-cols-2 gap-3 border-b border-border py-6 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 border-b border-border py-6 sm:grid-cols-3">
                 {specs.map((sp, i) => <SpecCard key={i} icon={sp.icon} value={sp.value} detail={sp.detail} />)}
               </div>
             )}
-            {(converted ? d.about : listing.description) && (
+            {aboutText && (
               <div className="border-b border-border py-6">
                 <h3 className="font-display text-xl">About this place</h3>
-                <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-foreground/80">{converted ? d.about : listing.description}</p>
+                <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-foreground/80">{aboutText}</p>
               </div>
             )}
             {converted && (weekday || weekend || d.other_rates.length > 0 || d.check_in_time || d.check_out_time) && (
