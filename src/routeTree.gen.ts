@@ -33,6 +33,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminOptimizePhotosRouteImport } from './routes/admin.optimize-photos'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
 import { Route as AdminHeroImagesRouteImport } from './routes/admin.hero-images'
+import { Route as AdminGoogleReviewsRouteImport } from './routes/admin.google-reviews'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFeaturedRouteImport } from './routes/admin.featured'
 import { Route as AdminContactRouteImport } from './routes/admin.contact'
@@ -165,6 +166,11 @@ const AdminHeroImagesRoute = AdminHeroImagesRouteImport.update({
   path: '/hero-images',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminGoogleReviewsRoute = AdminGoogleReviewsRouteImport.update({
+  id: '/google-reviews',
+  path: '/google-reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/google-reviews': typeof AdminGoogleReviewsRoute
   '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/google-reviews': typeof AdminGoogleReviewsRoute
   '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
@@ -315,6 +323,7 @@ export interface FileRoutesById {
   '/admin/contact': typeof AdminContactRoute
   '/admin/featured': typeof AdminFeaturedRoute
   '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/google-reviews': typeof AdminGoogleReviewsRoute
   '/admin/hero-images': typeof AdminHeroImagesRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
+    | '/admin/google-reviews'
     | '/admin/hero-images'
     | '/admin/listings'
     | '/admin/optimize-photos'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
+    | '/admin/google-reviews'
     | '/admin/hero-images'
     | '/admin/listings'
     | '/admin/optimize-photos'
@@ -427,6 +438,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/featured'
     | '/admin/feedback'
+    | '/admin/google-reviews'
     | '/admin/hero-images'
     | '/admin/listings'
     | '/admin/optimize-photos'
@@ -642,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHeroImagesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/google-reviews': {
+      id: '/admin/google-reviews'
+      path: '/google-reviews'
+      fullPath: '/admin/google-reviews'
+      preLoaderRoute: typeof AdminGoogleReviewsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/feedback': {
       id: '/admin/feedback'
       path: '/feedback'
@@ -729,6 +748,7 @@ interface AdminRouteChildren {
   AdminContactRoute: typeof AdminContactRoute
   AdminFeaturedRoute: typeof AdminFeaturedRoute
   AdminFeedbackRoute: typeof AdminFeedbackRoute
+  AdminGoogleReviewsRoute: typeof AdminGoogleReviewsRoute
   AdminHeroImagesRoute: typeof AdminHeroImagesRoute
   AdminListingsRoute: typeof AdminListingsRoute
   AdminOptimizePhotosRoute: typeof AdminOptimizePhotosRoute
@@ -744,6 +764,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminContactRoute: AdminContactRoute,
   AdminFeaturedRoute: AdminFeaturedRoute,
   AdminFeedbackRoute: AdminFeedbackRoute,
+  AdminGoogleReviewsRoute: AdminGoogleReviewsRoute,
   AdminHeroImagesRoute: AdminHeroImagesRoute,
   AdminListingsRoute: AdminListingsRoute,
   AdminOptimizePhotosRoute: AdminOptimizePhotosRoute,
