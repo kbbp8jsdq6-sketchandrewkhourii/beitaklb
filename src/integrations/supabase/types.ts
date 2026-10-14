@@ -864,6 +864,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      reorder_google_reviews: {
+        Args: { review_ids: string[] }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"

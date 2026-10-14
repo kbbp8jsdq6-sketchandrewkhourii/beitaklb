@@ -15,6 +15,13 @@
       "when": 1791974958294,
       "tag": "0001_admin_managed_google_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791974977875,
+      "tag": "0002_atomic_google_review_reordering",
+      "breakpoints": true
     }
   ]
 }
