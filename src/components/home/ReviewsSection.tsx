@@ -24,8 +24,8 @@ function Attribution({ review, featured = false }: { review: GoogleReview; featu
   </figcaption>;
 }
 
-export default function ReviewsSection() {
-  const { data } = useSuspenseQuery(googleReviewsOptions);
+export default function ReviewsSection({ initialData }: { initialData: { reviews: GoogleReview[]; rating: number | null; count: number | null } }) {
+  const { data } = useSuspenseQuery({ ...googleReviewsOptions, initialData });
   const featured = data.reviews.find(review => review.featured) ?? data.reviews[0];
   const rest = data.reviews.filter(review => review.id !== featured?.id).slice(0, 2);
   return <section id="google-reviews" className="relative border-y border-border bg-background">

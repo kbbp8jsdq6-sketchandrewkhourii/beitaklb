@@ -13,7 +13,7 @@ import { SectionDivider } from "@/components/SectionDivider";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
-import { googleReviewsOptions } from "@/lib/google-reviews";
+import { getGoogleReviews } from "@/lib/google-reviews.functions";
 
 const DesktopHero = lazy(() => import("@/components/home/DesktopHero"));
 
@@ -87,13 +87,13 @@ export const Route = createFileRoute("/")({
           ]
         : [],
   }),
-  loader: async ({ context }) => {
-    const [featuredListings, heroImages] = await Promise.all([
+  loader: async () => {
+    const [featuredListings, heroImages, googleReviews] = await Promise.all([
       fetchFeaturedListings(),
       fetchHeroImages(),
-      context.queryClient.ensureQueryData(googleReviewsOptions),
+      getGoogleReviews(),
     ]);
-    return { featuredListings, heroImages };
+    return { featuredListings, heroImages, googleReviews };
   },
   component: HomePage,
   errorComponent: () => <p className="p-8 text-muted-foreground">The homepage could not be loaded. Please try again.</p>,
@@ -144,7 +144,7 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured, heroImages } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, heroImages, googleReviews } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -343,7 +343,7 @@ function HomePage() {
 
       {/* 4. REVIEWS */}
       <Suspense fallback={<div className="h-64" />}>
-        <ReviewsSection />
+        <ReviewsSection initialData={googleReviews} />
       </Suspense>
 
       <SectionDivider fill="var(--color-background)" flip />
