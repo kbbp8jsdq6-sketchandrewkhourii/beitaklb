@@ -1,0 +1,4 @@
+# Architecture rules
+- Homepage Google reviews use a public read server function and shared query cache; admin changes use the typed browser client with database-enforced admin policies to keep public reads safe and writes authorized.
+- Google review ordering is saved atomically through an admin-only database function, and a database trigger plus unique index enforce one featured review, so concurrent edits cannot leave partial ordering or multiple featured reviews.
+- Review QR codes are rendered locally with qrcode.react from the shared Google review destination, avoiding external QR image services and keeping all review links consistent.
