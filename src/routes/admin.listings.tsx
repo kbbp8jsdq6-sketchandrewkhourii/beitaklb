@@ -21,6 +21,11 @@ export const Route = createFileRoute("/admin/listings")({
   head: () => ({
     meta: [
       { title: "Listings - Admin - BEITAK" },
+      { name: "description", content: "Manage Beitak listings, amenities and stay details." },
+      { property: "og:title", content: "Listings - Admin - BEITAK" },
+      { property: "og:description", content: "Manage Beitak listings, amenities and stay details." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

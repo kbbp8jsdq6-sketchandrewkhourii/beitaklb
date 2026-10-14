@@ -135,11 +135,7 @@ export function ListingDetailsFields({
     <div className="space-y-4 rounded-xl border border-border p-4">
       <p className="font-display text-xl">Listing details</p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {numField("min_guests", "Minimum guests")}
-        {numField("kitchens", "Kitchens")}
         {textField("bedroom_details", "Bedroom details", "e.g. 3 master + 3 double")}
-        {textField("bathroom_details", "Bathroom details", "e.g. + 1 guest toilet")}
-        {numField("living_area_m2", "Living area (m²)")}
         <div />
         {textField("check_in_time", "Check-in time", "e.g. 2:00 PM")}
         {textField("check_out_time", "Check-out time", "e.g. 12:00 PM")}
@@ -294,11 +290,7 @@ export function detailsPayload(d: ListingDetails, amenities: string[]) {
     Object.entries(d.amenity_details).filter(([k, v]) => amenities.includes(k) && v.trim()).map(([k, v]) => [k, v.trim()]),
   );
   return {
-    min_guests: d.min_guests,
     bedroom_details: d.bedroom_details?.trim() || null,
-    bathroom_details: d.bathroom_details?.trim() || null,
-    kitchens: d.kitchens,
-    living_area_m2: d.living_area_m2,
     check_in_time: d.check_in_time?.trim() || null,
     check_out_time: d.check_out_time?.trim() || null,
     stay_types: d.stay_types,

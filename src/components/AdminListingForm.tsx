@@ -4,13 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, ImagePlus } from "lucide-react";
-import { CustomAmenityInput } from "@/components/CustomAmenityInput";
 import { FieldError } from "@/components/FieldError";
-import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
+import { adminListingSchema, listingDescription, fieldErrors, sanitizeLine, friendlyError, validateImageFile } from "@/lib/validation";
 import { compressImage } from "@/lib/image-compress";
 import { LocationPreviewMap } from "@/components/LocationPreviewMap";
 import { ConvertDescriptionBox, ListingDetailsFields, detailsPayload, WARN_CLASS } from "@/components/ListingDetailsEditor";
@@ -69,7 +67,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [warnFields, setWarnFields] = useState<Set<string>>(new Set());
 
   const handleConverted = (r: ConversionResult) => {
-    setDetails(r.details);
+    setDetails((prev) => ({ ...r.details, amenity_details: { ...prev.amenity_details, ...r.details.amenity_details } }));
     setAmenities((prev) => {
       const lower = new Set(prev.map((x) => x.toLowerCase()));
       return [...prev, ...r.amenities.filter((x) => !lower.has(x.toLowerCase()))];
@@ -79,7 +77,6 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
     if (r.core.bathrooms) setBathrooms(String(r.core.bathrooms));
     if (r.core.price_weekday) setPriceWeekday(String(r.core.price_weekday));
     if (r.core.price_weekend) setPriceWeekend(String(r.core.price_weekend));
-    if (!description.trim() && r.details.about) setDescription(r.details.about);
     setWarnings(r.warnings.map((w) => w.message));
     setWarnFields(new Set(r.warnings.map((w) => w.field)));
   };
@@ -157,12 +154,12 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
     }
 
     const cleanTitle = sanitizeLine(title);
-    const cleanDesc = stripHtml(description);
+    const cleanDesc = listingDescription(details.about, sourceText, description);
     const cleanLoc = sanitizeLine(location);
     const wd = Number(priceWeekday);
     const we = Number(priceWeekend);
 
-    const parsed = listingSchema.safeParse({
+    const parsed = adminListingSchema.safeParse({
       title: cleanTitle,
       description: cleanDesc,
       location: cleanLoc,
@@ -256,11 +253,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} placeholder="Cozy stone house in Bcharre" />
             <FieldError message={errors.title} />
           </div>
-          <div>
-            <Label htmlFor="desc">Description *</Label>
-            <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={1000} aria-invalid={!!errors.description} placeholder="Tell guests what makes your place special…" />
-            <FieldError message={errors.description} />
-          </div>
+
 
           <div>
             <Label htmlFor="loc">City / Location *</Label>
@@ -405,11 +398,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
                 );
               })}
             </div>
-            <CustomAmenityInput
-              defaultOptions={AMENITY_OPTIONS}
-              value={amenities}
-              onChange={setAmenities}
-            />
+            
           </div>
 
           <ListingDetailsFields value={details} onChange={setDetails} amenities={amenities} warn={warnFields} />

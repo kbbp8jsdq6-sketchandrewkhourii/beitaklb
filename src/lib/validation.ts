@@ -117,6 +117,20 @@ export const listingSchema = z.object({
     .max(3000, "Price can't exceed $3000"),
 });
 
+/** Admin descriptions are generated at Save and may legitimately be empty. */
+export const adminListingSchema = listingSchema.extend({
+  description: z.string().max(1000, "Description must be 1000 characters or less"),
+});
+
+export function listingDescription(about: string | null, source: string, existing = ""): string {
+  const cleanAbout = stripHtml(about ?? "");
+  if (cleanAbout) return cleanAbout.slice(0, 1000);
+  const cleanSource = stripHtml(source)
+    .replace(/(?:[#*0-9]\uFE0F?\u20E3)|[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\uFE0F\u200D\u{E0020}-\u{E007F}]/gu, "")
+    .trim();
+  return cleanSource ? cleanSource.slice(0, 1000) : existing;
+}
+
 // ---------------- Image upload ----------------
 
 export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];

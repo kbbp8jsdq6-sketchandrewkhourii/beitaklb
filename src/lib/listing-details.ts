@@ -115,7 +115,7 @@ export function detailsFromRow(row: Record<string, unknown>): ListingDetails {
 }
 
 export function hasStructuredDetails(d: ListingDetails): boolean {
-  return Object.entries(d).some(([, v]) =>
+  return Object.entries(d).filter(([key]) => !["min_guests", "kitchens", "bathroom_details", "living_area_m2"].includes(key)).some(([, v]) =>
     Array.isArray(v) ? v.length > 0 : v && typeof v === "object" ? Object.keys(v).length > 0 : v != null,
   );
 }
@@ -141,14 +141,15 @@ Strict rules:
 - "about": rewrite as 2-3 clean, natural sentences in English describing the place, based only on the text. Under 600 characters.
 - "highlights": up to 6 short facts (max 6 words each), e.g. "1,200 m above sea level", "Sea & mountain views", "5 min from Douma".
 - Amenities: map each amenity to the EXACT name from this list when it matches (case and spelling variants count, e.g. WiFi / Wi-Fi / wifi -> "High speed WiFi"; air conditioning -> "AC"; fireplace -> "Chimney"; 24/7 electricity -> "Electricity 24/7"): {{AMENITIES}}.
-  Anything not in the list becomes a short custom amenity name in Title Case. Do not list bedrooms, bathrooms or kitchens as amenities.
+  Skip anything that does not match the list. Never create custom amenities. Do not list bedrooms, bathrooms or kitchens as amenities or amenity details.
 - amenity_details: optional detail line per amenity name, only when written (e.g. Pool: "7m × 3.5m, 1.3m deep").
 - Prices in USD as plain numbers. price_weekday/price_weekend are per-night prices. extra_guest_fee_* is per extra person; extra_guest_after is the guest count after which the fee applies.
 - other_rates: other named prices such as Monthly, Events, Weddings, Day use.
 - stay_types: any of "overnight", "day use", "events" only when stated or clearly offered.
 - Times as written, normalized like "2:00 PM".
 - Fix obvious typos in what you output, and list each in "typos" as "original -> fixed".
-- bedroom_details / bathroom_details: a short breakdown only, e.g. "3 master + 3 double", "+ 1 guest toilet". bedrooms and bathrooms are the counts of bedrooms and full bathrooms as written (a guest toilet is not a bathroom).
+- bedroom_details: a short bedroom breakdown only, e.g. "3 master + 3 double". bedrooms and bathrooms are the counts of bedrooms and full bathrooms as written (a guest toilet is not a bathroom).
+- Do not extract minimum guests, kitchens, bathroom detail lines or living area into any field.
 - In "unclear", list short notes for anything ambiguous.`;
 
 export function buildSystemPrompt(): string {
@@ -166,13 +167,9 @@ export const CONVERT_TOOL = {
       type: "object",
       properties: {
         max_guests: nullable("number"),
-        min_guests: nullable("number"),
         bedrooms: nullable("number"),
         bedroom_details: nullable("string"),
         bathrooms: nullable("number"),
-        bathroom_details: nullable("string"),
-        kitchens: nullable("number"),
-        living_area_m2: nullable("number"),
         check_in_time: nullable("string"),
         check_out_time: nullable("string"),
         stay_types: { type: "array", items: { type: "string", enum: [...STAY_TYPES] } },
@@ -222,6 +219,7 @@ export function normalizeConversion(raw: Record<string, unknown>): ConversionRes
     const s = str(a, 40);
     if (!s) continue;
     const c = canonicalAmenity(s);
+    if (!AMENITY_OPTIONS.includes(c)) continue;
     if (!amenitySet.has(c.toLowerCase())) amenitySet.set(c.toLowerCase(), c);
   }
   const amenities = [...amenitySet.values()];
@@ -236,6 +234,10 @@ export function normalizeConversion(raw: Record<string, unknown>): ConversionRes
   }
   const details = detailsFromRow({
     ...raw,
+    min_guests: null,
+    kitchens: null,
+    bathroom_details: null,
+    living_area_m2: null,
     amenity_details,
     about: str(raw.about, 1000),
   });

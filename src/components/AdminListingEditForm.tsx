@@ -4,13 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { LEBANESE_LOCATIONS } from "@/lib/lebanon";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, X, ImagePlus, Loader2 } from "lucide-react";
-import { CustomAmenityInput } from "@/components/CustomAmenityInput";
 import { FieldError } from "@/components/FieldError";
-import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
+import { adminListingSchema, listingDescription, fieldErrors, sanitizeLine, friendlyError, validateImageFile } from "@/lib/validation";
 import { compressImage } from "@/lib/image-compress";
 import { LocationPreviewMap } from "@/components/LocationPreviewMap";
 import { ConvertDescriptionBox, ListingDetailsFields, detailsPayload, WARN_CLASS } from "@/components/ListingDetailsEditor";
@@ -87,7 +85,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         const { data: l, error } = await supabase
           .from("listings")
           .select(
-            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities, location_link, latitude, longitude, min_guests, bedroom_details, bathroom_details, kitchens, living_area_m2, check_in_time, check_out_time, stay_types, extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about",
+            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities, location_link, latitude, longitude, bedroom_details, check_in_time, check_out_time, stay_types, extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about",
           )
           .eq("id", listingId)
           .single();
@@ -146,7 +144,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   }, [open, listingId, onClose]);
 
   const handleConverted = (r: ConversionResult) => {
-    setDetails(r.details);
+    setDetails((prev) => ({ ...r.details, amenity_details: { ...prev.amenity_details, ...r.details.amenity_details } }));
     setAmenities((prev) => {
       const lower = new Set(prev.map((x) => x.toLowerCase()));
       return [...prev, ...r.amenities.filter((x) => !lower.has(x.toLowerCase()))];
@@ -243,12 +241,12 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
     }
 
     const cleanTitle = sanitizeLine(title);
-    const cleanDesc = stripHtml(description);
+    const cleanDesc = listingDescription(details.about, sourceText, description);
     const cleanLoc = sanitizeLine(location);
     const wd = Number(priceWeekday);
     const we = Number(priceWeekend);
 
-    const parsed = listingSchema.safeParse({
+    const parsed = adminListingSchema.safeParse({
       title: cleanTitle,
       description: cleanDesc,
       location: cleanLoc,
@@ -362,18 +360,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
               <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} />
               <FieldError message={errors.title} />
             </div>
-            <div>
-              <Label htmlFor="desc">Description *</Label>
-              <Textarea
-                id="desc"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                maxLength={1000}
-                aria-invalid={!!errors.description}
-              />
-              <FieldError message={errors.description} />
-            </div>
+
 
             <div>
               <Label htmlFor="loc">City / Location *</Label>
@@ -559,11 +546,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   );
                 })}
               </div>
-              <CustomAmenityInput
-                defaultOptions={AMENITY_OPTIONS}
-                value={amenities}
-                onChange={setAmenities}
-              />
+              
             </div>
 
             <ListingDetailsFields value={details} onChange={setDetails} amenities={amenities} warn={warnFields} />
