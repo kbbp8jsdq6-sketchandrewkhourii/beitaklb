@@ -5,3 +5,5 @@
 - Listing description conversion runs in the admin-checked /api/convert-listing server route (bearer token + has_role), so AI calls and the API key stay server-side; public About falls back to stored description when empty.
 - Admin listing saves use the shared description-generation helper and admin-specific schema, so hidden descriptions never block Save while other forms retain their validation.
 - Retired listing details are omitted from write payloads and active-detail detection; conversion filters new amenities to the shared list and merges existing amenity details, so legacy data survives edits.
+- Retired Feedback and static reviewer URLs retain redirect-only TanStack routes, so old deep links stay valid without keeping their content.
+- The public Google reviews query returns the admin-saved view-reviews destination separately from the shared write-review/QR destination, so clearing the view link hides only its button.

@@ -10,3 +10,8 @@
 - [x] Generate hidden descriptions on Save and preserve legacy data while restricting AI and new amenity choices.
 - [x] Remove retired fields from forms and public specs; preserve description fallback.
 - [x] Verify signed-in Save, conversion and desktop/mobile display.
+
+# Retire Feedback and separate Google review links
+- [ ] Remove Feedback navigation and static review content; preserve old-link redirects and stored feedback.
+- [ ] Add saved Google reviews page link and conditional See all reviews button.
+- [ ] Verify redirects, settings saves, write/QR links and desktop/mobile layouts.
