@@ -17,9 +17,9 @@ export const getGoogleReviews = createServerFn({ method: "GET" }).handler(async 
   });
   const [reviews, settings] = await Promise.all([
     client.from("google_reviews").select("id, guest_name, rating, review_text, property_name, featured, display_order").order("display_order").order("created_at"),
-    client.from("site_settings").select("google_rating, google_review_count").eq("id", 1).maybeSingle(),
+    client.from("site_settings").select("google_rating, google_review_count, google_reviews_page_link").eq("id", 1).maybeSingle(),
   ]);
   if (reviews.error) throw reviews.error;
   if (settings.error) throw settings.error;
-  return { reviews: reviews.data ?? [], rating: settings.data?.google_rating ?? null, count: settings.data?.google_review_count ?? null };
+  return { reviews: reviews.data ?? [], rating: settings.data?.google_rating ?? null, count: settings.data?.google_review_count ?? null, reviewsPageLink: settings.data?.google_reviews_page_link?.trim() || null };
 });

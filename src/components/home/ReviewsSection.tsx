@@ -4,7 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Reveal } from "@/components/Reveal";
 import { PatternBackground } from "@/components/PatternBackground";
 import { Button } from "@/components/ui/button";
-import { GOOGLE_REVIEW_URL, googleReviewsOptions, type GoogleReview } from "@/lib/google-reviews";
+import { GOOGLE_REVIEW_URL, googleReviewsOptions, type GoogleReview, type GoogleReviewsData } from "@/lib/google-reviews";
 
 function Stars({ rating, className = "" }: { rating: number; className?: string }) {
   return <div role="img" aria-label={`Rated ${rating} out of 5`} className={`flex gap-1 ${className}`}>
@@ -24,7 +24,7 @@ function Attribution({ review, featured = false }: { review: GoogleReview; featu
   </figcaption>;
 }
 
-export default function ReviewsSection({ initialData }: { initialData: { reviews: GoogleReview[]; rating: number | null; count: number | null } }) {
+export default function ReviewsSection({ initialData }: { initialData: GoogleReviewsData }) {
   const { data } = useSuspenseQuery({ ...googleReviewsOptions, initialData });
   const featured = data.reviews.find(review => review.featured) ?? data.reviews[0];
   const rest = data.reviews.filter(review => review.id !== featured?.id).slice(0, 2);
@@ -60,7 +60,7 @@ export default function ReviewsSection({ initialData }: { initialData: { reviews
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-primary-foreground/90 md:text-base">Tell other guests how it went. It takes less than a minute and helps us bring you even better places.</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" variant="outline" className="h-12 w-full rounded-lg border-primary-foreground bg-background px-5 font-semibold text-foreground hover:bg-background/90 hover:text-foreground sm:w-auto"><a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer">Write a Google review<ArrowUpRight aria-hidden="true" /></a></Button>
-            <Button asChild size="lg" variant="outline" className="h-12 w-full rounded-lg border-primary-foreground bg-transparent px-5 font-semibold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground sm:w-auto"><a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer">See all reviews</a></Button>
+            {data.reviewsPageLink && <Button asChild size="lg" variant="outline" className="h-12 w-full rounded-lg border-primary-foreground bg-transparent px-5 font-semibold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground sm:w-auto"><a href={data.reviewsPageLink} target="_blank" rel="noopener noreferrer">See all reviews</a></Button>}
           </div>
         </div>
         <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" aria-label="Scan to review on Google (opens in a new tab)" className="hidden w-44 shrink-0 flex-col items-center rounded-lg bg-background p-4 text-center text-foreground md:flex">

@@ -8,3 +8,4 @@ export const googleReviewsOptions = queryOptions({
   staleTime: 60_000,
 });
 export type GoogleReview = Awaited<ReturnType<typeof getGoogleReviews>>["reviews"][number];
+export type GoogleReviewsData = Awaited<ReturnType<typeof getGoogleReviews>>;

@@ -10,7 +10,6 @@ import {
   MessageSquare,
   UserPlus,
   Heart,
-  MessageCircle,
   FileText,
   Share2,
   Instagram,
@@ -256,12 +255,6 @@ export function HamburgerMenu() {
                   />
                 )}
 
-                <MenuLink
-                  to="/feedback"
-                  icon={<MessageCircle className="h-4 w-4" />}
-                  label="Feedback"
-                  onSelect={close}
-                />
                 <MenuLink
                   to="/terms"
                   icon={<FileText className="h-4 w-4" />}
