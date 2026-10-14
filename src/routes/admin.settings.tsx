@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Save, AlertTriangle } from "lucide-react";
@@ -48,6 +48,7 @@ const EMPTY: SettingsForm = {
 };
 
 function AdminSettingsPage() {
+  const queryClient = useQueryClient();
   const [form, setForm] = useState<SettingsForm>(EMPTY);
   const [saving, setSaving] = useState(false);
 
@@ -98,6 +99,7 @@ function AdminSettingsPage() {
     if (error) toast.error(error.message);
     else {
       toast.success("Settings saved");
+      queryClient.invalidateQueries({ queryKey: ["google-reviews"] });
       q.refetch();
     }
   };
