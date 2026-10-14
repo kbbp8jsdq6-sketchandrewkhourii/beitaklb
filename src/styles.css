@@ -610,3 +610,7 @@ body.no-scroll {
 .housebot-eyes { animation: housebot-look 6s ease-in-out infinite; }
 .housebot-eye { transform-box: fill-box; transform-origin: center; animation: housebot-blink 4.5s infinite; }
 @media (prefers-reduced-motion: reduce) { .housebot-eyes, .housebot-eye { animation: none; } }
+
+/* Google reviews QR inherits the site's ink and canvas tokens. */
+.google-review-qr path:first-of-type { fill: var(--background); }
+.google-review-qr path:last-of-type { fill: var(--foreground); }

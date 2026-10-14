@@ -372,6 +372,42 @@ export type Database = {
         }
         Relationships: []
       }
+      google_reviews: {
+        Row: {
+          created_at: string
+          display_order: number
+          featured: boolean
+          guest_name: string
+          id: string
+          property_name: string | null
+          rating: number
+          review_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          featured?: boolean
+          guest_name: string
+          id?: string
+          property_name?: string | null
+          rating?: number
+          review_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          featured?: boolean
+          guest_name?: string
+          id?: string
+          property_name?: string | null
+          rating?: number
+          review_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hero_images: {
         Row: {
           created_at: string
@@ -680,6 +716,8 @@ export type Database = {
           business_instagram: string | null
           business_phone: string | null
           business_whatsapp: string | null
+          google_rating: number | null
+          google_review_count: number | null
           id: number
           maintenance_mode: boolean
           terms_text: string | null
@@ -690,6 +728,8 @@ export type Database = {
           business_instagram?: string | null
           business_phone?: string | null
           business_whatsapp?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           id?: number
           maintenance_mode?: boolean
           terms_text?: string | null
@@ -700,6 +740,8 @@ export type Database = {
           business_instagram?: string | null
           business_phone?: string | null
           business_whatsapp?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           id?: number
           maintenance_mode?: boolean
           terms_text?: string | null
@@ -821,6 +863,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      reorder_google_reviews: {
+        Args: { review_ids: string[] }
+        Returns: undefined
       }
     }
     Enums: {
