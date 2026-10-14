@@ -9,7 +9,6 @@ const STATIC_URLS: { loc: string; changefreq: string; priority: string }[] = [
   { loc: "/about", changefreq: "monthly", priority: "0.6" },
   { loc: "/contact", changefreq: "monthly", priority: "0.6" },
   { loc: "/become-a-host", changefreq: "monthly", priority: "0.6" },
-  { loc: "/feedback", changefreq: "monthly", priority: "0.4" },
   { loc: "/terms", changefreq: "yearly", priority: "0.3" },
 ];
 

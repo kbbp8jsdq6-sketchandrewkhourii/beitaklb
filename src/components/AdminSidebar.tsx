@@ -5,7 +5,6 @@ import {
   Users,
   ClipboardCheck,
   ArrowLeft,
-  MessageCircle,
   Mail,
   Megaphone,
   Settings,
@@ -25,7 +24,6 @@ type NavItem = {
     | "/admin/optimize-photos"
     | "/admin/users"
     | "/admin/approvals"
-    | "/admin/feedback"
     | "/admin/google-reviews"
     | "/admin/contact"
     | "/admin/chats"
@@ -44,7 +42,6 @@ const NAV: NavItem[] = [
   { to: "/admin/optimize-photos", label: "Optimize Photos", icon: Wand2 },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/approvals", label: "Approvals", icon: ClipboardCheck },
-  { to: "/admin/feedback", label: "Feedback", icon: MessageCircle },
   { to: "/admin/google-reviews", label: "Google Reviews", icon: Star },
   { to: "/admin/contact", label: "Contact", icon: Mail },
   { to: "/admin/chats", label: "Chats", icon: Bot },

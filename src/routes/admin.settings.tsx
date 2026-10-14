@@ -34,6 +34,7 @@ interface SettingsForm {
   terms_text: string;
   google_rating: string;
   google_review_count: string;
+  google_reviews_page_link: string;
 }
 
 const EMPTY: SettingsForm = {
@@ -45,6 +46,7 @@ const EMPTY: SettingsForm = {
   terms_text: "",
   google_rating: "",
   google_review_count: "",
+  google_reviews_page_link: "",
 };
 
 function AdminSettingsPage() {
@@ -76,6 +78,7 @@ function AdminSettingsPage() {
         terms_text: q.data.terms_text ?? "",
         google_rating: q.data.google_rating == null ? "" : String(q.data.google_rating),
         google_review_count: q.data.google_review_count == null ? "" : String(q.data.google_review_count),
+        google_reviews_page_link: q.data.google_reviews_page_link ?? "",
       });
     }
   }, [q.data]);
@@ -90,10 +93,20 @@ function AdminSettingsPage() {
       toast.error("Enter a Google rating from 1 to 5 with at most one decimal, and a whole review count of 0 or more.");
       return;
     }
+    const reviewsLink = form.google_reviews_page_link.trim();
+    if (reviewsLink) {
+      try {
+        const url = new URL(reviewsLink);
+        if (url.protocol !== "https:" || url.username || url.password) throw new Error("Invalid review link");
+      } catch {
+        toast.error("Enter a valid HTTPS Google reviews page link, or leave it empty.");
+        return;
+      }
+    }
     setSaving(true);
     const { error } = await supabase
       .from("site_settings")
-      .update({ ...form, google_rating: rating, google_review_count: count })
+      .update({ ...form, google_rating: rating, google_review_count: count, google_reviews_page_link: reviewsLink || null })
       .eq("id", 1);
     setSaving(false);
     if (error) toast.error(error.message);
@@ -205,6 +218,7 @@ function AdminSettingsPage() {
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div><Label htmlFor="google-rating">Google rating</Label><Input id="google-rating" type="number" min="1" max="5" step="0.1" value={form.google_rating} onChange={(e) => update({ google_rating: e.target.value })} className="mt-1" /></div>
           <div><Label htmlFor="google-review-count">Google review count</Label><Input id="google-review-count" type="number" min="0" step="1" value={form.google_review_count} onChange={(e) => update({ google_review_count: e.target.value })} className="mt-1" /></div>
+          <div className="sm:col-span-2"><Label htmlFor="google-reviews-page-link">Google reviews page link</Label><Input id="google-reviews-page-link" type="url" value={form.google_reviews_page_link} onChange={(e) => update({ google_reviews_page_link: e.target.value })} className="mt-1" /></div>
         </div>
       </section>
 

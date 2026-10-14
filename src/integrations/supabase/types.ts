@@ -795,6 +795,7 @@ export type Database = {
           business_whatsapp: string | null
           google_rating: number | null
           google_review_count: number | null
+          google_reviews_page_link: string | null
           id: number
           maintenance_mode: boolean
           terms_text: string | null
@@ -807,6 +808,7 @@ export type Database = {
           business_whatsapp?: string | null
           google_rating?: number | null
           google_review_count?: number | null
+          google_reviews_page_link?: string | null
           id?: number
           maintenance_mode?: boolean
           terms_text?: string | null
@@ -819,6 +821,7 @@ export type Database = {
           business_whatsapp?: string | null
           google_rating?: number | null
           google_review_count?: number | null
+          google_reviews_page_link?: string | null
           id?: number
           maintenance_mode?: boolean
           terms_text?: string | null
