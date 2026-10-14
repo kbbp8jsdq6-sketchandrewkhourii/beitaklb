@@ -12,6 +12,6 @@
 - [x] Verify signed-in Save, conversion and desktop/mobile display.
 
 # Retire Feedback and separate Google review links
-- [ ] Remove Feedback navigation and static review content; preserve old-link redirects and stored feedback.
-- [ ] Add saved Google reviews page link and conditional See all reviews button.
-- [ ] Verify redirects, settings saves, write/QR links and desktop/mobile layouts.
+- [x] Remove Feedback navigation and static review content; preserve old-link redirects and stored feedback.
+- [x] Add saved Google reviews page link and conditional See all reviews button.
+- [x] Verify redirects, settings saves, write/QR links and desktop/mobile layouts.
