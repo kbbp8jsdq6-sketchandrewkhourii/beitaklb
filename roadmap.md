@@ -3,3 +3,5 @@
 - [x] Add Google Reviews admin management and navigation.
 - [x] Replace homepage reviews with managed reviews and Google review banner/QR.
 - [x] Verify permissions, admin workflow, and desktop/mobile displays.
+# Structured listing details
+- [x] Details fields, admin convert box, public layout, 180 listings converted, Needs details badge and filter.

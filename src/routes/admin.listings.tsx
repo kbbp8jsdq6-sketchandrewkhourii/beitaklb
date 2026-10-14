@@ -36,6 +36,7 @@ function AdminListingsPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [hostFilter, setHostFilter] = useState<string>("all");
+  const [flaggedOnly, setFlaggedOnly] = useState(false);
 
   const listingsQ = useQuery({
     queryKey: ["admin-listings-full"],
@@ -43,7 +44,7 @@ function AdminListingsPage() {
       const { data, error } = await supabase
         .from("listings")
         .select(
-          "id, title, category, price_per_night, is_active, status, host_id, created_at, profiles:host_id(full_name)",
+          "id, title, category, price_per_night, is_active, status, host_id, created_at, needs_details_reasons, profiles:host_id(full_name)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -66,10 +67,11 @@ function AdminListingsPage() {
     return (listingsQ.data ?? []).filter((l) => {
       if (categoryFilter !== "all" && l.category !== categoryFilter) return false;
       if (hostFilter !== "all" && l.host_id !== hostFilter) return false;
+      if (flaggedOnly && !(l.needs_details_reasons?.length)) return false;
       if (term && !l.title.toLowerCase().includes(term)) return false;
       return true;
     });
-  }, [listingsQ.data, categoryFilter, hostFilter, search]);
+  }, [listingsQ.data, categoryFilter, hostFilter, search, flaggedOnly]);
 
   const toggleActive = async (id: string, active: boolean) => {
     const { error } = await supabase
@@ -143,6 +145,10 @@ function AdminListingsPage() {
             ))}
           </SelectContent>
         </Select>
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input type="checkbox" checked={flaggedOnly} onChange={(e) => setFlaggedOnly(e.target.checked)} className="h-4 w-4 accent-primary" />
+          Needs details only ({(listingsQ.data ?? []).filter((l) => l.needs_details_reasons?.length).length})
+        </label>
         <span className="ml-auto text-xs text-muted-foreground">
           {filtered.length} of {listingsQ.data?.length ?? 0}
         </span>
@@ -172,6 +178,14 @@ function AdminListingsPage() {
                   >
                     {l.title}
                   </Link>
+                  {l.needs_details_reasons && l.needs_details_reasons.length > 0 && (
+                    <div className="mt-1">
+                      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700 dark:text-amber-400">
+                        Needs details
+                      </span>
+                      <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">{l.needs_details_reasons.join(" · ")}</p>
+                    </div>
+                  )}
                 </td>
                 <td className="p-3 text-muted-foreground">
                   {l.profiles?.full_name ?? "-"}
