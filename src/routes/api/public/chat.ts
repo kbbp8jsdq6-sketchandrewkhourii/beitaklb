@@ -105,7 +105,7 @@ export const Route = createFileRoute("/api/public/chat")({
           return json({ error: "Invalid conversationId" }, 400);
         const pageUrl = typeof body?.pageUrl === "string" ? body.pageUrl.slice(0, 500) : null;
 
-        const apiKey = process.env.ANTHROPIC_API_KEY;
+        const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) return json({ error: "The assistant is unavailable right now. Please message us on WhatsApp." }, 503);
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -253,21 +253,80 @@ export const Route = createFileRoute("/api/public/chat")({
           if (contextListing) system += `\n\nCURRENT PAGE CONTEXT\nThe guest is currently viewing the listing "${contextListing.title}" (id ${contextListing.id}). When they say "this place", "here", "it", or ask about house rules, check-in, amenities, capacity or price without naming another listing, they mean this one: call get_listing_details with this id before answering. If they want to book it, confirm dates and guests, then call show_booking_handoff with this id.`;
         }
 
+        let runId: string | undefined;
+        let busy = false;
+        // Lovable AI gateway, native Messages endpoint (required for Claude models), streamed and accumulated server-side.
         const callApi = async () => {
-          const res = await fetch("https://api.anthropic.com/v1/messages", {
+          const headers: Record<string, string> = {
+            Authorization: `Bearer ${apiKey}`,
+            "content-type": "application/json",
+            "X-Lovable-AIG-SDK": "fetch",
+          };
+          if (runId) headers["X-Lovable-AIG-Run-ID"] = runId;
+          const res = await fetch("https://ai.gateway.lovable.dev/v1/messages", {
             method: "POST",
-            headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-            body: JSON.stringify({ model: CHAT_MODEL, max_tokens: 700, system, tools: TOOLS, messages }),
+            headers,
+            body: JSON.stringify({ model: CHAT_MODEL, max_tokens: 700, system, tools: TOOLS, messages, stream: true }),
           });
-          if (!res.ok) { console.error("Anthropic error", res.status, await res.text()); return null; }
-          return (await res.json()) as any;
+          runId ??= res.headers.get("X-Lovable-AIG-Run-ID")?.trim() || undefined;
+          if (!res.ok || !res.body) {
+            console.error("Lovable AI error", res.status, await res.text());
+            if (res.status === 429 || res.status === 402) busy = true;
+            return null;
+          }
+          const msg: any = { content: [] as any[], stop_reason: null };
+          const partial: Record<number, string> = {};
+          const reader = res.body.getReader();
+          const dec = new TextDecoder();
+          let buf = "";
+          const handle = (ev: any) => {
+            if (ev.type === "content_block_start") {
+              const b = { ...ev.content_block };
+              if (b.type === "tool_use") { b.input = {}; partial[ev.index] = ""; }
+              if (b.type === "text") b.text = b.text ?? "";
+              msg.content[ev.index] = b;
+            } else if (ev.type === "content_block_delta") {
+              const b = msg.content[ev.index];
+              if (!b) return;
+              if (ev.delta?.type === "text_delta") b.text += ev.delta.text;
+              else if (ev.delta?.type === "input_json_delta") partial[ev.index] += ev.delta.partial_json ?? "";
+            } else if (ev.type === "content_block_stop") {
+              const b = msg.content[ev.index];
+              if (b?.type === "tool_use") {
+                const raw = partial[ev.index] ?? "";
+                try { b.input = raw ? JSON.parse(raw) : {}; } catch { b.input = {}; b._invalid = true; }
+              }
+            } else if (ev.type === "message_delta") {
+              if (ev.delta?.stop_reason) msg.stop_reason = ev.delta.stop_reason;
+            } else if (ev.type === "error") {
+              throw new Error(`stream error: ${JSON.stringify(ev.error)}`);
+            }
+          };
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buf += dec.decode(value, { stream: true });
+            let i: number;
+            while ((i = buf.indexOf("\n\n")) !== -1) {
+              const frame = buf.slice(0, i);
+              buf = buf.slice(i + 2);
+              const data = frame.split("\n").filter((l) => l.startsWith("data:")).map((l) => l.slice(5).trim()).join("");
+              if (!data || data === "[DONE]") continue;
+              try { handle(JSON.parse(data)); } catch (e) { if (String(e).includes("stream error")) throw e; }
+            }
+          }
+          msg.content = (msg.content as any[]).filter(Boolean);
+          return msg;
         };
-        const fail = () => json({ error: "The assistant is having trouble right now. Please try again or message us on WhatsApp.", conversationId }, 502);
+        const fail = () => busy
+          ? json({ error: "The assistant is busy right now. Please message us on WhatsApp.", conversationId }, 503)
+          : json({ error: "The assistant is having trouble right now. Please try again or message us on WhatsApp.", conversationId }, 502);
 
         let resp: any;
         try {
           resp = await callApi();
           if (!resp) return fail();
+          if (resp.stop_reason === "refusal") return fail();
           let iter = 0;
           while (resp.stop_reason === "tool_use" && iter < 4) {
             iter++;
@@ -275,13 +334,18 @@ export const Route = createFileRoute("/api/public/chat")({
             for (const block of resp.content ?? []) {
               if (block.type !== "tool_use") continue;
               let out: unknown;
-              try { out = await runTool(block.name, block.input ?? {}); } catch (e) { console.error("tool", block.name, e); out = { error: "Tool failed" }; }
+              if (block._invalid) out = { error: "Invalid arguments" };
+              else {
+                try { out = await runTool(block.name, block.input ?? {}); } catch (e) { console.error("tool", block.name, e); out = { error: "Tool failed" }; }
+              }
+              delete block._invalid;
               results.push({ type: "tool_result", tool_use_id: block.id, content: JSON.stringify(out) });
             }
             messages.push({ role: "assistant", content: resp.content });
             messages.push({ role: "user", content: results });
             resp = await callApi();
             if (!resp) return fail();
+            if (resp.stop_reason === "refusal") return fail();
           }
         } catch (e) {
           console.error("chat failed", e);

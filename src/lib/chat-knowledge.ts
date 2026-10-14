@@ -1,4 +1,4 @@
-export const CHAT_MODEL = "claude-haiku-4-5-20251001";
+export const CHAT_MODEL = "anthropic/claude-haiku-4-5";
 export const LISTING_BASE_URL = "https://beitaklb.com/listing/";
 
 const PROMPT = `You are the Beitak assistant on beitaklb.com. Beitak is a Lebanese guesthouse and short-term rental agency. You help guests find and book guesthouses in Lebanon, answer questions about how Beitak works, and help property owners apply to list.
