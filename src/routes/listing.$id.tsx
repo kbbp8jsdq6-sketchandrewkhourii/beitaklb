@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Ruler, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub } from "lucide-react";
+import { detailsFromRow, type ListingDetails } from "@/lib/listing-details";
 import { openChat } from "@/lib/chat-events";
 import { Header } from "@/components/Header";
 import { Lightbox } from "@/components/Lightbox";
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/listing/$id")({
       };
     }
     const title = `${listing.title} in ${listing.location} | Beitak.lb`;
-    const desc = (listing.description ?? `Stay at ${listing.title} in ${listing.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
+    const desc = (listing.about ?? listing.description ?? `Stay at ${listing.title} in ${listing.location}.`).replace(/\s+/g, " ").trim().slice(0, 160);
     const url = `https://beitaklb.com/listing/${params.id}`;
     const photos = (listing.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order);
     const image = photos[0]?.photo_url ?? null;
@@ -102,6 +103,8 @@ async function fetchListing(id: string) {
     .select(`
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, category, host_id, created_at, latitude, longitude,
+      min_guests, bedroom_details, bathroom_details, kitchens, living_area_m2, check_in_time, check_out_time, stay_types,
+      extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about, details_converted_at,
       listing_photos(id, photo_url, display_order),
       reviews(id, rating, comment, created_at, reviewer_id)
     `)
@@ -140,6 +143,99 @@ const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
   apartment: "Apartment",
 };
 
+const AMENITY_ICONS: [RegExp, typeof Check][] = [
+  [/jacuzzi|hot tub/i, Tub],
+  [/pool/i, Waves],
+  [/wifi|internet/i, Wifi],
+  [/parking/i, Car],
+  [/chimney|fireplace|bbq|barbecue/i, Flame],
+  [/^ac$|air ?cond/i, Snowflake],
+  [/tv|stream/i, Tv],
+  [/electric/i, Zap],
+  [/hot water/i, Droplets],
+  [/gym/i, Dumbbell],
+  [/pet/i, PawPrint],
+  [/wheelchair/i, Accessibility],
+  [/beach/i, Umbrella],
+  [/balcony|terrace|garden/i, Sun],
+  [/washer|dryer|laundry/i, WashingMachine],
+  [/breakfast|coffee/i, Coffee],
+];
+const amenityIcon = (a: string) => AMENITY_ICONS.find(([re]) => re.test(a))?.[1] ?? Check;
+const money = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+const pos = (v: unknown): number | null => {
+  const n = Number(v);
+  return v != null && Number.isFinite(n) && n > 0 ? n : null;
+};
+
+function SpecCard({ icon: Icon, value, detail }: { icon: typeof Check; value: string; detail?: string | null }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+      <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
+      {detail && <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>}
+    </div>
+  );
+}
+
+function PriceCard({ d, weekday, weekend }: { d: ListingDetails; weekday: number | null; weekend: number | null }) {
+  const from = weekday && weekend ? Math.min(weekday, weekend) : weekday ?? weekend;
+  const fees = [
+    d.extra_guest_fee_weekday ? `${money(d.extra_guest_fee_weekday)} weekdays` : null,
+    d.extra_guest_fee_weekend ? `${money(d.extra_guest_fee_weekend)} weekends` : null,
+  ].filter(Boolean);
+  return (
+    <div className="space-y-4">
+      {from && (
+        <p className="text-foreground">
+          <span className="text-sm text-muted-foreground">From </span>
+          <span className="font-display text-3xl">{money(from)}</span>
+          <span className="text-sm text-muted-foreground"> / night</span>
+        </p>
+      )}
+      {(weekday || weekend) && (
+        <div className="space-y-1">
+          {weekday && (
+            <p className="flex items-baseline justify-between text-sm"><span className="text-muted-foreground">Weekday</span><span className="font-semibold">{money(weekday)}</span></p>
+          )}
+          {weekend && (
+            <p className="flex items-baseline justify-between text-sm"><span className="text-muted-foreground">Weekend</span><span className="font-semibold">{money(weekend)}</span></p>
+          )}
+        </div>
+      )}
+      {fees.length > 0 && (
+        <div className="text-sm">
+          <p className="text-muted-foreground">Extra guest fee</p>
+          <p className="font-semibold">{fees.join(" · ")} per person</p>
+          {d.extra_guest_after && <p className="text-xs text-muted-foreground">After {d.extra_guest_after} guests</p>}
+        </div>
+      )}
+      {d.other_rates.length > 0 && (
+        <div className="border-t border-border pt-3">
+          <p className="font-display text-lg">Other rates</p>
+          <ul className="mt-1 space-y-1">
+            {d.other_rates.map((r, i) => (
+              <li key={i} className="flex justify-between text-sm"><span className="text-muted-foreground">{r.name}</span><span className="font-semibold">{money(r.price)}</span></li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {(d.check_in_time || d.check_out_time) && (
+        <div className="grid grid-cols-2 gap-2 border-t border-border pt-3 text-sm">
+          {d.check_in_time && (
+            <div><p className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5" /> Check-in</p><p className="font-semibold">{d.check_in_time}</p></div>
+          )}
+          {d.check_out_time && (
+            <div><p className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5" /> Check-out</p><p className="font-semibold">{d.check_out_time}</p></div>
+          )}
+        </div>
+      )}
+      {d.stay_types.length > 0 && (
+        <p className="text-xs capitalize text-muted-foreground">{d.stay_types.join(" · ")}</p>
+      )}
+    </div>
+  );
+}
 
 function ListingPage() {
   const { id } = useParams({ from: "/listing/$id" });
@@ -177,6 +273,25 @@ function ListingPage() {
   }, [listing]);
 
   if (!listing) return null;
+
+  const converted = !!listing.details_converted_at;
+  const d = detailsFromRow(listing as unknown as Record<string, unknown>);
+  const weekday = pos(listing.price_weekday);
+  const weekend = pos(listing.price_weekend);
+  const maxGuests = pos(listing.max_guests);
+  const beds = pos(listing.bedrooms);
+  const baths = pos(listing.bathrooms);
+  const specs = [
+    maxGuests ? { icon: Users, value: `Up to ${maxGuests} guests`, detail: d.min_guests ? `Minimum ${d.min_guests}` : null } : null,
+    beds ? { icon: BedDouble, value: `${beds} bedroom${beds === 1 ? "" : "s"}`, detail: d.bedroom_details } : null,
+    baths ? { icon: Bath, value: `${baths} bathroom${baths === 1 ? "" : "s"}`, detail: d.bathroom_details } : null,
+    d.living_area_m2
+      ? { icon: Ruler, value: `${d.living_area_m2.toLocaleString()} m²`, detail: d.kitchens ? `${d.kitchens} kitchen${d.kitchens === 1 ? "" : "s"}` : null }
+      : d.kitchens
+        ? { icon: Ruler, value: `${d.kitchens} kitchen${d.kitchens === 1 ? "" : "s"}`, detail: null }
+        : null,
+  ].filter((x): x is { icon: typeof Check; value: string; detail: string | null } => !!x);
+  const amenityList: string[] = listing.amenities ?? [];
 
   const restPhotos = photos.slice(1);
   const listingUrl = `https://beitaklb.com/listing/${id}`;
@@ -338,13 +453,22 @@ function ListingPage() {
             <span className="flex items-center gap-1.5">
               <MapPin className="h-4 w-4 text-primary" /> {listing.location}, Lebanon
             </span>
+            {!converted && (<>
             <span className="flex items-center gap-1.5">
               <DollarSign className="h-4 w-4 text-primary" /> Weekday ${Number(listing.price_weekday).toFixed(0)} · Weekend ${Number(listing.price_weekend).toFixed(0)}
             </span>
             <span className="flex items-center gap-1.5">
               <Users className="h-4 w-4 text-primary" /> Up to {listing.max_guests} guests
             </span>
+            </>)}
           </div>
+          {converted && d.highlights.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {d.highlights.map((h, i) => (
+                <li key={i} className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">{h}</li>
+              ))}
+            </ul>
+          )}
         </header>
 
         <div className="lg:hidden my-6 rounded-xl border border-[#E8E4E4] bg-white px-4 py-3.5 text-center">
@@ -371,17 +495,50 @@ function ListingPage() {
                   className="inline-block h-auto w-[60px] shrink-0 object-contain"
                 />
               </h2>
-              <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+              {!converted && <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Users className="h-4 w-4" /> {listing.max_guests} guests</span>
                 <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" /> {listing.bedrooms} bedroom{listing.bedrooms === 1 ? "" : "s"}</span>
                 <span className="flex items-center gap-1.5"><Bath className="h-4 w-4" /> {Number(listing.bathrooms)} bath</span>
+              </div>}
+            </div>
+            {converted && specs.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 border-b border-border py-6 sm:grid-cols-4">
+                {specs.map((sp, i) => <SpecCard key={i} icon={sp.icon} value={sp.value} detail={sp.detail} />)}
               </div>
-            </div>
-            <div className="border-b border-border py-6">
-              <h3 className="font-display text-xl">About this place</h3>
-              <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-foreground/80">{listing.description}</p>
-            </div>
-            {listing.amenities && listing.amenities.length > 0 && (
+            )}
+            {(converted ? d.about : listing.description) && (
+              <div className="border-b border-border py-6">
+                <h3 className="font-display text-xl">About this place</h3>
+                <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-foreground/80">{converted ? d.about : listing.description}</p>
+              </div>
+            )}
+            {converted && (weekday || weekend || d.other_rates.length > 0 || d.check_in_time || d.check_out_time) && (
+              <div className="border-b border-border py-6 lg:hidden">
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <PriceCard d={d} weekday={weekday} weekend={weekend} />
+                </div>
+              </div>
+            )}
+            {converted && amenityList.length > 0 && (
+              <div className="border-b border-border py-6">
+                <h3 className="font-display text-xl">What this place offers</h3>
+                <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                  {amenityList.map((a) => {
+                    const Icon = amenityIcon(a);
+                    return (
+                      <li key={a} className="flex items-start gap-3">
+                        <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{a}</p>
+                          {d.amenity_details[a] && <p className="text-xs text-muted-foreground">{d.amenity_details[a]}</p>}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+            {!converted && listing.amenities && listing.amenities.length > 0 && (
               <div className="border-b border-border py-6">
                 <h3 className="font-display text-xl">Amenities</h3>
                 <ul className="mt-4 flex flex-wrap gap-2">
@@ -437,8 +594,8 @@ function ListingPage() {
 
           {/* Booking card (desktop) */}
           <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-lg">
-              <div className="space-y-1">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-lg">
+              {converted ? <PriceCard d={d} weekday={weekday} weekend={weekend} /> : <div className="space-y-1">
                 <p className="flex items-baseline justify-between text-sm">
                   <span className="text-muted-foreground">Weekday</span>
                   <span><span className="font-semibold text-foreground">${Number(listing.price_weekday).toFixed(0)}</span><span className="text-xs text-muted-foreground"> / night</span></span>
@@ -447,7 +604,7 @@ function ListingPage() {
                   <span className="text-muted-foreground">Weekend</span>
                   <span><span className="font-semibold text-foreground">${Number(listing.price_weekend).toFixed(0)}</span><span className="text-xs text-muted-foreground"> / night</span></span>
                 </p>
-              </div>
+              </div>}
               <div className="mt-4 flex items-center gap-3 border-y border-border py-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
                   {(listing.profiles?.full_name ?? "H").charAt(0).toUpperCase()}

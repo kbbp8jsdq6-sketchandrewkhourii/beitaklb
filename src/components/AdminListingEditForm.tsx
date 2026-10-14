@@ -13,26 +13,9 @@ import { FieldError } from "@/components/FieldError";
 import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 import { compressImage } from "@/lib/image-compress";
 import { LocationPreviewMap } from "@/components/LocationPreviewMap";
+import { ConvertDescriptionBox, ListingDetailsFields, detailsPayload, WARN_CLASS } from "@/components/ListingDetailsEditor";
+import { AMENITY_OPTIONS, EMPTY_DETAILS, computeMissingReasons, detailsFromRow, findConflicts, hasStructuredDetails, type ConversionResult, type ListingDetails } from "@/lib/listing-details";
 
-const AMENITY_OPTIONS = [
-  "Pool",
-  "Gym",
-  "Parking",
-  "Pet Friendly",
-  "Washer/Dryer",
-  "Balcony",
-  "AC",
-  "BBQ Area",
-  "Beach Access",
-  "Chimney",
-  "Jacuzzi",
-  "Wheelchair Accessibility",
-  "Breakfast included",
-  "Electricity 24/7",
-  "High speed WiFi",
-  "Smart TV & streaming services",
-  "Hot water",
-];
 
 type Category = "villa" | "cabin" | "apartment";
 const CATEGORIES: { value: Category; label: string }[] = [
@@ -86,6 +69,11 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
   const [locatingMap, setLocatingMap] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
+  const [details, setDetails] = useState<ListingDetails>(EMPTY_DETAILS);
+  const [sourceText, setSourceText] = useState("");
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [warnFields, setWarnFields] = useState<Set<string>>(new Set());
+
   const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>([]);
   const [photosToDelete, setPhotosToDelete] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
@@ -99,7 +87,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
         const { data: l, error } = await supabase
           .from("listings")
           .select(
-            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities, location_link, latitude, longitude",
+            "id, host_id, title, description, location, category, district, price_weekday, price_weekend, max_guests, bedrooms, bathrooms, amenities, location_link, latitude, longitude, min_guests, bedroom_details, bathroom_details, kitchens, living_area_m2, check_in_time, check_out_time, stay_types, extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about",
           )
           .eq("id", listingId)
           .single();
@@ -112,7 +100,18 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           .order("display_order", { ascending: true });
         if (pErr) throw pErr;
 
+        const { data: src } = await supabase
+          .from("listing_source_descriptions")
+          .select("original_description")
+          .eq("listing_id", listingId)
+          .maybeSingle();
+
         if (cancelled) return;
+
+        setDetails(detailsFromRow(l as unknown as Record<string, unknown>));
+        setSourceText(src?.original_description ?? "");
+        setWarnings([]);
+        setWarnFields(new Set());
 
         setHostId(l.host_id);
         setTitle(l.title);
@@ -145,6 +144,32 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
       cancelled = true;
     };
   }, [open, listingId, onClose]);
+
+  const handleConverted = (r: ConversionResult) => {
+    setDetails(r.details);
+    setAmenities((prev) => {
+      const lower = new Set(prev.map((x) => x.toLowerCase()));
+      return [...prev, ...r.amenities.filter((x) => !lower.has(x.toLowerCase()))];
+    });
+    const stored = {
+      max_guests: Number(maxGuests) || null,
+      bedrooms: Number(bedrooms) || null,
+      bathrooms: Number(bathrooms) || null,
+      price_weekday: Number(priceWeekday) || null,
+      price_weekend: Number(priceWeekend) || null,
+    };
+    const conflicts = findConflicts(stored, r.core);
+    const keyFor: Record<string, string> = { guests: "max_guests", bedrooms: "bedrooms", bathrooms: "bathrooms", weekday: "price_weekday", weekend: "price_weekend" };
+    const msgs = r.warnings
+      .filter((w) => !(w.field in stored) || stored[w.field as keyof typeof stored] == null)
+      .map((w) => w.message);
+    for (const c of conflicts) msgs.push(`Text says a different ${c} value (${r.core[keyFor[c] as keyof typeof r.core]}). Kept the current one.`);
+    setWarnings(msgs);
+    setWarnFields(new Set([
+      ...r.warnings.filter((w) => !(w.field in stored) || stored[w.field as keyof typeof stored] == null).map((w) => w.field),
+      ...conflicts.map((c) => keyFor[c]),
+    ]));
+  };
 
   const toggleAmenity = (a: string) =>
     setAmenities((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
@@ -257,9 +282,22 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           latitude: mapCoords?.lat ?? null,
           longitude: mapCoords?.lng ?? null,
           ...({ district: district || null } as Record<string, unknown>),
+          ...detailsPayload(details, amenities),
+          needs_details_reasons: computeMissingReasons(
+            { max_guests: Number(maxGuests), bedrooms: Number(bedrooms), bathrooms: Number(bathrooms), price_weekday: wd, price_weekend: we },
+            details,
+          ),
+          ...(hasStructuredDetails(details) ? { details_converted_at: new Date().toISOString() } : {}),
         })
         .eq("id", listingId);
       if (uErr) throw uErr;
+
+      if (sourceText.trim()) {
+        const { error: sErr } = await supabase
+          .from("listing_source_descriptions")
+          .upsert({ listing_id: listingId, original_description: sourceText.trim().slice(0, 6000) });
+        if (sErr) throw sErr;
+      }
 
       if (photosToDelete.length > 0) {
         const { error: dErr } = await supabase
@@ -318,6 +356,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            <ConvertDescriptionBox text={sourceText} onTextChange={setSourceText} onConverted={handleConverted} warnings={warnings} />
             <div>
               <Label htmlFor="title">Listing title *</Label>
               <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} />
@@ -434,7 +473,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                     step="1"
                     value={priceWeekday}
                     onChange={(e) => setPriceWeekday(e.target.value)}
-                    className="pl-7"
+                    className={`pl-7 ${warnFields.has("price_weekday") ? WARN_CLASS : ""}`}
                     aria-invalid={!!errors.priceWeekday}
                   />
                 </div>
@@ -454,7 +493,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                     step="1"
                     value={priceWeekend}
                     onChange={(e) => setPriceWeekend(e.target.value)}
-                    className="pl-7"
+                    className={`pl-7 ${warnFields.has("price_weekend") ? WARN_CLASS : ""}`}
                     aria-invalid={!!errors.priceWeekend}
                   />
                 </div>
@@ -471,6 +510,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   min="1"
                   value={maxGuests}
                   onChange={(e) => setMaxGuests(e.target.value)}
+                  className={warnFields.has("max_guests") ? WARN_CLASS : ""}
                 />
               </div>
               <div>
@@ -481,6 +521,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   min="0"
                   value={bedrooms}
                   onChange={(e) => setBedrooms(e.target.value)}
+                  className={warnFields.has("bedrooms") ? WARN_CLASS : ""}
                 />
               </div>
               <div>
@@ -492,6 +533,7 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                   step="0.5"
                   value={bathrooms}
                   onChange={(e) => setBathrooms(e.target.value)}
+                  className={warnFields.has("bathrooms") ? WARN_CLASS : ""}
                 />
               </div>
             </div>
@@ -523,6 +565,8 @@ export function AdminListingEditForm({ open, listingId, onClose, onSaved }: Prop
                 onChange={setAmenities}
               />
             </div>
+
+            <ListingDetailsFields value={details} onChange={setDetails} amenities={amenities} warn={warnFields} />
 
             <div>
               <Label>Photos</Label>

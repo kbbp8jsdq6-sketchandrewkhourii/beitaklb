@@ -28,6 +28,7 @@ import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
+import { Route as ApiConvertListingRouteImport } from './routes/api/convert-listing'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminOptimizePhotosRouteImport } from './routes/admin.optimize-photos'
@@ -139,6 +140,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/auth/forgot-password',
   path: '/auth/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiConvertListingRoute = ApiConvertListingRouteImport.update({
+  id: '/api/convert-listing',
+  path: '/api/convert-listing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -253,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/convert-listing': typeof ApiConvertListingRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/convert-listing': typeof ApiConvertListingRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/admin/optimize-photos': typeof AdminOptimizePhotosRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/convert-listing': typeof ApiConvertListingRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/admin/optimize-photos'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/convert-listing'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -406,6 +416,7 @@ export interface FileRouteTypes {
     | '/admin/optimize-photos'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/convert-listing'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/admin/optimize-photos'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/convert-listing'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -471,6 +483,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  ApiConvertListingRoute: typeof ApiConvertListingRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
@@ -617,6 +630,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/forgot-password'
       fullPath: '/auth/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/convert-listing': {
+      id: '/api/convert-listing'
+      path: '/api/convert-listing'
+      fullPath: '/api/convert-listing'
+      preLoaderRoute: typeof ApiConvertListingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -798,6 +818,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  ApiConvertListingRoute: ApiConvertListingRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,

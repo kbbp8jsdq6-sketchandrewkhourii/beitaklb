@@ -22,6 +22,13 @@
       "when": 1791974977875,
       "tag": "0002_atomic_google_review_reordering",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791977705822,
+      "tag": "0003_structured_listing_details",
+      "breakpoints": true
     }
   ]
 }

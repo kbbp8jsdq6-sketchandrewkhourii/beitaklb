@@ -13,26 +13,9 @@ import { FieldError } from "@/components/FieldError";
 import { listingSchema, fieldErrors, sanitizeLine, stripHtml, friendlyError, validateImageFile } from "@/lib/validation";
 import { compressImage } from "@/lib/image-compress";
 import { LocationPreviewMap } from "@/components/LocationPreviewMap";
+import { ConvertDescriptionBox, ListingDetailsFields, detailsPayload, WARN_CLASS } from "@/components/ListingDetailsEditor";
+import { AMENITY_OPTIONS, EMPTY_DETAILS, computeMissingReasons, hasStructuredDetails, type ConversionResult, type ListingDetails } from "@/lib/listing-details";
 
-const AMENITY_OPTIONS = [
-  "Pool",
-  "Gym",
-  "Parking",
-  "Pet Friendly",
-  "Washer/Dryer",
-  "Balcony",
-  "AC",
-  "BBQ Area",
-  "Beach Access",
-  "Chimney",
-  "Jacuzzi",
-  "Wheelchair Accessibility",
-  "Breakfast included",
-  "Electricity 24/7",
-  "High speed WiFi",
-  "Smart TV & streaming services",
-  "Hot water",
-];
 
 type Category = "villa" | "cabin" | "apartment";
 const CATEGORIES: { value: Category; label: string }[] = [
@@ -80,7 +63,29 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
   const [locatingMap, setLocatingMap] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
+  const [details, setDetails] = useState<ListingDetails>(EMPTY_DETAILS);
+  const [sourceText, setSourceText] = useState("");
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [warnFields, setWarnFields] = useState<Set<string>>(new Set());
+
+  const handleConverted = (r: ConversionResult) => {
+    setDetails(r.details);
+    setAmenities((prev) => {
+      const lower = new Set(prev.map((x) => x.toLowerCase()));
+      return [...prev, ...r.amenities.filter((x) => !lower.has(x.toLowerCase()))];
+    });
+    if (r.core.max_guests) setMaxGuests(String(r.core.max_guests));
+    if (r.core.bedrooms) setBedrooms(String(r.core.bedrooms));
+    if (r.core.bathrooms) setBathrooms(String(r.core.bathrooms));
+    if (r.core.price_weekday) setPriceWeekday(String(r.core.price_weekday));
+    if (r.core.price_weekend) setPriceWeekend(String(r.core.price_weekend));
+    if (!description.trim() && r.details.about) setDescription(r.details.about);
+    setWarnings(r.warnings.map((w) => w.message));
+    setWarnFields(new Set(r.warnings.map((w) => w.field)));
+  };
+
   const reset = () => {
+    setDetails(EMPTY_DETAILS); setSourceText(""); setWarnings([]); setWarnFields(new Set());
     setTitle(""); setDescription(""); setLocation(""); setCategory("apartment");
     setDistrict("");
     setPriceWeekday(""); setPriceWeekend("");
@@ -191,6 +196,12 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         latitude: mapCoords?.lat ?? null,
         longitude: mapCoords?.lng ?? null,
         ...({ district: district || null } as Record<string, unknown>),
+        ...detailsPayload(details, amenities),
+        needs_details_reasons: computeMissingReasons(
+          { max_guests: Number(maxGuests), bedrooms: Number(bedrooms), bathrooms: Number(bathrooms), price_weekday: wd, price_weekend: we },
+          details,
+        ),
+        details_converted_at: hasStructuredDetails(details) ? new Date().toISOString() : null,
       };
       const { data: created, error: lErr } = await supabase
         .from("listings")
@@ -198,6 +209,13 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
         .select("id")
         .single();
       if (lErr) throw lErr;
+
+      if (sourceText.trim()) {
+        const { error: sErr } = await supabase
+          .from("listing_source_descriptions")
+          .insert({ listing_id: created.id, original_description: sourceText.trim().slice(0, 6000) });
+        if (sErr) throw sErr;
+      }
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -232,6 +250,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
           <DialogTitle className="font-display text-2xl">Add new listing</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5">
+          <ConvertDescriptionBox text={sourceText} onTextChange={setSourceText} onConverted={handleConverted} warnings={warnings} />
           <div>
             <Label htmlFor="title">Listing title *</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} aria-invalid={!!errors.title} placeholder="Cozy stone house in Bcharre" />
@@ -336,7 +355,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               <Label htmlFor="pwd">Weekday price (USD) *</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                <Input id="pwd" type="number" min="1" max="3000" step="1" value={priceWeekday} onChange={(e) => setPriceWeekday(e.target.value)} placeholder="120" className="pl-7" aria-invalid={!!errors.priceWeekday} />
+                <Input id="pwd" type="number" min="1" max="3000" step="1" value={priceWeekday} onChange={(e) => setPriceWeekday(e.target.value)} placeholder="120" className={`pl-7 ${warnFields.has("price_weekday") ? WARN_CLASS : ""}`} aria-invalid={!!errors.priceWeekday} />
               </div>
               <FieldError message={errors.priceWeekday} />
             </div>
@@ -344,7 +363,7 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               <Label htmlFor="pwe">Weekend price (USD) *</Label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                <Input id="pwe" type="number" min="1" max="3000" step="1" value={priceWeekend} onChange={(e) => setPriceWeekend(e.target.value)} placeholder="180" className="pl-7" aria-invalid={!!errors.priceWeekend} />
+                <Input id="pwe" type="number" min="1" max="3000" step="1" value={priceWeekend} onChange={(e) => setPriceWeekend(e.target.value)} placeholder="180" className={`pl-7 ${warnFields.has("price_weekend") ? WARN_CLASS : ""}`} aria-invalid={!!errors.priceWeekend} />
               </div>
               <FieldError message={errors.priceWeekend} />
             </div>
@@ -353,15 +372,15 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label htmlFor="g">Max guests</Label>
-              <Input id="g" type="number" min="1" value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} />
+              <Input id="g" type="number" min="1" value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} className={warnFields.has("max_guests") ? WARN_CLASS : ""} />
             </div>
             <div>
               <Label htmlFor="b">Bedrooms</Label>
-              <Input id="b" type="number" min="0" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} />
+              <Input id="b" type="number" min="0" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className={warnFields.has("bedrooms") ? WARN_CLASS : ""} />
             </div>
             <div>
               <Label htmlFor="ba">Bathrooms</Label>
-              <Input id="ba" type="number" min="0" step="0.5" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} />
+              <Input id="ba" type="number" min="0" step="0.5" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className={warnFields.has("bathrooms") ? WARN_CLASS : ""} />
             </div>
           </div>
 
@@ -392,6 +411,8 @@ export function AdminListingForm({ open, onClose, onCreated, adminUserId }: Prop
               onChange={setAmenities}
             />
           </div>
+
+          <ListingDetailsFields value={details} onChange={setDetails} amenities={amenities} warn={warnFields} />
 
           <div>
             <Label>Photos</Label>

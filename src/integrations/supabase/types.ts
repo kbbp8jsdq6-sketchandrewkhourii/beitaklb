@@ -464,6 +464,32 @@ export type Database = {
           },
         ]
       }
+      listing_source_descriptions: {
+        Row: {
+          listing_id: string
+          original_description: string
+          updated_at: string
+        }
+        Insert: {
+          listing_id: string
+          original_description: string
+          updated_at?: string
+        }
+        Update: {
+          listing_id?: string
+          original_description?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_source_descriptions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: true
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_views: {
         Row: {
           created_at: string
@@ -487,25 +513,41 @@ export type Database = {
       }
       listings: {
         Row: {
+          about: string | null
           amenities: string[]
+          amenity_details: Json
           available_from: string | null
           available_to: string | null
+          bathroom_details: string | null
           bathrooms: number
+          bedroom_details: string | null
           bedrooms: number
           category: Database["public"]["Enums"]["listing_category"]
+          check_in_time: string | null
+          check_out_time: string | null
           created_at: string
           description: string
+          details_converted_at: string | null
           district: string | null
+          extra_guest_after: number | null
+          extra_guest_fee_weekday: number | null
+          extra_guest_fee_weekend: number | null
           featured: boolean
+          highlights: string[]
           host_id: string
           id: string
           is_active: boolean
           is_couples: boolean | null
+          kitchens: number | null
           latitude: number | null
+          living_area_m2: number | null
           location: string
           location_link: string | null
           longitude: number | null
           max_guests: number
+          min_guests: number | null
+          needs_details_reasons: string[]
+          other_rates: Json
           price_per_night: number
           price_weekday: number
           price_weekend: number
@@ -513,29 +555,46 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["listing_status"]
+          stay_types: string[]
           title: string
           updated_at: string
         }
         Insert: {
+          about?: string | null
           amenities?: string[]
+          amenity_details?: Json
           available_from?: string | null
           available_to?: string | null
+          bathroom_details?: string | null
           bathrooms?: number
+          bedroom_details?: string | null
           bedrooms?: number
           category: Database["public"]["Enums"]["listing_category"]
+          check_in_time?: string | null
+          check_out_time?: string | null
           created_at?: string
           description: string
+          details_converted_at?: string | null
           district?: string | null
+          extra_guest_after?: number | null
+          extra_guest_fee_weekday?: number | null
+          extra_guest_fee_weekend?: number | null
           featured?: boolean
+          highlights?: string[]
           host_id: string
           id?: string
           is_active?: boolean
           is_couples?: boolean | null
+          kitchens?: number | null
           latitude?: number | null
+          living_area_m2?: number | null
           location: string
           location_link?: string | null
           longitude?: number | null
           max_guests?: number
+          min_guests?: number | null
+          needs_details_reasons?: string[]
+          other_rates?: Json
           price_per_night: number
           price_weekday: number
           price_weekend: number
@@ -543,29 +602,46 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["listing_status"]
+          stay_types?: string[]
           title: string
           updated_at?: string
         }
         Update: {
+          about?: string | null
           amenities?: string[]
+          amenity_details?: Json
           available_from?: string | null
           available_to?: string | null
+          bathroom_details?: string | null
           bathrooms?: number
+          bedroom_details?: string | null
           bedrooms?: number
           category?: Database["public"]["Enums"]["listing_category"]
+          check_in_time?: string | null
+          check_out_time?: string | null
           created_at?: string
           description?: string
+          details_converted_at?: string | null
           district?: string | null
+          extra_guest_after?: number | null
+          extra_guest_fee_weekday?: number | null
+          extra_guest_fee_weekend?: number | null
           featured?: boolean
+          highlights?: string[]
           host_id?: string
           id?: string
           is_active?: boolean
           is_couples?: boolean | null
+          kitchens?: number | null
           latitude?: number | null
+          living_area_m2?: number | null
           location?: string
           location_link?: string | null
           longitude?: number | null
           max_guests?: number
+          min_guests?: number | null
+          needs_details_reasons?: string[]
+          other_rates?: Json
           price_per_night?: number
           price_weekday?: number
           price_weekend?: number
@@ -573,6 +649,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["listing_status"]
+          stay_types?: string[]
           title?: string
           updated_at?: string
         }
