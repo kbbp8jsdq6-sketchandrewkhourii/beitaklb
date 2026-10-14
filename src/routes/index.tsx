@@ -13,6 +13,7 @@ import { SectionDivider } from "@/components/SectionDivider";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
+import { googleReviewsOptions } from "@/lib/google-reviews";
 
 const DesktopHero = lazy(() => import("@/components/home/DesktopHero"));
 
@@ -69,6 +70,8 @@ export const Route = createFileRoute("/")({
         content: "Browse unique listings from trusted local hosts across Lebanon.",
       },
       { property: "og:url", content: "https://beitaklb.com/" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
       { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
@@ -84,14 +87,17 @@ export const Route = createFileRoute("/")({
           ]
         : [],
   }),
-  loader: async () => {
+  loader: async ({ context }) => {
     const [featuredListings, heroImages] = await Promise.all([
       fetchFeaturedListings(),
       fetchHeroImages(),
+      context.queryClient.ensureQueryData(googleReviewsOptions),
     ]);
     return { featuredListings, heroImages };
   },
   component: HomePage,
+  errorComponent: () => <p className="p-8 text-muted-foreground">The homepage could not be loaded. Please try again.</p>,
+  notFoundComponent: () => <p className="p-8 text-muted-foreground">Page not found.</p>,
 });
 
 const DISTRICTS = [

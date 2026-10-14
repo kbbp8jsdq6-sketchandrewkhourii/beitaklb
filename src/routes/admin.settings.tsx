@@ -14,6 +14,11 @@ export const Route = createFileRoute("/admin/settings")({
   head: () => ({
     meta: [
       { title: "Settings - Admin - BEITAK" },
+      { name: "description", content: "Manage Beitak's business contact details and Google review rating." },
+      { property: "og:title", content: "Settings - Admin - BEITAK" },
+      { property: "og:description", content: "Manage Beitak's site settings." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -27,6 +32,8 @@ interface SettingsForm {
   business_instagram: string;
   maintenance_mode: boolean;
   terms_text: string;
+  google_rating: string;
+  google_review_count: string;
 }
 
 const EMPTY: SettingsForm = {
@@ -36,6 +43,8 @@ const EMPTY: SettingsForm = {
   business_instagram: "",
   maintenance_mode: false,
   terms_text: "",
+  google_rating: "",
+  google_review_count: "",
 };
 
 function AdminSettingsPage() {
@@ -64,6 +73,8 @@ function AdminSettingsPage() {
         business_instagram: q.data.business_instagram ?? "",
         maintenance_mode: q.data.maintenance_mode,
         terms_text: q.data.terms_text ?? "",
+        google_rating: q.data.google_rating == null ? "" : String(q.data.google_rating),
+        google_review_count: q.data.google_review_count == null ? "" : String(q.data.google_review_count),
       });
     }
   }, [q.data]);
@@ -72,10 +83,16 @@ function AdminSettingsPage() {
     setForm((f) => ({ ...f, ...patch }));
 
   const save = async () => {
+    const rating = form.google_rating.trim() === "" ? null : Number(form.google_rating);
+    const count = form.google_review_count.trim() === "" ? null : Number(form.google_review_count);
+    if ((rating !== null && (!Number.isFinite(rating) || rating < 1 || rating > 5 || Math.abs(rating * 10 - Math.round(rating * 10)) > 0.00001)) || (count !== null && (!Number.isSafeInteger(count) || count < 0))) {
+      toast.error("Enter a Google rating from 1 to 5 with at most one decimal, and a whole review count of 0 or more.");
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from("site_settings")
-      .update(form)
+      .update({ ...form, google_rating: rating, google_review_count: count })
       .eq("id", 1);
     setSaving(false);
     if (error) toast.error(error.message);
@@ -181,6 +198,14 @@ function AdminSettingsPage() {
       </section>
 
       {/* Terms */}
+      <section className="mb-6 border-t border-border pt-6">
+        <h2 className="font-semibold text-foreground">Google reviews</h2>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div><Label htmlFor="google-rating">Google rating</Label><Input id="google-rating" type="number" min="1" max="5" step="0.1" value={form.google_rating} onChange={(e) => update({ google_rating: e.target.value })} className="mt-1" /></div>
+          <div><Label htmlFor="google-review-count">Google review count</Label><Input id="google-review-count" type="number" min="0" step="1" value={form.google_review_count} onChange={(e) => update({ google_review_count: e.target.value })} className="mt-1" /></div>
+        </div>
+      </section>
+
       <section className="mb-6 rounded-2xl border border-border bg-card p-5">
         <h2 className="font-semibold text-foreground">Terms & Conditions</h2>
         <p className="mt-1 text-sm text-muted-foreground">
