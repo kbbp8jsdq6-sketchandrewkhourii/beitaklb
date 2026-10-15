@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, TriangleAlert, CircleCheck } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, AlertTriangle, CircleCheck } from "lucide-react";
 import { detailsFromRow, type ListingDetails } from "@/lib/listing-details";
 import { openChat } from "@/lib/chat-events";
 import { Header } from "@/components/Header";
@@ -642,7 +642,7 @@ function ListingPage() {
 
               <div className="mt-3 space-y-1 text-sm text-muted-foreground">
                 <p className="flex items-start gap-1.5">
-                  <TriangleAlert className="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary" aria-hidden="true" />
+                  <AlertTriangle className="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary" aria-hidden="true" />
                   <span>Prices may vary on public holidays and special occasions</span>
                 </p>
                 <p className="flex items-start gap-1.5">
@@ -681,7 +681,7 @@ function ListingPage() {
         </div>
         <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
           <p className="flex items-start gap-1">
-            <TriangleAlert className="mt-px h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+            <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
             <span>Prices may vary on public holidays and special occasions</span>
           </p>
           <p className="flex items-start gap-1">
