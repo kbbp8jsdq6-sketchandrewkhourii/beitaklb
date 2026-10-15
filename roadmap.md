@@ -1,4 +1,9 @@
 # Google reviews
+# Homepage hero loading
+- [x] Server-render both hero layouts with a responsive, high-priority first image.
+- [x] Decode-gated background loading and safe slide changes; non-black loading fallback.
+- [x] Verify desktop, slow mobile, script-free rendering and delayed/failed slides.
+
 - [x] Add public-readable, admin-managed reviews and rating settings.
 - [x] Add Google Reviews admin management and navigation.
 - [x] Replace homepage reviews with managed reviews and Google review banner/QR.

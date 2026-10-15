@@ -1,135 +1,136 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { motion } from "framer-motion";
+import { heroImageProps } from "@/lib/hero-images";
 
-const FALLBACK_URLS = [
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1518733057094-95b53143d2a7?auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop",
-];
-
-const isUnsplash = (u: string) => u.includes("images.unsplash.com");
-const slideUrl = (base: string, w: number, q: number) =>
-  isUnsplash(base) ? `${base}&w=${w}&q=${q}` : base;
-
-export function HeroSlideshow({ initialImages }: { initialImages?: string[] } = {}) {
+export function HeroSlideshow({ initialImages = [], viewport = "mobile" }: { initialImages?: string[]; viewport?: "mobile" | "desktop" } = {}) {
   const [index, setIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  const heroQ = useQuery({
-    queryKey: ["hero-images"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("hero_images")
-        .select("url")
-        .order("display_order", { ascending: true });
-      if (error) throw error;
-      return (data ?? []).map((r) => r.url as string);
-    },
-    staleTime: 5 * 60_000,
-    initialData: initialImages && initialImages.length > 0 ? initialImages : undefined,
-  });
-
-  const BASE_URLS = heroQ.data && heroQ.data.length > 0 ? heroQ.data : FALLBACK_URLS;
+  const [previous, setPrevious] = useState<{ index: number; src: string } | null>(null);
+  const [ready, setReady] = useState(false);
+  const [active, setActive] = useState(false);
+  const [original, setOriginal] = useState(false);
+  const firstRef = useRef<HTMLImageElement>(null);
+  const cache = useRef(new Map<number, Promise<string | null>>());
+  const loaded = useRef(new Map<number, string>());
+  const requestId = useRef(0);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const base = initialImages[index];
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(mq.matches);
+    const mq = window.matchMedia(viewport === "mobile" ? "(max-width: 767px)" : "(min-width: 768px)");
+    const update = () => setActive(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-  }, []);
+  }, [viewport]);
+
+  async function markFirstReady(img: HTMLImageElement) {
+    if (!img.complete || img.naturalWidth === 0) return;
+    try { await img.decode(); } catch { return; }
+    loaded.current.set(0, img.currentSrc || img.src);
+    setReady(true);
+  }
 
   useEffect(() => {
-    if (BASE_URLS.length < 2) return;
-    const id = window.setTimeout(() => {
-      setIndex((i) => (i + 1) % BASE_URLS.length);
-    }, 4500);
-    return () => window.clearTimeout(id);
-  }, [BASE_URLS.length, index]);
+    const img = firstRef.current;
+    if (img) void markFirstReady(img);
+  }, [active, original]);
 
-  const swipeStart = useRef<{ x: number; y: number } | null>(null);
-  const onPointerDown = (e: React.PointerEvent) => {
+  function prepare(target: number): Promise<string | null> {
+    const existing = cache.current.get(target);
+    if (existing) return existing;
+    const source = initialImages[target];
+    if (!source) return Promise.resolve(null);
+    const promise = new Promise<string | null>((resolve) => {
+      const img = new Image();
+      let retried = false;
+      img.fetchPriority = "low";
+      img.decoding = "async";
+      img.onload = async () => {
+        try {
+          await img.decode();
+          const src = img.currentSrc || img.src;
+          loaded.current.set(target, src);
+          resolve(src);
+        } catch { resolve(null); }
+      };
+      img.onerror = () => {
+        if (retried) { resolve(null); return; }
+        retried = true;
+        img.removeAttribute("srcset");
+        img.src = source;
+      };
+      const props = heroImageProps(source);
+      img.sizes = props.sizes;
+      img.srcset = props.srcSet;
+      img.src = props.src;
+    });
+    cache.current.set(target, promise);
+    return promise;
+  }
+
+  async function goTo(target: number, skipFailed = false) {
+    if (!ready || !active || target === index || previous) return;
+    const id = ++requestId.current;
+    let next = target;
+    for (let count = 0; count < initialImages.length - 1; count++) {
+      const src = loaded.current.get(next) ?? await prepare(next);
+      if (id !== requestId.current) return;
+      if (src) {
+        const current = loaded.current.get(index);
+        if (current) setPrevious({ index, src: current });
+        setIndex(next);
+        return;
+      }
+      if (!skipFailed) return;
+      next = (next + 1) % initialImages.length;
+      if (next === index) return;
+    }
+  }
+
+  useEffect(() => {
+    if (!ready || !active || initialImages.length < 2) return;
+    let cancelled = false;
+    // Sequential, low-priority downloads only after the first photo has decoded.
+    async function loadRemaining() {
+      for (let step = 1; step < initialImages.length; step++) {
+        if (cancelled) return;
+        await prepare((index + step) % initialImages.length);
+      }
+    }
+    void loadRemaining();
+    const timer = window.setTimeout(() => { void goTo((index + 1) % initialImages.length, true); }, 4500);
+    return () => { cancelled = true; window.clearTimeout(timer); requestId.current++; };
+  }, [ready, active, index, initialImages]);
+
+  const onPointerDown = (e: PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     swipeStart.current = { x: e.clientX, y: e.clientY };
   };
-  const onPointerUp = (e: React.PointerEvent) => {
-    const s = swipeStart.current;
+  const onPointerUp = (e: PointerEvent) => {
+    const start = swipeStart.current;
     swipeStart.current = null;
-    if (!s || BASE_URLS.length < 2) return;
-    const dx = e.clientX - s.x;
-    const dy = e.clientY - s.y;
+    if (!start || initialImages.length < 2) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
     if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
-    const n = BASE_URLS.length;
-    setIndex((i) => (dx < 0 ? (i + 1) % n : (i - 1 + n) % n));
+    void goTo((index + (dx < 0 ? 1 : initialImages.length - 1)) % initialImages.length);
   };
-  const onPointerCancel = () => {
-    swipeStart.current = null;
-  };
-
-  // Preload next slide for smoother crossfade
-  useEffect(() => {
-    if (BASE_URLS.length < 2) return;
-    const next = (index + 1) % BASE_URLS.length;
-    const img = new Image();
-    img.src = isMobile ? slideUrl(BASE_URLS[next], 480, 40) : slideUrl(BASE_URLS[next], 1920, 75);
-  }, [index, isMobile, BASE_URLS]);
-
-  // Keep index in range if list shrinks
-  useEffect(() => {
-    if (index >= BASE_URLS.length) setIndex(0);
-  }, [BASE_URLS.length, index]);
-
-  const currentBase = BASE_URLS[index] ?? BASE_URLS[0];
 
   return (
     <>
-      <div className="absolute inset-0 overflow-hidden bg-foreground touch-pan-y select-none" onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={onPointerCancel}>
-        <AnimatePresence mode="sync">
-          <motion.img
-            key={currentBase}
-            src={isMobile ? slideUrl(currentBase, 480, 40) : slideUrl(currentBase, 1920, 75)}
-            srcSet={
-              !isMobile && isUnsplash(currentBase)
-                ? `${slideUrl(currentBase, 1200, 70)} 1200w, ${slideUrl(currentBase, 1920, 75)} 1920w`
-                : undefined
-            }
-            sizes={isMobile ? "480px" : "1920px"}
-            alt=""
-            aria-hidden="true"
-            draggable={false}
-            decoding="async"
-            loading={index === 0 ? "eager" : "lazy"}
-            fetchPriority={index === 0 ? "high" : "low"}
-            crossOrigin={isMobile ? "anonymous" : undefined}
-            width={isMobile ? 480 : 1920}
-            height={isMobile ? 360 : 1280}
-            className="absolute inset-0 h-full w-full object-cover"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 1.2, ease: "easeInOut" } }}
-          />
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/70" />
+      <div data-hero-ready={ready} data-hero-index={index} className="absolute inset-0 overflow-hidden bg-hero-fallback touch-pan-y select-none" onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { swipeStart.current = null; }}>
+        {previous && <img src={previous.src} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 h-full w-full object-cover" />}
+        {base && (index === 0 && !previous ? (
+          <img ref={firstRef} {...(original ? { src: base } : heroImageProps(base))} alt="" aria-hidden="true" draggable={false} decoding="async" loading="eager" fetchPriority="high" width={1920} height={1280} className="absolute inset-0 h-full w-full object-cover" onLoad={(event) => { void markFirstReady(event.currentTarget); }} onError={() => { if (!original) setOriginal(true); }} />
+        ) : (
+          <motion.img key={index} src={loaded.current.get(index)} alt="" aria-hidden="true" draggable={false} decoding="async" loading="eager" fetchPriority="low" width={1920} height={1280} className="absolute inset-0 h-full w-full object-cover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ opacity: { duration: 1.2, ease: "easeInOut" } }} onAnimationComplete={() => setPrevious(null)} />
+        ))}
+        <div className="hero-image-overlay absolute inset-0" />
       </div>
-
-      {BASE_URLS.length > 1 && (
+      {initialImages.length > 1 && (
         <div className="pointer-events-auto absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-          {BASE_URLS.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={`h-2 rounded-full transition-all ${
-                i === index ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/80"
-              }`}
-            />
+          {initialImages.map((_, i) => (
+            <button key={i} type="button" onClick={() => { void goTo(i); }} aria-label={`Go to slide ${i + 1}`} className={`h-2 rounded-full transition-all ${i === index ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/80"}`} />
           ))}
         </div>
       )}
