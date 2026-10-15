@@ -480,7 +480,7 @@ function ListingPage() {
           <section>
             <div className="border-b border-border pb-6">
               <h2 className="flex items-center gap-2 font-display text-2xl">
-                <span>Hosted by {listing.profiles?.full_name ?? "Host"}</span>
+                <span>Hosted by Beitak.lb</span>
                 <img
                   src={beitakLogo}
                   alt="Beitak"
@@ -603,12 +603,19 @@ function ListingPage() {
                 </p>
               </div>}
               <div className="mt-4 flex items-center gap-3 border-y border-border py-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                  {(listing.profiles?.full_name ?? "H").charAt(0).toUpperCase()}
-                </div>
+                <img
+                  src={beitakLogo}
+                  alt="Beitak"
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  decoding="async"
+                  style={{ mixBlendMode: "multiply" }}
+                  className="h-10 w-10 shrink-0 object-contain"
+                />
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">Hosted by</p>
-                  <p className="text-sm font-semibold">{listing.profiles?.full_name ?? "Host"}</p>
+                  <p className="text-sm font-semibold">Beitak.lb</p>
                 </div>
               </div>
               <button
