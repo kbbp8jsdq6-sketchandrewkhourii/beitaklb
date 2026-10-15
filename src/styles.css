@@ -24,6 +24,7 @@
   --radius-3xl: calc(var(--radius) + 12px);
 
   --color-background: var(--background);
+  --color-search-surface: var(--search-surface);
   --color-hero-fallback: var(--hero-fallback);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -61,6 +62,8 @@
 }
 
 :root {
+  --search-surface: linear-gradient(180deg, color-mix(in oklab, var(--primary) 7%, var(--background)) 0%, color-mix(in oklab, var(--primary) 3%, var(--background)) 100%);
+  --shadow-search-card: 0 12px 40px oklch(0.12 0.01 0 / 7%);
   --hero-fallback: oklch(0.89 0.018 65);
   --hero-loading-ink: oklch(0.22 0.01 0);
   --hero-image-overlay: linear-gradient(to bottom, oklch(0 0 0 / 70%), oklch(0 0 0 / 45%), oklch(0 0 0 / 70%));
@@ -160,6 +163,8 @@
 }
 
 .hero-image-overlay { background: var(--hero-image-overlay); }
+.search-section { background: var(--search-surface); }
+.search-card { box-shadow: var(--shadow-search-card); }
 .hero-desktop-overlay { background: var(--hero-desktop-overlay); }
 .hero-shell:not(:has([data-hero-ready="true"])) .hero-image-overlay,
 .hero-shell:not(:has([data-hero-ready="true"])) .hero-desktop-overlay { background: none; }

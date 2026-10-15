@@ -1,4 +1,8 @@
 # Google reviews
+# Homepage search presentation and share image
+- [ ] Restore the exact homepage share-image tags while preserving hero loading.
+- [ ] Redesign the search card with existing controls and unchanged behavior.
+- [ ] Verify desktop/mobile controls and search results against the baseline.
 # Homepage hero loading
 - [x] Server-render both hero layouts with a responsive, high-priority first image.
 - [x] Decode-gated background loading and safe slide changes; non-black loading fallback.
