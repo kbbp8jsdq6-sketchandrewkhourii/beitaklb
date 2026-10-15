@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { buildSystemPrompt, CHAT_MODEL, LISTING_BASE_URL } from "@/lib/chat-knowledge";
-import { buildWhatsAppHref } from "@/lib/whatsapp";
+import { buildListingMessage, buildWhatsAppHref } from "@/lib/whatsapp";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,11 +75,6 @@ async function sha256Hex(s: string) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-function fmtDate(d: string) {
-  const t = new Date(`${d}T00:00:00Z`);
-  return Number.isNaN(t.getTime()) ? d : dateFmt.format(t);
-}
 
 type Card = {
   id: string; title: string; location: string; category: string; bedrooms: number | null;
@@ -216,24 +211,17 @@ export const Route = createFileRoute("/api/public/chat")({
           }
           if (name === "show_booking_handoff") {
             if (typeof input.listing_id !== "string" || !UUID_RE.test(input.listing_id)) return { error: "Not found" };
-            const { data: l } = await db.from("listings").select("id, title, location, price_per_night, price_weekday, price_weekend")
+            const { data: l } = await db.from("listings").select("id, title, location")
               .eq("id", input.listing_id).eq("is_active", true).eq("status", "approved").maybeSingle();
             if (!l) return { error: "Not found" };
-            const wk = Math.round(l.price_weekday ?? l.price_per_night ?? 0);
-            const we = Math.round(l.price_weekend ?? l.price_per_night ?? 0);
-            const lines = [
-              "Hi Beitak! 👋", "",
-              "I'm interested in the following listing (via the website assistant):", "",
-              `🏠 *${l.title}*`, `📍 *${l.location}*`,
-              `💰 Weekday: $${wk} / night | Weekend: $${we} / night`, "",
-            ];
-            if (input.check_in && input.check_out) lines.push(`📅 Dates: ${fmtDate(input.check_in)} to ${fmtDate(input.check_out)}`);
-            else if (input.check_in) lines.push(`📅 Date: ${fmtDate(input.check_in)}`);
-            if (typeof input.guests === "number") lines.push(`👥 Guests: ${input.guests}`);
-            if (input.check_in || typeof input.guests === "number") lines.push("");
-            lines.push(`View listing: ${LISTING_BASE_URL + l.id}`, "", "Could you help me with availability and booking?");
             handoff = {
-              listingId: l.id, title: l.title, href: buildWhatsAppHref(lines.join("\n")),
+              listingId: l.id, title: l.title,
+              href: buildWhatsAppHref(buildListingMessage({
+                title: l.title, location: l.location,
+                url: LISTING_BASE_URL + l.id,
+                ...(input.check_in ? { preferredDate: input.check_in } : {}),
+                ...(typeof input.guests === "number" ? { guests: input.guests } : {}),
+              })),
               guests: typeof input.guests === "number" ? input.guests : null, checkIn: input.check_in ?? null,
             };
             return { ok: true };
