@@ -139,7 +139,7 @@ export function FindYourUnit() {
       className="search-section relative border-b border-border"
     >
       <PatternBackground />
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-2 py-16 min-[360px]:px-4 sm:px-6 sm:py-20 lg:px-8">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Search</p>
           <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl md:text-6xl font-serif font-medium">
@@ -151,7 +151,7 @@ export function FindYourUnit() {
         </div>
 
         {/* Filter card */}
-        <div className="search-card mt-10 rounded-[22px] border border-border bg-card p-4 sm:p-7 lg:p-8">
+        <div className="search-card mt-10 rounded-[22px] border border-border bg-card p-2 min-[360px]:p-4 sm:p-7 lg:p-8">
           <h2 className="font-display text-[36px] leading-tight tracking-normal text-card-foreground md:text-[44px]">Find your perfect guesthouse.</h2>
 
           <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-[2fr_2fr_1fr] md:gap-4">
@@ -237,10 +237,10 @@ export function FindYourUnit() {
 
             <div className="min-w-0 rounded-[14px] border border-border bg-card p-3 md:p-4">
               <p className="flex items-center gap-2 text-[11px] font-semibold uppercase text-muted-foreground"><Users className="h-4 w-4 text-primary" />Guests</p>
-              <div className="mt-3 grid h-10 grid-cols-[36px_1fr_36px] items-center rounded-lg bg-muted p-1">
-                <Button variant="outline" size="icon" type="button" aria-label="Decrease guests" onClick={() => setGuests((g) => Math.max(1, g - 1))} disabled={guests <= 1} className="h-8 w-8 rounded-md border-border bg-card shadow-none"><Minus /></Button>
+              <div className="mt-3 grid h-[46px] grid-cols-[38px_minmax(0,1fr)_38px] items-center rounded-full bg-muted p-1">
+                <Button variant="outline" size="icon" type="button" aria-label="Decrease guests" onClick={() => setGuests((g) => Math.max(1, g - 1))} disabled={guests <= 1} className="h-[38px] w-[38px] rounded-full border-border bg-card shadow-none"><Minus /></Button>
                 <span className="text-center text-sm font-bold tabular-nums">{guests}</span>
-                <Button variant="outline" size="icon" type="button" aria-label="Increase guests" onClick={() => setGuests((g) => Math.min(20, g + 1))} className="h-8 w-8 rounded-md border-border bg-card shadow-none"><Plus /></Button>
+                <Button variant="outline" size="icon" type="button" aria-label="Increase guests" onClick={() => setGuests((g) => Math.min(20, g + 1))} className="h-[38px] w-[38px] rounded-full border-border bg-card shadow-none"><Plus /></Button>
               </div>
             </div>
 
@@ -248,7 +248,7 @@ export function FindYourUnit() {
             <p className="flex items-center gap-2 text-[11px] font-semibold uppercase text-muted-foreground"><SlidersHorizontal className="h-4 w-4 text-primary" />Amenities</p>
             <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
               <PopoverTrigger asChild>
-                <Button variant="ghost" type="button" aria-label="Choose amenities" className="mt-2 flex h-auto w-full flex-wrap justify-between gap-2 rounded-md p-0 text-left hover:bg-transparent">
+                <Button variant="ghost" type="button" aria-label="Choose amenities" className="mt-2 grid h-auto min-h-[38px] w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md p-0 text-left hover:bg-transparent max-md:grid-cols-1">
                   <span className="min-w-0 whitespace-normal text-sm font-normal text-foreground">{amenities.length ? `${amenities.length} selected` : "Any amenities"}</span>
                   <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">Choose<ChevronDown className="h-4 w-4" /></span>
                 </Button>
@@ -267,7 +267,7 @@ export function FindYourUnit() {
                         type="button"
                         onClick={() => toggleAmenity(a)}
                         className={cn(
-                          "h-auto rounded-full border px-3 py-1.5 text-xs font-semibold shadow-none transition",
+                          "h-auto min-h-[38px] rounded-full border px-3 py-1.5 text-xs font-semibold shadow-none transition",
                           active
                             ? "border-primary bg-primary text-primary-foreground"
                             : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
@@ -282,14 +282,14 @@ export function FindYourUnit() {
                   <Button
                     type="button"
                     onClick={() => setAmenities([])}
-                    variant="ghost" className="h-auto p-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                    variant="ghost" className="h-[38px] min-w-[38px] p-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
                   >
                     Clear
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setAmenitiesOpen(false)}
-                    className="rounded-md bg-primary px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-primary-foreground hover:bg-primary/90"
+                    className="h-[38px] rounded-md bg-primary px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-primary-foreground hover:bg-primary/90"
                   >
                     Done
                   </Button>
@@ -308,7 +308,7 @@ export function FindYourUnit() {
                     <Button
                       type="button"
                       onClick={() => removeAmenity(a)}
-                      variant="ghost" className="h-auto rounded-full p-0.5 hover:bg-primary/20"
+                      variant="ghost" className="h-[38px] w-[38px] shrink-0 rounded-full p-0.5 hover:bg-primary/20"
                       aria-label={`Remove ${a}`}
                     >
                       <X className="h-3 w-3" />
@@ -327,7 +327,7 @@ export function FindYourUnit() {
                   ${minBudget.toLocaleString()} - ${maxBudget.toLocaleString()}
                 </span>
               </div>
-              <div className="mt-4 px-1">
+              <div className="mt-4 px-2">
                 <DualSlider
                   min={0}
                   max={maxPrice}
@@ -356,7 +356,7 @@ export function FindYourUnit() {
           </div>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Not sure where to start?{" "}
-            <Button type="button" onClick={() => openChat()} variant="link" className="inline-flex h-auto items-center gap-1.5 whitespace-normal p-0 font-semibold text-primary">
+            <Button type="button" onClick={() => openChat()} variant="link" className="inline-flex h-auto min-h-[38px] items-center gap-1.5 whitespace-normal p-0 font-semibold text-primary">
               <MessageCircle className="h-4 w-4 text-primary" aria-hidden="true" />
               <span className="underline underline-offset-[3px]">Ask our AI assistant</span>
             </Button>
@@ -420,7 +420,7 @@ function DualSlider({
   const maxPct = toPercent(valueMax);
 
   return (
-    <div className="relative h-6 select-none" ref={trackRef}>
+    <div className="relative h-[38px] select-none" ref={trackRef}>
       <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/20" />
       <div
         className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary"
@@ -428,14 +428,16 @@ function DualSlider({
       />
       <div
         onPointerDown={dragMin}
-        className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-primary bg-card shadow active:cursor-grabbing"
+        aria-label="Minimum budget handle"
+        className="absolute top-1/2 flex h-[38px] w-[38px] -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full active:cursor-grabbing"
         style={{ left: `${minPct}%` }}
-      />
+      ><span className="pointer-events-none h-5 w-5 rounded-full border-2 border-primary bg-card shadow" /></div>
       <div
         onPointerDown={dragMax}
-        className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-primary bg-card shadow active:cursor-grabbing"
+        aria-label="Maximum budget handle"
+        className="absolute top-1/2 flex h-[38px] w-[38px] -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full active:cursor-grabbing"
         style={{ left: `${maxPct}%` }}
-      />
+      ><span className="pointer-events-none h-5 w-5 rounded-full border-2 border-primary bg-card shadow" /></div>
     </div>
   );
 }
@@ -451,12 +453,12 @@ interface ScrollPickerProps {
 
 function ScrollPicker({ label, icon, options, value, onChange }: ScrollPickerProps) {
   return (
-    <div role="group" aria-label={label} className="col-span-2 min-w-0 rounded-[14px] border border-border bg-card p-3 md:col-span-1 md:p-4">
+    <div role="group" aria-label={label} className="col-span-2 min-w-0 rounded-[14px] border border-border bg-card p-1.5 min-[360px]:p-3 md:col-span-1 md:p-4">
       <p className="flex items-center gap-2 text-[11px] font-semibold uppercase text-muted-foreground">{icon}{label}</p>
-      <div className="mt-3 grid h-10 grid-cols-7 items-center rounded-lg bg-muted p-1">
+      <div className="mt-3 grid h-[42px] grid-cols-7 items-center rounded-lg bg-muted p-0.5">
         {options.map((opt) => (
           <Button key={opt} variant="ghost" type="button" aria-pressed={value === opt} onClick={() => onChange(opt)} className={cn(
-            "h-8 min-w-0 rounded-md px-0 text-xs font-semibold shadow-none",
+            "h-[38px] min-w-0 rounded-md px-0 text-xs font-semibold shadow-none",
             value === opt ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : "text-foreground hover:bg-card",
           )}>{opt}</Button>
         ))}
