@@ -1,3 +1,5 @@
+# Listing price-note icons
+- [x] Replace price-note emojis with red line icons on the desktop card and mobile bar; verify desktop and mobile.
 # Google reviews
 # Reserve WhatsApp message and share preview
 - [x] Update shared reservation messages without changing form or logging.
