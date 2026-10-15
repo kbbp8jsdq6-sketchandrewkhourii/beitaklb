@@ -211,13 +211,13 @@ export const Route = createFileRoute("/api/public/chat")({
           }
           if (name === "show_booking_handoff") {
             if (typeof input.listing_id !== "string" || !UUID_RE.test(input.listing_id)) return { error: "Not found" };
-            const { data: l } = await db.from("listings").select("id, title")
+            const { data: l } = await db.from("listings").select("id, title, location")
               .eq("id", input.listing_id).eq("is_active", true).eq("status", "approved").maybeSingle();
             if (!l) return { error: "Not found" };
             handoff = {
               listingId: l.id, title: l.title,
               href: buildWhatsAppHref(buildListingMessage({
-                title: l.title,
+                title: l.title, location: l.location,
                 url: LISTING_BASE_URL + l.id,
                 ...(input.check_in ? { preferredDate: input.check_in } : {}),
                 ...(typeof input.guests === "number" ? { guests: input.guests } : {}),
