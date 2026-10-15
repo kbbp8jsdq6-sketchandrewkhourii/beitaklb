@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { buildSystemPrompt, CHAT_MODEL, LISTING_BASE_URL } from "@/lib/chat-knowledge";
 import { buildListingMessage, buildWhatsAppHref } from "@/lib/whatsapp";
 
 const corsHeaders = {
@@ -74,11 +75,6 @@ async function sha256Hex(s: string) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-function fmtDate(d: string) {
-  const t = new Date(`${d}T00:00:00Z`);
-  return Number.isNaN(t.getTime()) ? d : dateFmt.format(t);
-}
 
 type Card = {
   id: string; title: string; location: string; category: string; bedrooms: number | null;
