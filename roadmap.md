@@ -1,4 +1,8 @@
 # Google reviews
+# Reserve WhatsApp message and share preview
+- [ ] Update shared reservation messages without changing form or logging.
+- [ ] Select reserve-link share image in server-rendered listing metadata; preserve ordinary previews and query-free canonical.
+- [ ] Verify generated messages and both server-rendered heads.
 # Homepage search presentation and share image
 - [x] Restore the exact homepage share-image tags while preserving hero loading.
 - [x] Redesign the search card with existing controls and unchanged behavior.

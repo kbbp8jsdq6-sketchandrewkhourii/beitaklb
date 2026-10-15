@@ -1,4 +1,5 @@
 # Architecture rules
+- Listing reservation messages share one formatter; validated src search state flows through loader dependencies into listing head metadata so reserve previews work during SSR without changing listing data or canonical URLs.
 - Homepage search uses one responsive control tree and the existing filter state/handlers; layout changes must not change search parameter semantics or results.
 - Hero image lists are public read-only server-function loader data; shared responsive URLs keep preloads and rendered images aligned, and decoded-image readiness gates every slide change to avoid blank transitions.
 - Homepage Google reviews use a public read server function and shared query cache; admin changes use the typed browser client with database-enforced admin policies to keep public reads safe and writes authorized.

@@ -19,9 +19,13 @@ import beitakLogo from "@/assets/logo-new.png";
 const INSTAGRAM_URL = "https://instagram.com/beitak.lb";
 
 export const Route = createFileRoute("/listing/$id")({
-  loader: async ({ params }) => {
+  validateSearch: (search: Record<string, unknown>): { src?: string } => ({
+    src: typeof search.src === "string" ? search.src : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ reserveSource: search.src === "reserve" }),
+  loader: async ({ params, deps }) => {
     const listing = await fetchListing(params.id);
-    return { listing };
+    return { listing, reserveSource: deps.reserveSource };
   },
   head: ({ loaderData, params }) => {
     const listing = loaderData?.listing;
@@ -40,6 +44,7 @@ export const Route = createFileRoute("/listing/$id")({
     const url = `https://beitaklb.com/listing/${params.id}`;
     const photos = (listing.listing_photos ?? []).slice().sort((a: { display_order: number }, b: { display_order: number }) => a.display_order - b.display_order);
     const image = photos[0]?.photo_url ?? null;
+    const shareImage = loaderData?.reserveSource ? "https://beitaklb.com/og-image.jpg" : image;
     const priceWeekday = listing.price_weekday != null ? Number(listing.price_weekday) : null;
     const priceWeekend = listing.price_weekend != null ? Number(listing.price_weekend) : null;
     const jsonLd = {
@@ -68,7 +73,7 @@ export const Route = createFileRoute("/listing/$id")({
         { property: "og:type", content: "place" },
         { name: "twitter:card", content: "summary_large_image" },
         { property: "og:url", content: url },
-        ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
+        ...(shareImage ? [{ property: "og:image", content: shareImage }, { name: "twitter:image", content: shareImage }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
