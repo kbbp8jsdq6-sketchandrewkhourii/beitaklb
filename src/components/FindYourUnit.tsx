@@ -155,7 +155,7 @@ export function FindYourUnit() {
           <h2 className="font-display text-[36px] leading-tight tracking-normal text-card-foreground md:text-[44px]">Find your perfect guesthouse.</h2>
 
           <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-[2fr_2fr_1fr] md:gap-4">
-            <div className="col-span-2 min-w-0 rounded-[14px] border border-border bg-card md:col-span-3 md:mr-[176px] md:flex">
+            <div className="col-span-2 min-w-0 rounded-[14px] border border-border bg-card md:col-span-3 md:col-start-1 md:row-start-1 md:mr-[176px] md:flex">
             {/* Keyword search w/ live suggestions */}
             <div className="relative min-w-0 flex-1">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
@@ -253,7 +253,7 @@ export function FindYourUnit() {
                   <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">Choose<ChevronDown className="h-4 w-4" /></span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[min(92vw,380px)] p-4" align="start">
+              <PopoverContent className="z-[10000] w-[min(92vw,380px)] p-4" align="start">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   Select amenities
                 </p>
@@ -302,9 +302,9 @@ export function FindYourUnit() {
                 {amenities.map((a) => (
                   <span
                     key={a}
-                    className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+                    className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
                   >
-                    {a}
+                    <span className="min-w-0 break-words">{a}</span>
                     <Button
                       type="button"
                       onClick={() => removeAmenity(a)}
@@ -348,7 +348,7 @@ export function FindYourUnit() {
             <Button
               type="button"
               onClick={handleSearch}
-              className="col-span-2 h-[60px] w-full rounded-[14px] text-base font-bold uppercase md:col-span-3 md:row-start-1 md:ml-auto md:w-[160px]"
+              className="col-span-2 h-[60px] w-full rounded-[14px] text-base font-bold uppercase md:col-span-3 md:col-start-1 md:row-start-1 md:ml-auto md:w-[160px]"
             >
               <Search className="h-4 w-4" />
               Search
