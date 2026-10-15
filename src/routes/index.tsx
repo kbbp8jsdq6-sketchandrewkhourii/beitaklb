@@ -14,8 +14,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { getGoogleReviews } from "@/lib/google-reviews.functions";
-
-const DesktopHero = lazy(() => import("@/components/home/DesktopHero"));
+import DesktopHero from "@/components/home/DesktopHero";
+import { getHeroImages } from "@/lib/hero-images.functions";
+import { heroImageProps } from "@/lib/hero-images";
 
 async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   const { data, error } = await supabase
@@ -45,15 +46,6 @@ async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   });
 }
 
-async function fetchHeroImages(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("hero_images")
-    .select("url")
-    .order("display_order", { ascending: true });
-  if (error) throw error;
-  return (data ?? []).map((r) => r.url as string);
-}
-
 export const Route = createFileRoute("/")({
   head: ({ loaderData }) => ({
     meta: [
@@ -72,8 +64,10 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://beitaklb.com/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
-      { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
+      ...(loaderData?.heroImages?.[0]?.startsWith("https://") ? [
+        { property: "og:image", content: loaderData.heroImages[0] },
+        { name: "twitter:image", content: loaderData.heroImages[0] },
+      ] : []),
     ],
     links:
       loaderData?.heroImages?.[0]
@@ -81,16 +75,18 @@ export const Route = createFileRoute("/")({
             {
               rel: "preload",
               as: "image",
-              href: loaderData.heroImages[0],
+              href: heroImageProps(loaderData.heroImages[0]).src,
+              imageSrcSet: heroImageProps(loaderData.heroImages[0]).srcSet,
+              imageSizes: heroImageProps(loaderData.heroImages[0]).sizes,
               fetchpriority: "high",
-            } as unknown as { rel: string; href: string },
+            },
           ]
         : [],
   }),
   loader: async () => {
     const [featuredListings, heroImages, googleReviews] = await Promise.all([
       fetchFeaturedListings(),
-      fetchHeroImages(),
+      getHeroImages(),
       getGoogleReviews(),
     ]);
     return { featuredListings, heroImages, googleReviews };
@@ -146,15 +142,6 @@ const FAQS = [
 function HomePage() {
   const { featuredListings: initialFeatured, heroImages, googleReviews } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const update = () => setIsDesktop(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
 
   const { data: featuredListings = [] } = useQuery({
     queryKey: ["home-featured-listings"],
@@ -167,11 +154,11 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* 1. HERO — mobile-first: mobile block always mounted; desktop hero only mounted after JS confirms desktop breakpoint */}
+      {/* Both layouts include their first image in the server-rendered page. */}
       <div className="block md:hidden">
         <section className="relative">
-          <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-foreground">
-            <HeroSlideshow initialImages={heroImages} />
+          <div className="hero-shell relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-hero-fallback">
+            <HeroSlideshow initialImages={heroImages} viewport="mobile" />
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pb-20 text-center pointer-events-none">
               <LogoTransparent size="hero" />
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
@@ -187,13 +174,9 @@ function HomePage() {
           </div>
         </section>
       </div>
-      {isDesktop && (
-        <div className="hidden md:block">
-          <Suspense fallback={null}>
-            <DesktopHero initialImages={heroImages} />
-          </Suspense>
-        </div>
-      )}
+      <div className="hidden md:block">
+        <DesktopHero initialImages={heroImages} />
+      </div>
 
       {/* CTA BAR — sits below the hero so buttons are never cut off */}
       <section className="relative bg-background">

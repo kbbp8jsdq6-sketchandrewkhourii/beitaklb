@@ -92,11 +92,11 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
 
   return (
     <section className="relative">
-      <div className="relative h-[100vh] min-h-[640px] w-full overflow-hidden">
+      <div className="hero-shell relative h-[100vh] min-h-[640px] w-full overflow-hidden bg-hero-fallback">
         <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
-          <HeroSlideshow initialImages={initialImages} />
+          <HeroSlideshow initialImages={initialImages} viewport="desktop" />
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/80" />
+        <div className="hero-desktop-overlay pointer-events-none absolute inset-0" />
 
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center pointer-events-none">
           <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
@@ -128,7 +128,7 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
               })}
             </div>
             <motion.div
-              initial={{ opacity: 0, scale: 0.5, rotate: -8, y: -30 }}
+              initial={false}
               animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
               transition={{
                 duration: 0.9,
@@ -169,7 +169,7 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
           </div>
           <motion.h1
             className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
@@ -177,7 +177,7 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
           </motion.h1>
           <motion.p
             className="mt-5 max-w-xl text-base text-white/90 sm:text-lg"
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
           >
@@ -185,7 +185,7 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
           </motion.p>
           <motion.p
             className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
           >

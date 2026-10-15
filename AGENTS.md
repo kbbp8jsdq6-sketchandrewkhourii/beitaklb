@@ -1,4 +1,5 @@
 # Architecture rules
+- Hero image lists are public read-only server-function loader data; shared responsive URLs keep preloads and rendered images aligned, and decoded-image readiness gates every slide change to avoid blank transitions.
 - Homepage Google reviews use a public read server function and shared query cache; admin changes use the typed browser client with database-enforced admin policies to keep public reads safe and writes authorized.
 - Google review ordering is saved atomically through an admin-only database function, and a database trigger plus unique index enforce one featured review, so concurrent edits cannot leave partial ordering or multiple featured reviews.
 - Review QR codes are rendered locally with qrcode.react from the shared Google review destination, avoiding external QR image services and keeping all review links consistent.- Structured listing details live as nullable columns on listings, shared through src/lib/listing-details.ts (amenity list, AI prompt, normalization, flag rules); owners' original text sits in the admin-only listing_source_descriptions table so it can never leak through public listing reads.
