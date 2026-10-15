@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
+import { buildListingMessage, buildWhatsAppHref } from "@/lib/whatsapp";
 
 interface Props {
   open: boolean;
@@ -17,25 +17,12 @@ interface Props {
   phoneNumber?: string;
 }
 
-/** Formats an ISO yyyy-mm-dd string as "Sep 5, 2026". */
-function formatDate(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  if (!y || !m || !d) return iso;
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(y, m - 1, d));
-}
-
 export function ReserveDetailsModal({
   open,
   onCancel,
   listingId,
   listingTitle,
   listingLocation,
-  priceWeekday,
-  priceWeekend,
   listingUrl,
   defaultGuests,
   phoneNumber,
@@ -58,27 +45,15 @@ export function ReserveDetailsModal({
       setError("Please select a date");
       return;
     }
-    const lines = [
-      "Hi Beitak! 👋",
-      "",
-      "I'm interested in the following listing:",
-      "",
-      `🏠 *${listingTitle}*`,
-      `📍 *${listingLocation}*`,
-      `💰 Weekday: $${priceWeekday ?? "-"} / night | Weekend: $${priceWeekend ?? "-"} / night`,
-      "",
-      `📅 Preferred date: ${formatDate(date)}`,
-      ...(altDate ? [`🔁 Backup date: ${formatDate(altDate)}`] : []),
-      `👥 Guests: ${guests}`,
-      "",
-      "⚠️ I understand prices may vary on public holidays and that the final price is confirmed after inquiry.",
-      "",
-      `View listing: ${listingUrl}`,
-      "",
-      "Could you help me with availability and booking?",
-    ];
-    const number = (phoneNumber ?? WHATSAPP_NUMBER).replace(/[^\d]/g, "");
-    const url = `https://wa.me/${number}?text=${encodeURIComponent(lines.join("\n"))}`;
+    const message = buildListingMessage({
+      title: listingTitle,
+      location: listingLocation,
+      url: listingUrl,
+      preferredDate: date,
+      backupDate: altDate || undefined,
+      guests,
+    });
+    const url = buildWhatsAppHref(message, phoneNumber);
 
     // Fire-and-forget: log the reservation click without blocking navigation.
     supabase

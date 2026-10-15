@@ -12,34 +12,51 @@ export interface WhatsAppListingMessage {
   priceWeekday?: number;
   priceWeekend?: number;
   url: string;
+  preferredDate?: string;
+  backupDate?: string;
+  guests?: number;
+}
+
+/** Formats an ISO yyyy-mm-dd string as "Nov 14, 2026". */
+function formatReservationDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+  }).format(new Date(y, m - 1, d));
+}
+
+export function reservationListingUrl(url: string): string {
+  const [withoutHash] = url.split("#");
+  const [path, query] = (withoutHash ?? url).split("?");
+  const search = new URLSearchParams(query);
+  search.set("src", "reserve");
+  return `${path}?${search.toString()}`;
 }
 
 export function buildListingMessage({
   title,
-  location,
-  pricePerNight,
-  priceWeekday,
-  priceWeekend,
   url,
+  preferredDate,
+  backupDate,
+  guests,
 }: WhatsAppListingMessage): string {
-  let priceLine: string;
-  if (priceWeekday != null && priceWeekend != null) {
-    priceLine = `💰 Weekday: $${Math.round(priceWeekday)} / night | Weekend: $${Math.round(priceWeekend)} / night`;
-  } else {
-    priceLine = `$${Math.round(pricePerNight ?? priceWeekday ?? priceWeekend ?? 0)} / night`;
-  }
+  const details = [
+    ...(preferredDate ? [`Preferred date: ${formatReservationDate(preferredDate)}`] : []),
+    ...(backupDate ? [`Backup date: ${formatReservationDate(backupDate)}`] : []),
+    ...(guests != null ? [`Guests: ${guests}`] : []),
+  ];
   return [
     "Hi Beitak!",
     "",
     "I'm interested in the following listing:",
     "",
-    title,
+    `*${title}*`,
     "",
-    location,
+    ...(details.length ? [...details, ""] : []),
+    "I understand prices may vary on public holidays and that the final price is confirmed after inquiry.",
     "",
-    priceLine,
-    "",
-    `View listing: ${url}`,
+    `View listing: ${reservationListingUrl(url)}`,
     "",
     "Could you help me with availability and booking?",
   ].join("\n");
@@ -63,27 +80,7 @@ export function buildListingWhatsAppHref(
   return buildWhatsAppHref(message, phoneNumber);
 }
 
-/**
- * Friendly host-targeted message: "Hi! I am interested in booking [title]
- * located in [location] for [price] per night..."
- */
-export function buildHostListingMessage({
-  title,
-  location,
-  pricePerNight,
-  priceWeekday,
-  priceWeekend,
-  url,
-}: WhatsAppListingMessage): string {
-  const candidates = [priceWeekday, priceWeekend, pricePerNight].filter(
-    (n): n is number => typeof n === "number" && !Number.isNaN(n),
-  );
-  const minPrice = candidates.length ? Math.round(Math.min(...candidates)) : 0;
-  const priceLabel = minPrice ? `$${minPrice}` : "the listed price";
-  return [
-    `Hi! I am interested in booking ${title} located in ${location} for ${priceLabel} per night.`,
-    "Can you please help me with the reservation?",
-    "",
-    `Listing: ${url}`,
-  ].join("\n");
+/** All listing reservation entry points share the same message format. */
+export function buildHostListingMessage(payload: WhatsAppListingMessage): string {
+  return buildListingMessage(payload);
 }
