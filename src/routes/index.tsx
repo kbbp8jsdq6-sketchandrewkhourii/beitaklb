@@ -64,10 +64,8 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://beitaklb.com/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      ...(loaderData?.heroImages?.[0]?.startsWith("https://") ? [
-        { property: "og:image", content: loaderData.heroImages[0] },
-        { name: "twitter:image", content: loaderData.heroImages[0] },
-      ] : []),
+      { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
+      { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
     links:
       loaderData?.heroImages?.[0]
