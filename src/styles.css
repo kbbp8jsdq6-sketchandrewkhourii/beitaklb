@@ -167,6 +167,24 @@
 .search-card { box-shadow: var(--shadow-search-card); }
 .hero-desktop-overlay { background: var(--hero-desktop-overlay); }
 
+/* Scoped authentication surfaces: never recolor other pages. */
+.auth-screen {
+  --primary: #CC0000;
+  --ring: var(--primary);
+  --auth-overlay: linear-gradient(to bottom, oklch(0 0 0 / 55%) 0%, oklch(0 0 0 / 28%) 38%, oklch(0 0 0 / 85%) 100%);
+  --auth-dots: radial-gradient(color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px);
+  --auth-button-shadow: 0 6px 18px color-mix(in oklab, var(--primary) 20%, transparent);
+  --auth-soft-red: color-mix(in oklab, var(--primary) 7%, var(--background));
+}
+.auth-photo-overlay { background: var(--auth-overlay); }
+.auth-form-panel { background-color: var(--background); background-image: var(--auth-dots); background-size: 22px 22px; }
+.auth-screen label { font-weight: 600; }
+.auth-screen input { height: 50px; border-width: 1.5px; border-radius: 12px; background: var(--background); }
+.auth-submit { height: 52px; border-radius: 12px; box-shadow: var(--auth-button-shadow); }
+.auth-outline { height: 52px; border-radius: 12px; border-color: var(--foreground); }
+.auth-outline:disabled { border-color: var(--border); background: var(--muted); color: var(--muted-foreground); opacity: 1; }
+.auth-mail-tile { background: var(--auth-soft-red); }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }

@@ -1,4 +1,5 @@
 # Architecture rules
+- Login and signup share a presentation-only AuthLayout fed by the existing public hero-image loader and responsive helper, so their first photo is server-rendered without changing authentication handlers or reset pages.
 - Listing reservation messages share one formatter; validated src search state flows through loader dependencies into listing head metadata so reserve previews work during SSR without changing listing data or canonical URLs.
 - Homepage search uses one responsive control tree and the existing filter state/handlers; layout changes must not change search parameter semantics or results.
 - Hero image lists are public read-only server-function loader data; shared responsive URLs keep preloads and rendered images aligned, and decoded-image readiness gates every slide change to avoid blank transitions.
