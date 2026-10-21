@@ -166,10 +166,6 @@
 .search-section { background: var(--search-surface); }
 .search-card { box-shadow: var(--shadow-search-card); }
 .hero-desktop-overlay { background: var(--hero-desktop-overlay); }
-.hero-shell:not(:has([data-hero-ready="true"])) .hero-image-overlay,
-.hero-shell:not(:has([data-hero-ready="true"])) .hero-desktop-overlay { background: none; }
-.hero-shell:not(:has([data-hero-ready="true"])) h1,
-.hero-shell:not(:has([data-hero-ready="true"])) p { color: var(--hero-loading-ink); }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
