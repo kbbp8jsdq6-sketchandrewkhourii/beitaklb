@@ -1,28 +1,19 @@
-export const DEFAULT_HOLIDAY_LOCATIONS = "Kfardebian, Faraya, Arez, Ehden, Mzaar, Zaarour, Faqra";
+export const normalizeLocation = (s: string | null | undefined) => (s ?? "").trim().replace(/\s+/g, " ").toLowerCase();
 
-const ALIASES: Record<string, string[]> = {
-  kfardebian: ["kfardebian", "kfardibian", "kfardebiane"],
-  faraya: ["faraya", "farayya"],
-  arez: ["arez", "arz", "cedars", "cedar"],
-  ehden: ["ehden", "ehdin"],
-  mzaar: ["mzaar", "mzar"],
-  zaarour: ["zaarour", "zaarur", "zarour"],
-  faqra: ["faqra", "fakra", "faqraa"],
-};
-
-const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[^a-z]/g, "");
-
-export function parseHolidayLocations(raw: string | null | undefined): string[] {
-  return (raw ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+export function matchesHolidayLocation(location: string | null | undefined, selected: string[]): boolean {
+  const loc = normalizeLocation(location);
+  return !!loc && selected.some((s) => normalizeLocation(s) === loc);
 }
 
-export function matchesHolidayLocation(location: string | null | undefined, places: string[]): boolean {
-  const loc = norm(location ?? "");
-  if (!loc) return false;
-  return places.some((p) => {
-    const key = norm(p);
-    if (!key) return false;
-    const variants = ALIASES[key] ?? Object.values(ALIASES).find((v) => v.includes(key)) ?? [key];
-    return [key, ...variants].some((v) => loc.includes(v));
-  });
+/** Distinct locations (trimmed, case-insensitive) with listing counts, sorted A–Z. */
+export function distinctLocations(locations: (string | null | undefined)[]): { name: string; count: number }[] {
+  const map = new Map<string, { name: string; count: number }>();
+  for (const raw of locations) {
+    const name = (raw ?? "").trim().replace(/\s+/g, " ");
+    if (!name) continue;
+    const key = name.toLowerCase();
+    const e = map.get(key);
+    if (e) e.count++; else map.set(key, { name, count: 1 });
+  }
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }

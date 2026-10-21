@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { DEFAULT_HOLIDAY_LOCATIONS, matchesHolidayLocation, parseHolidayLocations } from "./holiday-collection";
+import { matchesHolidayLocation } from "./holiday-collection";
 
 export interface HolidayListing {
   id: string;
@@ -26,9 +26,9 @@ export const getHolidayCollection = createServerFn({ method: "GET" }).handler(as
       return fetch(input, { ...init, headers });
     } },
   });
-  const { data: settings } = await client.from("site_settings").select("holiday_collection_enabled, holiday_collection_locations").eq("id", 1).maybeSingle();
+  const { data: settings } = await client.from("site_settings").select("holiday_collection_enabled, holiday_collection_selected").eq("id", 1).maybeSingle();
   if (settings && !settings.holiday_collection_enabled) return [];
-  const places = parseHolidayLocations(settings?.holiday_collection_locations ?? DEFAULT_HOLIDAY_LOCATIONS);
+  const places = settings?.holiday_collection_selected ?? [];
   if (!places.length) return [];
   const { data, error } = await client
     .from("listings")
