@@ -48,7 +48,7 @@ export function HolidayCollection({ listings }: { listings: HolidayListing[] }) 
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="truncate font-semibold">{l.title}</h3>
+                  <h3 className="truncate font-sans text-base font-semibold normal-case tracking-normal">{l.title}</h3>
                   {(l.max_guests || l.bedrooms) && (
                     <p className="mt-1 text-sm text-muted-foreground">
                       {[l.max_guests && `Up to ${l.max_guests} guests`, l.bedrooms && `${l.bedrooms} ${l.bedrooms === 1 ? "bedroom" : "bedrooms"}`].filter(Boolean).join(" · ")}
