@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { distinctLocations, normalizeLocation } from "@/lib/holiday-collection";
 
 export const Route = createFileRoute("/admin/settings")({
   head: () => ({
@@ -36,7 +38,7 @@ interface SettingsForm {
   google_review_count: string;
   google_reviews_page_link: string;
   holiday_collection_enabled: boolean;
-  holiday_collection_locations: string;
+  holiday_collection_selected: string[];
 }
 
 const EMPTY: SettingsForm = {
@@ -50,7 +52,7 @@ const EMPTY: SettingsForm = {
   google_review_count: "",
   google_reviews_page_link: "",
   holiday_collection_enabled: true,
-  holiday_collection_locations: "",
+  holiday_collection_selected: [],
 };
 
 function AdminSettingsPage() {
@@ -84,7 +86,7 @@ function AdminSettingsPage() {
         google_review_count: q.data.google_review_count == null ? "" : String(q.data.google_review_count),
         google_reviews_page_link: q.data.google_reviews_page_link ?? "",
         holiday_collection_enabled: q.data.holiday_collection_enabled,
-        holiday_collection_locations: q.data.holiday_collection_locations ?? "",
+        holiday_collection_selected: q.data.holiday_collection_selected ?? [],
       });
     }
   }, [q.data]);
@@ -234,7 +236,7 @@ function AdminSettingsPage() {
           <Label htmlFor="holiday-enabled">Show holiday collection on homepage</Label>
           <Switch id="holiday-enabled" checked={form.holiday_collection_enabled} onCheckedChange={(v) => update({ holiday_collection_enabled: v })} />
         </div>
-        <div className="mt-4"><Label htmlFor="holiday-locations">Holiday collection locations</Label><Input id="holiday-locations" value={form.holiday_collection_locations} onChange={(e) => update({ holiday_collection_locations: e.target.value })} className="mt-1" /><p className="mt-1 text-xs text-muted-foreground">Comma-separated, e.g. Kfardebian, Faraya, Arez</p></div>
+        <HolidayLocationPicker selected={form.holiday_collection_selected} onChange={(v) => update({ holiday_collection_selected: v })} />
       </section>
 
       <section className="mb-6 rounded-2xl border border-border bg-card p-5">
@@ -258,6 +260,49 @@ function AdminSettingsPage() {
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+function HolidayLocationPicker({ selected, onChange }: { selected: string[]; onChange: (v: string[]) => void }) {
+  const [filter, setFilter] = useState("");
+  const locations = useQuery({
+    queryKey: ["admin-listing-locations"],
+    staleTime: 0,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("listings").select("location");
+      if (error) throw error;
+      return distinctLocations((data ?? []).map((r) => r.location));
+    },
+  });
+  const keys = new Set(selected.map(normalizeLocation));
+  const all = locations.data ?? [];
+  const shown = all.filter((l) => l.name.toLowerCase().includes(filter.trim().toLowerCase()));
+  const toggle = (name: string, on: boolean) => {
+    const k = normalizeLocation(name);
+    onChange(on ? [...selected.filter((s) => normalizeLocation(s) !== k), name] : selected.filter((s) => normalizeLocation(s) !== k));
+  };
+  return (
+    <div className="mt-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label htmlFor="holiday-location-search">Holiday collection locations</Label>
+        <div className="flex gap-3 text-sm">
+          <Button type="button" variant="link" className="h-auto p-0" onClick={() => onChange(all.map((l) => l.name))}>Select all</Button>
+          <Button type="button" variant="link" className="h-auto p-0" onClick={() => onChange([])}>Clear</Button>
+        </div>
+      </div>
+      <Input id="holiday-location-search" placeholder="Search locations" value={filter} onChange={(e) => setFilter(e.target.value)} className="mt-2" />
+      <div className="mt-2 h-[300px] overflow-y-auto rounded-md border border-border p-2" role="group" aria-label="Holiday collection locations">
+        {locations.isLoading && <p className="p-2 text-sm text-muted-foreground">Loading locations…</p>}
+        {shown.map((l) => (
+          <label key={l.name} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted">
+            <Checkbox checked={keys.has(normalizeLocation(l.name))} onCheckedChange={(v) => toggle(l.name, v === true)} />
+            <span>{l.name} ({l.count})</span>
+          </label>
+        ))}
+        {!locations.isLoading && shown.length === 0 && <p className="p-2 text-sm text-muted-foreground">No locations found.</p>}
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">{selected.length} {selected.length === 1 ? "location" : "locations"} selected</p>
     </div>
   );
 }
