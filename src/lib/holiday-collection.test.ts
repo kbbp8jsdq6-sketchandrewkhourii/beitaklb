@@ -1,3 +1,4 @@
+// @ts-nocheck -- run with `bun test`
 import { describe, expect, it } from "bun:test";
 import { DEFAULT_HOLIDAY_LOCATIONS, matchesHolidayLocation, parseHolidayLocations } from "./holiday-collection";
 
