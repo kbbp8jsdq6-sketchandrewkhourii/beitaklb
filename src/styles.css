@@ -631,3 +631,20 @@ body.no-scroll {
 /* Google reviews QR inherits the site's ink and canvas tokens. */
 .google-review-qr path:first-of-type { fill: var(--background); }
 .google-review-qr path:last-of-type { fill: var(--foreground); }
+
+/* Holiday collection (homepage) */
+.holiday-section {
+  --holiday-ink: oklch(0.2 0 0);
+  background-color: var(--holiday-ink);
+  background-image: radial-gradient(oklch(1 0 0 / 0.12) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  color: oklch(1 0 0);
+}
+.holiday-arrow {
+  background: transparent;
+  border-color: oklch(1 0 0 / 0.35);
+  color: oklch(1 0 0);
+}
+.holiday-arrow:hover { background: oklch(1 0 0 / 0.1); color: oklch(1 0 0); }
+.holiday-row { scrollbar-width: none; }
+.holiday-row::-webkit-scrollbar { display: none; }

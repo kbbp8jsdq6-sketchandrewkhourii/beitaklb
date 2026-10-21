@@ -35,6 +35,8 @@ interface SettingsForm {
   google_rating: string;
   google_review_count: string;
   google_reviews_page_link: string;
+  holiday_collection_enabled: boolean;
+  holiday_collection_locations: string;
 }
 
 const EMPTY: SettingsForm = {
@@ -47,6 +49,8 @@ const EMPTY: SettingsForm = {
   google_rating: "",
   google_review_count: "",
   google_reviews_page_link: "",
+  holiday_collection_enabled: true,
+  holiday_collection_locations: "",
 };
 
 function AdminSettingsPage() {
@@ -79,6 +83,8 @@ function AdminSettingsPage() {
         google_rating: q.data.google_rating == null ? "" : String(q.data.google_rating),
         google_review_count: q.data.google_review_count == null ? "" : String(q.data.google_review_count),
         google_reviews_page_link: q.data.google_reviews_page_link ?? "",
+        holiday_collection_enabled: q.data.holiday_collection_enabled,
+        holiday_collection_locations: q.data.holiday_collection_locations ?? "",
       });
     }
   }, [q.data]);
@@ -220,6 +226,15 @@ function AdminSettingsPage() {
           <div><Label htmlFor="google-review-count">Google review count</Label><Input id="google-review-count" type="number" min="0" step="1" value={form.google_review_count} onChange={(e) => update({ google_review_count: e.target.value })} className="mt-1" /></div>
           <div className="sm:col-span-2"><Label htmlFor="google-reviews-page-link">Google reviews page link</Label><Input id="google-reviews-page-link" type="url" value={form.google_reviews_page_link} onChange={(e) => update({ google_reviews_page_link: e.target.value })} className="mt-1" /></div>
         </div>
+      </section>
+
+      <section className="mb-6 border-t border-border pt-6">
+        <h2 className="font-semibold text-foreground">Holiday collection</h2>
+        <div className="mt-4 flex items-center justify-between gap-4">
+          <Label htmlFor="holiday-enabled">Show holiday collection on homepage</Label>
+          <Switch id="holiday-enabled" checked={form.holiday_collection_enabled} onCheckedChange={(v) => update({ holiday_collection_enabled: v })} />
+        </div>
+        <div className="mt-4"><Label htmlFor="holiday-locations">Holiday collection locations</Label><Input id="holiday-locations" value={form.holiday_collection_locations} onChange={(e) => update({ holiday_collection_locations: e.target.value })} className="mt-1" /><p className="mt-1 text-xs text-muted-foreground">Comma-separated, e.g. Kfardebian, Faraya, Arez</p></div>
       </section>
 
       <section className="mb-6 rounded-2xl border border-border bg-card p-5">

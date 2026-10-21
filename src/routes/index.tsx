@@ -17,6 +17,8 @@ import { getGoogleReviews } from "@/lib/google-reviews.functions";
 import DesktopHero from "@/components/home/DesktopHero";
 import { getHeroImages } from "@/lib/hero-images.functions";
 import { heroImageProps } from "@/lib/hero-images";
+import { getHolidayCollection } from "@/lib/holiday-collection.functions";
+import { HolidayCollection } from "@/components/home/HolidayCollection";
 
 async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   const { data, error } = await supabase
@@ -82,12 +84,13 @@ export const Route = createFileRoute("/")({
         : [],
   }),
   loader: async () => {
-    const [featuredListings, heroImages, googleReviews] = await Promise.all([
+    const [featuredListings, heroImages, googleReviews, holidayListings] = await Promise.all([
       fetchFeaturedListings(),
       getHeroImages(),
       getGoogleReviews(),
+      getHolidayCollection().catch(() => []),
     ]);
-    return { featuredListings, heroImages, googleReviews };
+    return { featuredListings, heroImages, googleReviews, holidayListings };
   },
   component: HomePage,
   errorComponent: () => <p className="p-8 text-muted-foreground">The homepage could not be loaded. Please try again.</p>,
@@ -138,7 +141,7 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured, heroImages, googleReviews } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, heroImages, googleReviews, holidayListings } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -206,6 +209,8 @@ function HomePage() {
 
       {/* 1.5 FIND YOUR UNIT */}
       <FindYourUnit />
+
+      <HolidayCollection listings={holidayListings} />
 
       <SectionDivider fill="var(--color-background)" flip />
 
