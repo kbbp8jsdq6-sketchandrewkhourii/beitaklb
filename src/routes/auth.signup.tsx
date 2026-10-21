@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -9,22 +9,20 @@ import { FieldError } from "@/components/FieldError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { signupSchema, fieldErrors, friendlyError } from "@/lib/validation";
+import { SIGNUP_RESEND_COOLDOWN_SECONDS } from "@/lib/signup-confirmation";
 
 export const Route = createFileRoute("/auth/signup")({
-  head: () => ({ meta: [{ title: "Sign up - BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "Sign up - BEITAK" }, { name: "description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { property: "og:title", content: "Sign up - BEITAK" }, { property: "og:description", content: "Create your BEITAK account to save and book stays across Lebanon." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: SignupPage,
 });
 
 function SignupPage() {
-  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState<"details" | "otp">("details");
+  const [step, setStep] = useState<"details" | "confirmation">("details");
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendIn, setResendIn] = useState(0);
@@ -55,6 +53,7 @@ function SignupPage() {
       password: parsed.data.password,
       options: {
         data: { full_name: parsed.data.fullName },
+        emailRedirectTo: window.location.origin,
       },
     });
     setSubmitting(false);
@@ -65,27 +64,8 @@ function SignupPage() {
       return;
     }
     setEmail(parsed.data.email);
-    setStep("otp");
-    setResendIn(30);
-    toast.success("We sent a 6-digit code to your email.");
-  };
-
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (submitting || code.length !== 6) return;
-    setSubmitting(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: code,
-      type: "signup",
-    });
-    setSubmitting(false);
-    if (error) {
-      toast.error(friendlyError(error, "Invalid or expired code."));
-      return;
-    }
-    toast.success("Welcome to BEITAK!");
-    navigate({ to: "/" });
+    setStep("confirmation");
+    setResendIn(SIGNUP_RESEND_COOLDOWN_SECONDS);
   };
 
   const handleResend = async () => {
@@ -94,14 +74,15 @@ function SignupPage() {
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: email.trim(),
+      options: { emailRedirectTo: window.location.origin },
     });
     setResending(false);
     if (error) {
       toast.error(friendlyError(error));
       return;
     }
-    setResendIn(30);
-    toast.success("Code resent.");
+    setResendIn(SIGNUP_RESEND_COOLDOWN_SECONDS);
+    toast.success("Confirmation email resent.");
   };
 
   return (
@@ -173,23 +154,11 @@ function SignupPage() {
             </>
           ) : (
             <>
-              <h1 className="font-display text-3xl text-foreground">Enter your code</h1>
+              <h1 className="font-display text-3xl text-foreground">Check your email</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                We sent a 6-digit code to <span className="font-semibold text-foreground">{email}</span>.
+                We sent a confirmation link to <span className="break-all font-semibold text-foreground">{email}</span>. Click the link in the email to confirm your account, then you'll be signed in.
               </p>
-              <form onSubmit={handleVerify} className="mt-6 space-y-5" noValidate>
-                <div className="flex justify-center">
-                  <InputOTP maxLength={6} value={code} onChange={setCode}>
-                    <InputOTPGroup>
-                      {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <InputOTPSlot key={i} index={i} />
-                      ))}
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                <Button type="submit" className="w-full" disabled={submitting || code.length !== 6}>
-                  {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying…</> : "Verify & continue"}
-                </Button>
+              <div className="mt-6 space-y-5">
                 <Button
                   type="button"
                   variant="outline"
@@ -197,16 +166,17 @@ function SignupPage() {
                   onClick={handleResend}
                   disabled={resending || resendIn > 0}
                 >
-                  {resending ? "Sending…" : resendIn > 0 ? `Resend code in ${resendIn}s` : "Resend code"}
+                  {resending ? "Sending…" : resendIn > 0 ? `Resend confirmation email (${resendIn}s)` : "Resend confirmation email"}
                 </Button>
-                <button
+                <Button
                   type="button"
-                  onClick={() => { setStep("details"); setCode(""); }}
-                  className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
+                  variant="link"
+                  onClick={() => { setStep("details"); setErrors({}); }}
+                  className="w-full text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Back to details
-                </button>
-              </form>
+                  Use a different email
+                </Button>
+              </div>
             </>
           )}
         </div>

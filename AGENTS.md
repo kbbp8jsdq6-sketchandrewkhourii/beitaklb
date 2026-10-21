@@ -10,4 +10,5 @@
 - Retired listing details are omitted from write payloads and active-detail detection; conversion filters new amenities to the shared list and merges existing amenity details, so legacy data survives edits.
 - Retired Feedback and static reviewer URLs retain redirect-only TanStack routes, so old deep links stay valid without keeping their content.
 - The public Google reviews query returns the admin-saved view-reviews destination separately from the shared write-review/QR destination, so clearing the view link hides only its button.
-- The homepage holiday collection is public server-function loader data filtered by admin-editable comma-separated places in site_settings, with spelling aliases in src/lib/holiday-collection.ts, so new listings appear automatically without rebuilds.
+- The homepage holiday collection filters active listings by admin-selected exact normalized locations and applies Fisher–Yates once inside its public server function; loader data preserves the shuffled order through hydration without client reshuffling.
+- Signup confirmation uses email links returning to the public homepage; the existing AuthProvider captures signup-only return hashes and verifies the user before welcoming them, leaving login and recovery session handling unchanged.

@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { isSignupConfirmationReturn } from "@/lib/signup-confirmation";
 
 interface AuthContextValue {
   user: User | null;
@@ -18,13 +20,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  // Capture before child effects can initialize auth and consume the URL hash.
+  const signupConfirmationReturn = useRef(typeof window !== "undefined" && isSignupConfirmationReturn(window.location.hash));
 
   useEffect(() => {
+    // Capture before the auth client consumes and clears the confirmation hash.
+    let signupReturn = signupConfirmationReturn.current;
     // CRITICAL: set up listener BEFORE getSession()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
+        if (signupReturn && newSession.user.email_confirmed_at) {
+          signupReturn = false;
+          // Never await another auth call inside the auth-state callback.
+          setTimeout(async () => {
+            const { data, error } = await supabase.auth.getUser();
+            if (!error && data.user?.email_confirmed_at) {
+              toast.success("Your account is confirmed. Welcome to Beitak!");
+            }
+          }, 0);
+        }
         // Defer role check (avoid recursion in onAuthStateChange)
         setTimeout(() => {
           supabase

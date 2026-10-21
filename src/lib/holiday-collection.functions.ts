@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { matchesHolidayLocation } from "./holiday-collection";
+import { matchesHolidayLocation, shuffleHolidayListings } from "./holiday-collection";
 
 export interface HolidayListing {
   id: string;
@@ -35,7 +35,7 @@ export const getHolidayCollection = createServerFn({ method: "GET" }).handler(as
     .select("id, title, location, bedrooms, max_guests, price_weekday, listing_photos(photo_url, display_order)")
     .eq("is_active", true);
   if (error) { console.error("Holiday collection read failed"); return []; }
-  return (data ?? [])
+  return shuffleHolidayListings((data ?? [])
     .filter((l) => matchesHolidayLocation(l.location, places))
     .map((l) => {
       const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
@@ -49,6 +49,5 @@ export const getHolidayCollection = createServerFn({ method: "GET" }).handler(as
         price: Number.isFinite(price) && price > 0 ? price : null,
         cover: photos[0]?.photo_url ?? null,
       };
-    })
-    .sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+    }));
 });
