@@ -1,0 +1,2 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS holiday_collection_enabled boolean NOT NULL DEFAULT true;
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS holiday_collection_locations text NOT NULL DEFAULT 'Kfardebian, Faraya, Arez, Ehden, Mzaar, Zaarour, Faqra';

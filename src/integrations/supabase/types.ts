@@ -796,6 +796,8 @@ export type Database = {
           google_rating: number | null
           google_review_count: number | null
           google_reviews_page_link: string | null
+          holiday_collection_enabled: boolean
+          holiday_collection_locations: string
           id: number
           maintenance_mode: boolean
           terms_text: string | null
@@ -809,6 +811,8 @@ export type Database = {
           google_rating?: number | null
           google_review_count?: number | null
           google_reviews_page_link?: string | null
+          holiday_collection_enabled?: boolean
+          holiday_collection_locations?: string
           id?: number
           maintenance_mode?: boolean
           terms_text?: string | null
@@ -822,6 +826,8 @@ export type Database = {
           google_rating?: number | null
           google_review_count?: number | null
           google_reviews_page_link?: string | null
+          holiday_collection_enabled?: boolean
+          holiday_collection_locations?: string
           id?: number
           maintenance_mode?: boolean
           terms_text?: string | null
