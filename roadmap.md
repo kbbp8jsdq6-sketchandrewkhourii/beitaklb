@@ -1,3 +1,7 @@
+# Holiday ordering and signup confirmation
+- [ ] Shuffle holiday listings on the server and verify stable hydrated order.
+- [ ] Replace signup code entry with confirmation-link instructions, resend cooldown and email change.
+- [ ] Verify signup confirmation return and preserve login/reset flows.
 # Listing price-note icons
 - [x] Replace price-note emojis with red line icons on the desktop card and mobile bar; verify desktop and mobile.
 # Google reviews
