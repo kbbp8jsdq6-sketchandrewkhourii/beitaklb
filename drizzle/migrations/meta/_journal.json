@@ -43,6 +43,13 @@
       "when": 1792581085382,
       "tag": "0005_holiday_collection_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792582586876,
+      "tag": "0006_holiday_collection_location_list",
+      "breakpoints": true
     }
   ]
 }
