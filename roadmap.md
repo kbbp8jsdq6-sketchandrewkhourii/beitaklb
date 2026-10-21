@@ -1,3 +1,6 @@
+# Auth screen presentation
+- [ ] Restyle login, signup and check-email with shared first-hero imagery and responsive split layout.
+- [ ] Verify desktop/mobile layout, existing controls and unchanged validation/cooldown behavior.
 # Holiday ordering and signup confirmation
 - [x] Shuffle holiday listings on the server and verify stable hydrated order.
 - [x] Replace signup code entry with confirmation-link instructions, resend cooldown and email change.
