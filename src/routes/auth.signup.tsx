@@ -33,7 +33,61 @@ function SignupPage() {
   useEffect(() => {
     if (resendIn <= 0) return;
     const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
-    return (
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    const parsed = signupSchema.safeParse({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      password,
+    });
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error));
+      return;
+    }
+    setErrors({});
+    setSubmitting(true);
+    const { error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        data: { full_name: parsed.data.fullName },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    setSubmitting(false);
+    if (error) {
+      const msg = friendlyError(error, "We couldn't create your account. Please try again.");
+      toast.error(msg);
+      setErrors({ _: msg });
+      return;
+    }
+    setEmail(parsed.data.email);
+    setStep("confirmation");
+    setResendIn(SIGNUP_RESEND_COOLDOWN_SECONDS);
+  };
+
+  const handleResend = async () => {
+    if (resendIn > 0 || resending) return;
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim(),
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setResending(false);
+    if (error) {
+      toast.error(friendlyError(error));
+      return;
+    }
+    setResendIn(SIGNUP_RESEND_COOLDOWN_SECONDS);
+    toast.success("Confirmation email resent.");
+  };
+
+  return (
     <AuthLayout image={image} headline={step === "details" ? "Find your perfect stay in Lebanon" : "Almost there"} subtitle={step === "details" ? "Guesthouses, villas & chalets across Lebanon. Reserve in minutes on WhatsApp." : "One last step to find your next stay."}>
       {step === "details" ? (
         <>
