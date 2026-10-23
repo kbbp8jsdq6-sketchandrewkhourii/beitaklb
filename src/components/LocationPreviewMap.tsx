@@ -29,7 +29,7 @@ function createPinIcon() {
 export function LocationPreviewMap({ latitude, longitude, className }: LocationPreviewMapProps) {
   return (
     <div
-      className={`h-[280px] w-full overflow-hidden rounded-2xl border border-border ${className ?? ""}`}
+      className={`relative z-0 isolate h-[280px] w-full overflow-hidden rounded-2xl border border-border ${className ?? ""}`}
     >
       <MapContainer
         center={[latitude, longitude]}
