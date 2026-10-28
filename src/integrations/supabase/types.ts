@@ -705,27 +705,33 @@ export type Database = {
       }
       reservation_clicks: {
         Row: {
+          backup_checkout: string | null
           backup_date: string | null
           created_at: string
           guests: number
           id: string
           listing_id: string
+          requested_checkout: string | null
           requested_date: string | null
         }
         Insert: {
+          backup_checkout?: string | null
           backup_date?: string | null
           created_at?: string
           guests?: number
           id?: string
           listing_id: string
+          requested_checkout?: string | null
           requested_date?: string | null
         }
         Update: {
+          backup_checkout?: string | null
           backup_date?: string | null
           created_at?: string
           guests?: number
           id?: string
           listing_id?: string
+          requested_checkout?: string | null
           requested_date?: string | null
         }
         Relationships: [

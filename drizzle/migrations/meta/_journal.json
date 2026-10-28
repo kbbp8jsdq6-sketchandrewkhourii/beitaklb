@@ -50,6 +50,13 @@
       "when": 1792582586876,
       "tag": "0006_holiday_collection_location_list",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793218761612,
+      "tag": "0007_add_reservation_checkout_dates",
+      "breakpoints": true
     }
   ]
 }
