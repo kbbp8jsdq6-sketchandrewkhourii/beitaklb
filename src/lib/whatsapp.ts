@@ -14,6 +14,10 @@ export interface WhatsAppListingMessage {
   url: string;
   preferredDate?: string;
   backupDate?: string;
+  checkIn?: string;
+  checkOut?: string;
+  backupCheckIn?: string;
+  backupCheckOut?: string;
   guests?: number;
 }
 
@@ -39,11 +43,28 @@ export function buildListingMessage({
   url,
   preferredDate,
   backupDate,
+  checkIn,
+  checkOut,
+  backupCheckIn,
+  backupCheckOut,
   guests,
 }: WhatsAppListingMessage): string {
+  const hasRange = !!(checkIn && checkOut);
+  const nightCount = (start: string, end: string) => {
+    const [sy, sm, sd] = start.split("-").map(Number);
+    const [ey, em, ed] = end.split("-").map(Number);
+    return Math.round((Date.UTC(ey, em - 1, ed) - Date.UTC(sy, sm - 1, sd)) / 86400000);
+  };
+  const nights = hasRange ? nightCount(checkIn, checkOut) : 0;
   const details = [
-    ...(preferredDate ? [`Preferred date: ${formatReservationDate(preferredDate)}`] : []),
-    ...(backupDate ? [`Backup date: ${formatReservationDate(backupDate)}`] : []),
+    ...(hasRange ? [
+      `Check-in: ${formatReservationDate(checkIn)}`,
+      `Check-out: ${formatReservationDate(checkOut)} (${nights} ${nights === 1 ? "night" : "nights"})`,
+      ...(backupCheckIn && backupCheckOut ? [`Backup dates: ${formatReservationDate(backupCheckIn)} to ${formatReservationDate(backupCheckOut)}`] : []),
+    ] : [
+      ...(preferredDate ? [`Preferred date: ${formatReservationDate(preferredDate)}`] : []),
+      ...(backupDate ? [`Backup date: ${formatReservationDate(backupDate)}`] : []),
+    ]),
     ...(guests != null ? [`Guests: ${guests}`] : []),
   ];
   return [

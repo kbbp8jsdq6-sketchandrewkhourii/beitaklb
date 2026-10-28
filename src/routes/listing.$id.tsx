@@ -712,6 +712,7 @@ function ListingPage() {
         priceWeekend={listing.price_weekend != null ? Number(listing.price_weekend) : null}
         listingUrl={listingUrl}
         defaultGuests={listing.max_guests ?? 1}
+        maxGuests={listing.max_guests ?? 20}
       />
 
     </div>
