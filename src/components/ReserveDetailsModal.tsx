@@ -84,7 +84,10 @@ export function ReserveDetailsModal({
   const [guests, setGuests] = useState(1);
   const [today, setToday] = useState("");
   const [lastDate, setLastDate] = useState("");
-  const [month, setMonth] = useState({ year: 2026, month: 0 });
+  const [month, setMonth] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
   const [mobile, setMobile] = useState(false);
 
   useEffect(() => {
@@ -159,7 +162,7 @@ export function ReserveDetailsModal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="reserve-calendar fixed inset-0 z-[60] flex items-end justify-center backdrop-blur-sm md:items-center md:px-4"
+          className="reserve-calendar fixed inset-0 z-[10000] flex items-end justify-center backdrop-blur-sm md:items-center md:px-4"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }} onClick={onCancel}
         >
