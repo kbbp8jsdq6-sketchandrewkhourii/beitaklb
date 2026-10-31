@@ -1,9 +1,11 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
+// body overflow-x:hidden makes body a non-scrolling scroll container, which breaks sticky; clip avoids that.
 // The site Header is sticky (64px tall) and occupies layout space, so the pinned
 // stage sits just below it instead of being hidden underneath.
 const CSS = `
+body{overflow-x:clip}
 .dnh-track{--p:0;position:relative;height:280vh}
 .dnh-stage{position:sticky;top:64px;height:calc(100vh - 64px);height:calc(100svh - 64px);overflow:hidden;background:#0A1530}
 .dnh-scene{position:absolute;inset:0;transform:scale(calc(1.02 + var(--p) * 0.07));transform-origin:50% 62%;will-change:transform}
