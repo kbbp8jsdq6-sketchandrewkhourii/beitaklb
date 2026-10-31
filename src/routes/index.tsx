@@ -150,10 +150,13 @@ function HomePage() {
 
       {/* Both layouts include their first image in the server-rendered page. */}
       <div className="block md:hidden">
-        <DayNightHero>
-          <div className="scale-75 origin-bottom">
-            <LogoTransparent size="hero" />
-          </div>
+        <DayNightHero
+          logo={
+            <div className="scale-75 origin-top">
+              <LogoTransparent size="hero" />
+            </div>
+          }
+        >
           <h1 className="mt-4 font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
             Find your perfect stay in Lebanon
           </h1>
