@@ -19,11 +19,11 @@ html,body{overflow-x:clip !important}
 .dnh-cue{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:12px;font-weight:600;opacity:clamp(0,calc(1 - var(--p) * 5),1)}
 .dnh-cue svg{animation:dnh-bob 1.8s ease-in-out infinite}
 @keyframes dnh-bob{50%{transform:translateY(5px)}}
-@media (max-width:767px){.dnh-img{object-position:50% 50%}.dnh-content{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 76px)}.dnh-shade{background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 18%,transparent 42%,rgba(0,0,0,.72) 100%)}.dnh-cue{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}}
+@media (max-width:767px){.dnh-img{object-position:50% 50%}.dnh-content{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 76px)}.dnh-shade{background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 18%,transparent 42%,rgba(0,0,0,.72) 100%)}.dnh-cue{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}.dnh-logo{top:calc(env(safe-area-inset-top,0px) + 10px)}}
 @media (prefers-reduced-motion: reduce){.dnh-track{height:auto}.dnh-stage{position:relative}.dnh-scene{transform:none}.dnh-dusk,.dnh-lights,.dnh-night,.dnh-cue{display:none}}
 `;
 
-export function DayNightHero({ children }: { children: ReactNode }) {
+export function DayNightHero({ children, logo }: { children: ReactNode; logo?: ReactNode }) {
   const trackRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -62,6 +62,7 @@ export function DayNightHero({ children }: { children: ReactNode }) {
           <img src="/hero-night.webp" className="dnh-img dnh-night" alt="" />
         </div>
         <div className="dnh-shade" />
+        {logo ? <div className="dnh-logo">{logo}</div> : null}
         <div className="dnh-content">{children}</div>
         <div className="dnh-cue" aria-hidden="true">
           <span>Scroll</span>
