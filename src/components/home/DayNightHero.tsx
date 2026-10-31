@@ -15,6 +15,7 @@ html,body{overflow-x:clip !important}
 .dnh-night{opacity:clamp(0,calc((var(--p) - .32) / .5),1)}
 .dnh-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 16%,transparent 45%,rgba(0,0,0,.7) 100%)}
 .dnh-content{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;padding:0 24px calc(env(safe-area-inset-bottom,0px) + 84px);color:#fff;pointer-events:none}
+.dnh-logo{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 18px);z-index:11;display:flex;justify-content:center;pointer-events:none;padding:0 24px}
 .dnh-cue{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:12px;font-weight:600;opacity:clamp(0,calc(1 - var(--p) * 5),1)}
 .dnh-cue svg{animation:dnh-bob 1.8s ease-in-out infinite}
 @keyframes dnh-bob{50%{transform:translateY(5px)}}
