@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { LogoTransparent } from "@/components/LogoTransparent";
-import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { DayNightHero } from "@/components/home/DayNightHero";
 
-export default function DesktopHero({ initialImages }: { initialImages?: string[] } = {}) {
+export default function DesktopHero() {
   // Magnetic cursor effect for hero logo — gently pulls toward cursor when within 150px.
   // Disabled on touch / mobile devices for performance.
   const magneticRef = useRef<HTMLDivElement>(null);
@@ -66,39 +66,8 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
     };
   }, []);
 
-  const heroParallaxRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = heroParallaxRef.current;
-    if (!el) return;
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) return;
-    let raf = 0;
-    const update = () => {
-      const y = window.scrollY;
-      el.style.setProperty("--hero-parallax", `${y * 0.35}px`);
-      raf = 0;
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
   return (
-    <section className="relative">
-      <div className="hero-shell relative h-[100vh] min-h-[640px] w-full overflow-hidden bg-hero-fallback">
-        <div ref={heroParallaxRef} className="hero-parallax absolute inset-0">
-          <HeroSlideshow initialImages={initialImages} viewport="desktop" />
-        </div>
-        <div className="hero-desktop-overlay pointer-events-none absolute inset-0" />
-
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center pointer-events-none">
+    <DayNightHero>
           <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
             <div className="hero-logo-aura" aria-hidden="true" />
             <div className="hero-particles" aria-hidden="true">
@@ -176,23 +145,13 @@ export default function DesktopHero({ initialImages }: { initialImages?: string[
             Find your perfect stay in Lebanon
           </motion.h1>
           <motion.p
-            className="mt-5 max-w-xl text-base text-white/90 sm:text-lg"
+            className="mt-5 max-w-[40ch] text-base text-white/90 [text-wrap:balance] [text-shadow:0_2px_10px_rgba(0,0,0,.4)] sm:text-lg"
             initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
           >
             Browse unique listings from trusted local hosts.
           </motion.p>
-          <motion.p
-            className="mt-8 text-xs uppercase tracking-[0.4em] text-primary"
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
-          >
-            Home is closer than you think
-          </motion.p>
-        </div>
-      </div>
-    </section>
+    </DayNightHero>
   );
 }
