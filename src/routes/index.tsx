@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
-import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { DayNightHero } from "@/components/home/DayNightHero";
 
 import { PatternBackground } from "@/components/PatternBackground";
 import { Reveal } from "@/components/Reveal";
@@ -15,8 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { ListingCard, type ListingCardData } from "@/components/ListingCard";
 import { getGoogleReviews } from "@/lib/google-reviews.functions";
 import DesktopHero from "@/components/home/DesktopHero";
-import { getHeroImages } from "@/lib/hero-images.functions";
-import { heroImageProps } from "@/lib/hero-images";
 import { getHolidayCollection } from "@/lib/holiday-collection.functions";
 import { HolidayCollection } from "@/components/home/HolidayCollection";
 
@@ -69,28 +67,15 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
       { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
-    links:
-      loaderData?.heroImages?.[0]
-        ? [
-            {
-              rel: "preload",
-              as: "image",
-              href: heroImageProps(loaderData.heroImages[0]).src,
-              imageSrcSet: heroImageProps(loaderData.heroImages[0]).srcSet,
-              imageSizes: heroImageProps(loaderData.heroImages[0]).sizes,
-              fetchPriority: "high",
-            },
-          ]
-        : [],
+    links: [{ rel: "preload", as: "image", href: "/hero-day.webp", fetchPriority: "high" }],
   }),
   loader: async () => {
-    const [featuredListings, heroImages, googleReviews, holidayListings] = await Promise.all([
+    const [featuredListings, googleReviews, holidayListings] = await Promise.all([
       fetchFeaturedListings(),
-      getHeroImages(),
       getGoogleReviews(),
       getHolidayCollection().catch(() => []),
     ]);
-    return { featuredListings, heroImages, googleReviews, holidayListings };
+    return { featuredListings, googleReviews, holidayListings };
   },
   component: HomePage,
   errorComponent: () => <p className="p-8 text-muted-foreground">The homepage could not be loaded. Please try again.</p>,
@@ -141,7 +126,7 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured, heroImages, googleReviews, holidayListings } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, googleReviews, holidayListings } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -165,26 +150,20 @@ function HomePage() {
 
       {/* Both layouts include their first image in the server-rendered page. */}
       <div className="block md:hidden">
-        <section className="relative">
-          <div className="hero-shell relative h-[70vh] min-h-[480px] w-full overflow-hidden bg-hero-fallback">
-            <HeroSlideshow initialImages={heroImages} viewport="mobile" />
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 pb-20 text-center pointer-events-none">
-              <LogoTransparent size="hero" />
-              <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
-                Find your perfect stay in Lebanon
-              </h1>
-              <p className="mt-5 max-w-xl text-base text-white/90">
-                Browse unique listings from trusted local hosts.
-              </p>
-              <p className="mt-8 text-xs uppercase tracking-[0.4em] text-primary">
-                Home is closer than you think
-              </p>
-            </div>
+        <DayNightHero>
+          <div className="scale-75 origin-bottom">
+            <LogoTransparent size="hero" />
           </div>
-        </section>
+          <h1 className="mt-4 font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
+            Find your perfect stay in Lebanon
+          </h1>
+          <p className="mt-4 max-w-[40ch] text-base text-white/90 [text-wrap:balance]">
+            Browse unique listings from trusted local hosts.
+          </p>
+        </DayNightHero>
       </div>
       <div className="hidden md:block">
-        <DesktopHero initialImages={heroImages} />
+        <DesktopHero />
       </div>
 
       {/* CTA BAR — sits below the hero so buttons are never cut off */}
