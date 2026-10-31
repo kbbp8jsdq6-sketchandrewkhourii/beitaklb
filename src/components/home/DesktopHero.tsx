@@ -67,7 +67,9 @@ export default function DesktopHero() {
   }, []);
 
   return (
-    <DayNightHero>
+    <DayNightHero
+      logo={
+        <>
           <div ref={magneticRef} style={{ willChange: "transform" }} className="relative">
             <div className="hero-logo-aura" aria-hidden="true" />
             <div className="hero-particles" aria-hidden="true">
@@ -135,7 +137,9 @@ export default function DesktopHero() {
                 </div>
               </div>
             </motion.div>
-          </div>
+        </>
+      }
+    >
           <motion.h1
             className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] text-white drop-shadow-lg sm:text-6xl md:text-7xl"
             initial={false}
