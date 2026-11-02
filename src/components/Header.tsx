@@ -24,8 +24,8 @@ import { HamburgerMenu } from "./HamburgerMenu";
 
 const GLASS =
   "bg-black/30 border border-white/40 backdrop-blur-md text-white hover:bg-black/45 transition-colors duration-300";
-const GLASS_ROUND = `inline-flex h-11 w-11 items-center justify-center rounded-full ${GLASS}`;
-const GLASS_PILL = `inline-flex h-10 items-center gap-1.5 rounded-full px-3 md:px-4 text-[13px] font-bold ${GLASS}`;
+const GLASS_ROUND = `h-11 w-11 items-center justify-center rounded-full ${GLASS}`;
+const GLASS_PILL = `h-10 items-center gap-1.5 rounded-full px-3 md:px-4 text-[13px] font-bold ${GLASS}`;
 const TILE = "flex h-8 w-8 flex-none items-center justify-center rounded-[9px]";
 
 export function Header() {
@@ -141,7 +141,7 @@ export function Header() {
               <List className="h-4 w-4" />
               Listings
             </Link>
-            <Link to="/favorites" aria-label="My favorites" className={GLASS_ROUND}>
+            <Link to="/favorites" aria-label="My favorites" className={`${GLASS_ROUND} inline-flex`}>
               <Heart className="h-5 w-5" />
             </Link>
             <a
@@ -159,7 +159,7 @@ export function Header() {
                   <button
                     type="button"
                     aria-label="Account menu"
-                    className={`${GLASS_ROUND} md:h-10 md:w-auto md:gap-1.5 md:px-4 md:text-[13px] md:font-bold`}
+                    className={`${GLASS_ROUND} inline-flex md:h-10 md:w-auto md:gap-1.5 md:px-4 md:text-[13px] md:font-bold`}
                   >
                     <UserIcon className="h-5 w-5 md:h-4 md:w-4" />
                     <span className="hidden md:inline">Account</span>
@@ -169,8 +169,8 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Link to="/auth/login" className={GLASS_PILL}>
-                  Log in
+                <Link to="/auth/login" className={`${GLASS_PILL} inline-flex`}>
+                  <span className="whitespace-nowrap">Log in</span>
                 </Link>
                 <Link
                   to="/auth/signup"
@@ -180,7 +180,7 @@ export function Header() {
                 </Link>
               </>
             )}
-            <HamburgerMenu triggerClassName={GLASS_ROUND} />
+            <HamburgerMenu triggerClassName={`${GLASS_ROUND} inline-flex`} />
           </nav>
         </div>
       </header>
