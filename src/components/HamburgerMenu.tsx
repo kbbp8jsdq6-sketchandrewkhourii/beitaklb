@@ -54,7 +54,7 @@ function MenuLink({ to, icon, label, onSelect, search }: MenuLinkProps) {
   );
 }
 
-export function HamburgerMenu() {
+export function HamburgerMenu({ triggerClassName }: { triggerClassName?: string } = {}) {
   const [open, setOpen] = useState(false);
   const [propsOpen, setPropsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -86,7 +86,10 @@ export function HamburgerMenu() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open menu"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground transition hover:bg-accent hover:text-primary"
+        className={
+          triggerClassName ??
+          "inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground transition hover:bg-accent hover:text-primary"
+        }
       >
         <Menu className="h-5 w-5" />
       </button>
