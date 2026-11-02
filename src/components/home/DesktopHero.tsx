@@ -137,6 +137,7 @@ export default function DesktopHero() {
                 </div>
               </div>
             </motion.div>
+          </div>
         </>
       }
     >
