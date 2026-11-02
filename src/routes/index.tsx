@@ -3,7 +3,6 @@ import { ChevronDown, Heart } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { LogoTransparent } from "@/components/LogoTransparent";
 import { FindYourUnit } from "@/components/FindYourUnit";
 import { DayNightHero } from "@/components/home/DayNightHero";
 
@@ -150,17 +149,11 @@ function HomePage() {
 
       {/* Both layouts include their first image in the server-rendered page. */}
       <div className="block md:hidden">
-        <DayNightHero
-          logo={
-            <div className="scale-75 origin-top">
-              <LogoTransparent size="hero" />
-            </div>
-          }
-        >
-          <h1 className="mt-4 font-display text-5xl leading-[1.05] text-white drop-shadow-lg">
+        <DayNightHero>
+          <h1 className="font-display text-[52px] leading-[0.95] text-white [text-shadow:0_4px_24px_rgba(0,0,0,.35)]">
             Find your perfect stay in Lebanon
           </h1>
-          <p className="mt-4 max-w-[40ch] text-base text-white/90 [text-wrap:balance]">
+          <p className="mt-4 max-w-[40ch] text-[15px] leading-relaxed text-white/90 [text-wrap:balance]">
             Browse unique listings from trusted local hosts.
           </p>
         </DayNightHero>

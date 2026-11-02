@@ -2,13 +2,14 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 // body overflow-x:hidden makes body a non-scrolling scroll container, which breaks sticky; clip avoids that.
-// The site Header is sticky (64px tall) and occupies layout space, so the pinned
-// stage sits just below it instead of being hidden underneath.
+// The Header overlays the hero on the homepage, so the stage pins at the very top.
 const CSS = `
 html,body{overflow-x:clip !important}
 .dnh-track{--p:0;position:relative;height:280vh}
-.dnh-stage{position:sticky;top:64px;height:calc(100vh - 64px);height:calc(100svh - 64px);overflow:hidden;background:#0A1530}
+.dnh-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#0A1530}
 .dnh-scene{position:absolute;inset:0;transform:scale(calc(1.02 + var(--p) * 0.07));transform-origin:50% 62%;will-change:transform}
+.dnh-layer{position:absolute;inset:0}
+.dnh-m{display:none}
 .dnh-img,.dnh-dusk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:56% 50%}
 .dnh-dusk{background:linear-gradient(180deg,rgba(255,138,61,.75) 0%,rgba(255,96,48,.45) 38%,rgba(255,170,90,.15) 62%,transparent 80%);mix-blend-mode:soft-light;opacity:min(clamp(0,calc(var(--p) / .28),1),clamp(0,calc((.78 - var(--p)) / .3),1))}
 .dnh-lights{mix-blend-mode:lighten;opacity:clamp(0,calc((var(--p) - .14) / .3),1)}
@@ -19,7 +20,7 @@ html,body{overflow-x:clip !important}
 .dnh-cue{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:12px;font-weight:600;opacity:clamp(0,calc(1 - var(--p) * 5),1)}
 .dnh-cue svg{animation:dnh-bob 1.8s ease-in-out infinite}
 @keyframes dnh-bob{50%{transform:translateY(5px)}}
-@media (max-width:767px){.dnh-img{object-position:50% 50%}.dnh-content{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 76px)}.dnh-shade{background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 18%,transparent 42%,rgba(0,0,0,.72) 100%)}.dnh-cue{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}.dnh-logo{top:calc(env(safe-area-inset-top,0px) + 10px)}}
+@media (max-width:767px){.dnh-d{display:none}.dnh-m{display:block}.dnh-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(28px) saturate(1.1);transform:scale(1.2)}.dnh-fg{position:absolute;left:50%;top:13%;height:62%;width:auto;max-width:none;transform:translateX(-50%);-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 16%,#000 84%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 16%,#000 84%,transparent 100%)}.dnh-content{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 76px)}.dnh-shade{background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 18%,transparent 42%,rgba(0,0,0,.72) 100%)}.dnh-cue{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}.dnh-logo{top:calc(env(safe-area-inset-top,0px) + 10px)}}
 @media (prefers-reduced-motion: reduce){.dnh-track{height:auto}.dnh-stage{position:relative}.dnh-scene{transform:none}.dnh-dusk,.dnh-lights,.dnh-night,.dnh-cue{display:none}}
 `;
 
@@ -56,10 +57,19 @@ export function DayNightHero({ children, logo }: { children: ReactNode; logo?: R
       <style>{CSS}</style>
       <div className="dnh-stage">
         <div className="dnh-scene" aria-hidden="true">
-          <img src="/hero-day.webp" className="dnh-img" fetchPriority="high" alt="" />
+          <div className="dnh-layer">
+            <img src="/hero-day.webp" className="dnh-img dnh-d" fetchPriority="high" alt="" />
+            <div className="dnh-m"><img src="/hero-day.webp" className="dnh-bg" alt="" /><img src="/hero-day.webp" className="dnh-fg" alt="" /></div>
+          </div>
           <div className="dnh-dusk" />
-          <img src="/hero-night.webp" className="dnh-img dnh-lights" alt="" />
-          <img src="/hero-night.webp" className="dnh-img dnh-night" alt="" />
+          <div className="dnh-layer dnh-lights">
+            <img src="/hero-night.webp" className="dnh-img dnh-d" alt="" />
+            <div className="dnh-m"><img src="/hero-night.webp" className="dnh-bg" alt="" /><img src="/hero-night.webp" className="dnh-fg" alt="" /></div>
+          </div>
+          <div className="dnh-layer dnh-night">
+            <img src="/hero-night.webp" className="dnh-img dnh-d" alt="" />
+            <div className="dnh-m"><img src="/hero-night.webp" className="dnh-bg" alt="" /><img src="/hero-night.webp" className="dnh-fg" alt="" /></div>
+          </div>
         </div>
         <div className="dnh-shade" />
         {logo ? <div className="dnh-logo">{logo}</div> : null}
