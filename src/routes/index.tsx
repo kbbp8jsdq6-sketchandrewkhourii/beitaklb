@@ -66,7 +66,10 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: "https://beitaklb.com/og-image.jpg" },
       { name: "twitter:image", content: "https://beitaklb.com/og-image.jpg" },
     ],
-    links: [{ rel: "preload", as: "image", href: "/hero-day.webp", fetchPriority: "high" }],
+    links: [
+      { rel: "preload", as: "image", href: "/hero-day-mobile.webp", media: "(max-width: 767px)", fetchPriority: "high" },
+      { rel: "preload", as: "image", href: "/hero-day.webp", media: "(min-width: 768px)", fetchPriority: "high" },
+    ],
   }),
   loader: async () => {
     const [featuredListings, googleReviews, holidayListings] = await Promise.all([
