@@ -191,7 +191,10 @@ export const Route = createFileRoute("/api/public/chat")({
                 const text = [l.title, l.location, l.district, l.highlights, l.about, l.description, l.amenities,
                   l.amenity_details, l.bedroom_details, l.bathroom_details, l.stay_types].map(str).join(" ").toLowerCase();
                 return kws.every((k: string) => {
-                  if (k.startsWith("pet") && text.includes("pet")) return true;
+                  if (k.startsWith("pet")) {
+                    const am = ((l.amenities ?? []) as string[]).some((x) => String(x).toLowerCase().includes("pet"));
+                    return am || ["pet friendly", "pet-friendly", "pets allowed", "pets welcome"].some((p) => text.includes(p));
+                  }
                   const words = k.split(/[^\p{L}\p{N}]+/u).filter(Boolean).map(stem);
                   return words.length > 0 && words.every((w) => text.includes(w));
                 });

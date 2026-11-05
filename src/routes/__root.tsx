@@ -50,7 +50,7 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Noto+Naskh+Arabic:wght@400;600&display=swap",
       },
       {
         rel: "stylesheet",

@@ -16,8 +16,19 @@ type UIMessage = { id: string; role: "user" | "assistant" | "error"; text: strin
 const greeting = "Hi! I can find you a place to stay in Lebanon, answer questions about booking, or help you list your property. Ahla w sahla 👋";
 const whatsapp = "https://wa.me/96181160435";
 const fallbackError = "Something went wrong. Please try again or message us on WhatsApp.";
-const bubble = "max-w-[85%] rounded-[14px] rounded-bl-[4px] px-[13px] py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words";
-const fieldClass = "h-10 w-full rounded-lg border border-[#E2DCDC] px-3 text-base bg-white focus:border-foreground outline-none";
+const bubble = "max-w-[85%] px-[14px] py-[10px] whitespace-pre-wrap break-words";
+const fieldClass = "h-10 w-full rounded-lg border border-[#E2D7CC] px-3 text-base bg-white text-[#2A1F1C] focus:border-[#2A1F1C] outline-none";
+const ARABIC = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+const EMOJI = /(?:\p{Regional_Indicator}{2}|[#*0-9]\uFE0F?\u20E3|\p{Extended_Pictographic}(?:\uFE0F|[\u{1F3FB}-\u{1F3FF}])*(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|[\u{1F3FB}-\u{1F3FF}])*)*)/gu;
+const ALLOWED_EMOJI: Record<string, string> = { "👋": "👋", "🏊": "🏊", "🔥": "🔥", "❤": "❤️", "❤️": "❤️" };
+function cleanEmojis(text: string) {
+  let kept = false;
+  return text.replace(EMOJI, (m) => {
+    const allowed = ALLOWED_EMOJI[m];
+    if (allowed && !kept) { kept = true; return allowed; }
+    return "";
+  }).replace(/[ \t]{2,}/g, " ").replace(/[ \t]+\n/g, "\n").replace(/\n[ \t]+/g, "\n").replace(/ +([.,!?])/g, "$1").trim();
+}
 let memoryVisitor: string | undefined;
 function getVisitor() {
   memoryVisitor ??= crypto.randomUUID();
@@ -55,14 +66,14 @@ function HostForm({ onComplete }: { onComplete: (form: { fullName: string; type:
     window.open(buildWhatsAppHref(message), "_blank", "noopener,noreferrer");
     onComplete({ fullName, type, location, maxGuests });
   }
-  return <form noValidate onSubmit={submit} className="self-stretch rounded-xl border border-[#E8E4E4] bg-white p-3 flex flex-col gap-2.5">
-    <h3 className="text-sm font-semibold">List your property</h3>
-    {([['fullName', 'Full name'], ['type', 'Type of guesthouse'], ['location', 'Location'], ['maxGuests', 'Max number of guests']] as const).map(([name, label]) => <label key={name} className="text-xs font-medium text-foreground flex flex-col gap-1">
+  return <form noValidate onSubmit={submit} className="self-stretch rounded-[14px] border border-[#ECE3DA] bg-white p-3 flex flex-col gap-2.5 text-[#2A1F1C]">
+    <h3 className="font-['Fraunces',Georgia,serif] text-[16px] font-medium">List your property</h3>
+    {([['fullName', 'Full name'], ['type', 'Type of guesthouse'], ['location', 'Location'], ['maxGuests', 'Max number of guests']] as const).map(([name, label]) => <label key={name} className="text-xs font-medium text-[#2A1F1C] flex flex-col gap-1">
       {label}
       {name === 'type' ? <select name={name} defaultValue="" className={fieldClass} aria-invalid={Boolean(errors[name])}><option value="" disabled>Choose a type</option>{['Villa', 'Mansion', 'Cabin', 'Apartment', 'Hotel'].map(t => <option key={t} value={t.toLowerCase()}>{t}</option>)}</select> : <input name={name} type={name === 'maxGuests' ? 'number' : 'text'} inputMode={name === 'maxGuests' ? 'numeric' : undefined} min={name === 'maxGuests' ? 1 : undefined} max={name === 'maxGuests' ? 500 : undefined} maxLength={name === 'fullName' ? 100 : name === 'location' ? 150 : undefined} placeholder={name === 'location' ? 'Town or area' : undefined} className={fieldClass} aria-invalid={Boolean(errors[name])} />}
       {errors[name] && <span className="text-xs text-[#B42318]" role="alert">{errors[name]}</span>}
     </label>)}
-    <Button type="submit" className="w-full h-11 rounded-lg bg-[#CC0000] text-white font-semibold hover:bg-[#A30000]">Send on WhatsApp</Button>
+    <Button type="submit" className="w-full h-11 rounded-[12px] bg-[#CC0000] text-white font-semibold hover:bg-[#A30000]">Send on WhatsApp</Button>
   </form>;
 }
 
@@ -93,6 +104,31 @@ export function ChatWidget() {
   const seenHints = useRef(new Set<string>());
   const textarea = useRef<HTMLTextAreaElement>(null);
   const list = useRef<HTMLDivElement>(null);
+  const [mobile, setMobile] = useState(false);
+  const [vv, setVv] = useState<{ top: number; height: number; kb: boolean } | null>(null);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 639px)');
+    const update = () => setMobile(media.matches);
+    update(); media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  useEffect(() => {
+    const view = window.visualViewport;
+    if (!open || !mobile || !view) { setVv(null); return; }
+    const measure = () => {
+      const kbHeight = window.innerHeight - view.height;
+      setVv({ top: view.offsetTop, height: view.height, kb: kbHeight > 120 });
+    };
+    measure();
+    view.addEventListener('resize', measure); view.addEventListener('scroll', measure);
+    return () => { view.removeEventListener('resize', measure); view.removeEventListener('scroll', measure); };
+  }, [open, mobile]);
+  useEffect(() => { if (vv?.kb && list.current) list.current.scrollTop = list.current.scrollHeight; }, [vv?.kb, vv?.height]);
+  function newChat() {
+    setMessages([]); setConversationId(undefined); setText('');
+    try { sessionStorage.removeItem('beitak_chat_state'); } catch { /* Storage is optional. */ }
+    textarea.current?.focus();
+  }
   useEffect(() => {
     visitor.current = getVisitor();
     try { setUsed(localStorage.getItem('beitak_chat_used') === '1'); } catch { /* Storage is optional. */ }
@@ -188,29 +224,50 @@ export function ChatWidget() {
   const localGreeting = pathname.startsWith('/listing/') ? listingCtx?.id === listingIdFromPath && listingCtx?.title ? `Hi! Ask me anything about ${listingCtx.title}, like what's included, house rules or check-in.` : "Hi! Ask me anything about this place, like what's included, house rules or check-in." : greeting;
   const chips = pathname.startsWith('/listing/') ? [["What's included?", "What's included in this place?"], ['House rules', 'What are the house rules here?'], ['Book this place', "I'd like to book this place"]] : [['Find a stay', "I'm looking for a place to stay"], ['How booking works', 'How does booking work?'], ['List my property', 'I want to list my property']];
   const visible = messages.length ? messages : [{ id: 'greeting', role: 'assistant' as const, text: localGreeting }];
+  const hasSent = messages.some(m => m.role === 'user');
+  const kb = Boolean(vv?.kb);
+  const mobileStyle: React.CSSProperties | undefined = !mobile ? undefined : vv
+    ? (() => { const top = vv.top + (kb ? 12 : 64); const bottom = vv.top + vv.height - (kb ? 8 : base + 56 + 12); return { top: `calc(${top}px + env(safe-area-inset-top))`, height: `calc(${Math.max(bottom - top, 160)}px - env(safe-area-inset-top)${kb ? '' : ' - env(safe-area-inset-bottom)'})` }; })()
+    : { top: 'calc(64px + env(safe-area-inset-top))', bottom: `calc(${base + 68}px + env(safe-area-inset-bottom))` };
   return <>
     {!open && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp" style={{ bottom: base + 68, right: 24 }} className="fixed z-[9999] h-12 w-12 drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)] hover:scale-105 transition"><WhatsAppLogo className="h-12 w-12" /></a>}
     {!open && hint && <div style={{ bottom: base + 6, right: 20 + launcherW + 12, maxWidth: Math.min(200, viewportW - (20 + launcherW + 12) - 16) }} className="fixed z-[9999] bg-white rounded-xl shadow-[0_6px_18px_-6px_rgba(0,0,0,0.25)] pl-[13px] pr-2.5 py-[9px] text-[13px] font-semibold leading-snug text-foreground flex items-center gap-2"><Button variant="ghost" onClick={() => setOpen(true)} className="min-w-0 whitespace-normal text-left text-[13px] leading-snug p-0 h-auto hover:bg-transparent">{hintText}</Button><Button variant="ghost" size="icon" aria-label="Dismiss" className="h-5 w-5 shrink-0" onClick={() => setHint(false)}><X className="h-3 w-3" /></Button></div>}
-    <Button ref={launcher} aria-label={open ? 'Close Beitak assistant' : 'Open Beitak assistant'} aria-expanded={open} onClick={() => setOpen(prev => !prev)} style={{ bottom: base, right: 20 }} className={`fixed z-[9999] rounded-full text-white transition-all duration-300 motion-reduce:transition-none ${open ? 'h-14 w-14 hidden sm:flex bg-foreground hover:bg-foreground/90' : `${expanded ? 'h-[52px] pl-2 pr-5 inline-flex items-center gap-1.5 text-[15px] font-semibold whitespace-nowrap' : 'h-14 w-14'} bg-[#CC0000] shadow-[0_8px_20px_-6px_rgba(204,0,0,0.55)] hover:bg-[#A30000]`}`}>{open ? <X className="h-6 w-6" /> : expanded ? <><HouseBotIcon className="h-8 w-8 shrink-0" /><span>Ask Beitak</span></> : <HouseBotIcon className="h-[34px] w-[34px]" />}</Button>
-    {open && <div role="dialog" aria-label="Beitak assistant" aria-modal="true" style={{ '--chat-bottom': `${base + 72}px` } as React.CSSProperties} className="fixed inset-0 z-[10000] h-[100dvh] flex flex-col overflow-hidden bg-white text-foreground sm:inset-auto sm:right-5 sm:bottom-[var(--chat-bottom)] sm:z-[9999] sm:w-[384px] sm:h-[min(600px,calc(100dvh-140px))] sm:rounded-[18px] sm:shadow-[0_24px_60px_-12px_rgba(22,18,18,0.35)] sm:ring-1 sm:ring-black/5">
-      <div className="px-5 py-4 pt-[calc(1rem+env(safe-area-inset-top))] sm:pt-4 border-b border-[#EFEAEA] flex items-center gap-3 shrink-0"><p className="min-w-0 flex-1 font-['Fraunces',Georgia,'Times_New_Roman',serif] text-[21px] font-medium leading-tight tracking-[-0.01em] normal-case text-foreground">Beitak assistant</p><Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-muted shrink-0" aria-label="Close" onClick={() => setOpen(false)}><X className="h-[18px] w-[18px]" /></Button></div>
+    <Button ref={launcher} aria-label={open ? 'Close Beitak assistant' : 'Open Beitak assistant'} aria-expanded={open} onClick={() => setOpen(prev => !prev)} style={{ bottom: base, right: 20 }} className={`fixed z-[9999] rounded-full text-white transition-all duration-300 motion-reduce:transition-none ${open ? `h-14 w-14 bg-[#2A1F1C] text-[#FBF7F2] hover:bg-[#2A1F1C]/90 ${kb ? 'hidden' : 'flex'}` : `${expanded ? 'h-[52px] pl-2 pr-5 inline-flex items-center gap-1.5 text-[15px] font-semibold whitespace-nowrap' : 'h-14 w-14'} bg-[#CC0000] shadow-[0_8px_20px_-6px_rgba(204,0,0,0.55)] hover:bg-[#A30000]`}`}>{open ? <X className="h-6 w-6" /> : expanded ? <><HouseBotIcon className="h-8 w-8 shrink-0" /><span>Ask Beitak</span></> : <HouseBotIcon className="h-[34px] w-[34px]" />}</Button>
+    {open && mobile && <div aria-hidden="true" onClick={() => setOpen(false)} className="fixed inset-0 z-[9998] bg-[rgba(20,12,10,0.12)]" />}
+    {open && <div role="dialog" aria-label="Beitak assistant" aria-modal="true" style={{ '--chat-bottom': `${base + 72}px`, fontFamily: "'DM Sans', 'Noto Naskh Arabic', sans-serif", ...mobileStyle } as React.CSSProperties} className="fixed left-3 right-3 z-[10000] flex flex-col overflow-hidden bg-[#FBF7F2] text-[#2A1F1C] rounded-[20px] shadow-[0_24px_60px_-12px_rgba(22,18,18,0.45)] sm:left-auto sm:top-auto sm:right-5 sm:bottom-[var(--chat-bottom)] sm:z-[9999] sm:w-[384px] sm:h-[min(600px,calc(100dvh-140px))] sm:rounded-[18px] sm:shadow-[0_24px_60px_-12px_rgba(22,18,18,0.35)] sm:ring-1 sm:ring-black/5">
+      <div className="px-5 py-4 border-b border-[#ECE3DA] flex items-center gap-2 shrink-0">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#A30000] leading-none">Beitak</p>
+          <p className="mt-1.5 font-['Fraunces',Georgia,serif] text-[24px] font-medium leading-tight tracking-[-0.015em] normal-case text-[#2A1F1C]">How can we <em className="italic">help</em>?</p>
+        </div>
+        {hasSent && <button type="button" onClick={newChat} className="h-9 px-3 shrink-0 rounded-full bg-white border border-[#E2D7CC] text-[13px] font-medium text-[#2A1F1C] hover:border-[#2A1F1C] transition">New chat</button>}
+        <button type="button" aria-label="Close" onClick={() => setOpen(false)} className="hidden sm:flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border border-[#E2D7CC] text-[#2A1F1C] hover:border-[#2A1F1C] transition"><X className="h-[18px] w-[18px]" /></button>
+      </div>
       <div ref={list} className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-2.5" aria-live="polite" aria-busy={loading}>
-        {visible.map(message => <div key={message.id} className="contents">
-          <div className={`${bubble} ${message.role === 'user' ? 'self-end max-w-[80%] rounded-bl-[14px] rounded-br-[4px] bg-foreground text-white' : message.role === 'error' ? 'self-start bg-[#FDECEC] text-[#8A1F1F]' : 'self-start bg-[#F3F0F0] text-foreground'}`}>{message.text}{message.role === 'error' && <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="block mt-2 text-xs underline">Message us on WhatsApp</a>}</div>
+        {visible.map(message => {
+          const shown = message.role === 'assistant' ? cleanEmojis(message.text) : message.text;
+          const rtl = ARABIC.test(shown);
+          const size = rtl ? 'text-[16px] leading-[1.6]' : 'text-[14.5px] leading-[1.5]';
+          const shape = message.role === 'user'
+            ? (rtl ? 'self-start max-w-[80%] rounded-[16px_16px_16px_4px]' : 'self-end max-w-[80%] rounded-[16px_16px_4px_16px]') + ' bg-[#2A1F1C] text-[#FBF7F2]'
+            : (rtl ? 'self-end rounded-[16px_16px_4px_16px]' : 'self-start rounded-[16px_16px_16px_4px]') + ' bg-white border border-[#ECE3DA] ' + (message.role === 'error' ? 'text-[#8A1F1F]' : 'text-[#2A1F1C]');
+          return <div key={message.id} className="contents">
+          <div dir={rtl ? 'rtl' : undefined} className={`${bubble} ${size} ${shape}`}>{shown}{message.role === 'error' && <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="block mt-2 text-xs underline text-[#2A1F1C]">Message us on WhatsApp</a>}</div>
           {message.listings?.map(card => {
             const weekday = card.price_weekday ?? card.price_per_night;
             const weekend = card.price_weekend ?? card.price_per_night;
             const prices = [weekday, weekend].filter((n): n is number => n != null);
             const nightly = prices.length ? Math.min(...prices) : null;
-            return <Link key={card.id} to="/listing/$id" params={{ id: card.id }} onClick={() => { if (window.innerWidth < 640) setOpen(false); }} className="flex gap-3 items-center p-2 rounded-xl border border-[#E8E4E4] bg-white hover:border-foreground/30 transition self-stretch">{card.cover ? <img src={card.cover} alt={card.title} loading="lazy" className="h-16 w-16 shrink-0 rounded-[9px] object-cover" /> : <div className="h-16 w-16 shrink-0 rounded-[9px] bg-muted" />}<div className="min-w-0"><p className="text-sm font-semibold line-clamp-1">{card.title}</p><p className="text-[12.5px] text-[#6B6363] line-clamp-1">{card.category ? `${card.category.charAt(0).toUpperCase() + card.category.slice(1)} in ` : ''}{card.location}</p>{card.max_guests != null && <p className="text-[12.5px] text-[#6B6363]">Up to {card.max_guests} guests</p>}{nightly != null && <p className="text-[13px]"><b>${nightly.toLocaleString('en-US')}</b> / night{weekend != null && weekday != null && weekend > weekday && <span className="text-[#6B6363]"> · ${weekend.toLocaleString('en-US')} weekends</span>}</p>}</div></Link>;
+            return <Link key={card.id} to="/listing/$id" params={{ id: card.id }} onClick={() => { if (window.innerWidth < 640) setOpen(false); }} className="flex gap-3 items-center p-2 rounded-[14px] border border-[#ECE3DA] bg-white hover:border-[#2A1F1C]/30 transition self-stretch">{card.cover ? <img src={card.cover} alt={card.title} loading="lazy" className="h-16 w-16 shrink-0 rounded-[9px] object-cover" /> : <div className="h-16 w-16 shrink-0 rounded-[9px] bg-[#ECE3DA]" />}<div className="min-w-0"><p className="font-['Fraunces',Georgia,serif] text-[16px] font-medium leading-snug line-clamp-1 text-[#2A1F1C]">{card.title}</p><p className="text-[12.5px] text-[#6E5E55] line-clamp-1">{card.category ? `${card.category.charAt(0).toUpperCase() + card.category.slice(1)} in ` : ''}{card.location}</p>{card.max_guests != null && <p className="text-[12.5px] text-[#6E5E55]">Up to {card.max_guests} guests</p>}{nightly != null && <p className="text-[13px] text-[#2A1F1C]"><b>${nightly.toLocaleString('en-US')}</b> / night{weekend != null && weekday != null && weekend > weekday && <span className="text-[#6E5E55]"> · ${weekend.toLocaleString('en-US')} weekends</span>}</p>}</div></Link>;
           })}
-          {message.handoff && <a href={message.handoff.href} target="_blank" rel="noopener noreferrer" onClick={() => track({ conversationId, visitorId: visitor.current, type: 'handoff', listingId: message.handoff?.listingId, guests: message.handoff?.guests ?? undefined, checkIn: message.handoff?.checkIn ?? undefined }, true)} className="self-start inline-flex items-center gap-2 min-h-10 px-3.5 rounded-lg bg-[#CC0000] text-white text-[13.5px] font-semibold hover:bg-[#A30000]"><WhatsAppIcon className="h-4 w-4" />Continue on WhatsApp</a>}
+          {message.handoff && <a href={message.handoff.href} target="_blank" rel="noopener noreferrer" onClick={() => track({ conversationId, visitorId: visitor.current, type: 'handoff', listingId: message.handoff?.listingId, guests: message.handoff?.guests ?? undefined, checkIn: message.handoff?.checkIn ?? undefined }, true)} className="self-start inline-flex items-center gap-2 min-h-11 px-4 rounded-[12px] bg-[#CC0000] text-white text-[14px] font-semibold hover:bg-[#A30000]"><WhatsAppIcon className="h-4 w-4" />Continue on WhatsApp</a>}
           {message.showHostForm && !message.hostFormDone && <HostForm onComplete={form => { track({ conversationId, visitorId: visitor.current, type: 'host_form', form }); setMessages(prev => [...prev.map(m => m.id === message.id ? { ...m, hostFormDone: true } : m), { id: crypto.randomUUID(), role: 'assistant', text: 'Thanks! WhatsApp should open with your details, just press Send. Our team will get back to you soon.' }]); }} />}
-        </div>)}
-        {!messages.some(m => m.role === 'user') && <div className="flex flex-wrap gap-2">{chips.map(([label, value]) => <Button key={label} variant="outline" disabled={!ready || loading} className="rounded-full border-[1.5px] border-foreground px-3 min-h-[34px] h-auto py-1.5 text-[13px] font-semibold bg-white hover:bg-foreground hover:text-white" onClick={() => void send(value)}>{label}</Button>)}</div>}
-        {loading && <div aria-label="Assistant is typing" className={`${bubble} self-start bg-[#F3F0F0] flex gap-1.5`}>{[0, 1, 2].map(i => <span key={i} style={{ animationDelay: `${i * 150}ms` }} className="h-2 w-2 rounded-full bg-[#8A8282] animate-pulse motion-reduce:animate-none" />)}</div>}
+          </div>;
+        })}
+        {!hasSent && <div className="flex flex-wrap gap-2">{chips.map(([label, value]) => <button type="button" key={label} disabled={!ready || loading} className="rounded-full border border-[#E2D7CC] px-3 min-h-[34px] py-1.5 text-[13px] font-medium bg-white text-[#2A1F1C] hover:bg-[#2A1F1C] hover:text-[#FBF7F2] transition disabled:opacity-50" onClick={() => void send(value)}>{label}</button>)}</div>}
+        {loading && <div aria-label="Assistant is typing" className={`${bubble} self-start bg-white border border-[#ECE3DA] rounded-[16px_16px_16px_4px] flex gap-1.5`}>{[0, 1, 2].map(i => <span key={i} style={{ animationDelay: `${i * 150}ms` }} className="h-2 w-2 rounded-full bg-[#6E5E55] animate-pulse motion-reduce:animate-none" />)}</div>}
       </div>
-      <form onSubmit={event => { event.preventDefault(); void send(text); }} className="border-t border-[#EFEAEA] px-3 pt-2.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-3 shrink-0"><div className="rounded-xl border-[1.5px] border-[#E2DCDC] focus-within:border-foreground p-1 pl-3.5 flex items-end gap-2"><textarea ref={textarea} rows={1} value={text} onChange={event => setText(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(text); } }} className="min-w-0 flex-1 max-h-[108px] resize-none bg-transparent outline-none text-base leading-6 py-1.5" placeholder="Ask about stays, dates, prices…" maxLength={800} aria-label="Message" /><Button type="submit" aria-label="Send" disabled={!text.trim() || loading || !ready} className="h-9 w-9 shrink-0 p-0 rounded-[9px] bg-foreground text-white hover:bg-foreground/90 disabled:opacity-40"><ArrowRight className="h-4 w-4" /></Button></div><p className="mt-2 text-[11.5px] leading-snug text-[#8A8282]">AI assistant. Chats are saved to help us improve. Availability and final prices are confirmed by our team on WhatsApp.</p></form>
+      <form onSubmit={event => { event.preventDefault(); void send(text); }} className="border-t border-[#ECE3DA] px-3 pt-2.5 pb-3 shrink-0"><div className="rounded-[14px] border border-[#E2D7CC] bg-white focus-within:border-[#2A1F1C] p-1 pl-3.5 flex items-end gap-2"><textarea ref={textarea} rows={1} value={text} onChange={event => setText(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(text); } }} dir="auto" className="min-w-0 flex-1 max-h-[108px] resize-none bg-transparent outline-none text-base leading-6 py-1.5 text-[#2A1F1C]" placeholder="Ask about stays, dates, prices…" maxLength={800} aria-label="Message" /><button type="submit" aria-label="Send" disabled={!text.trim() || loading || !ready} className="h-[38px] w-[38px] shrink-0 flex items-center justify-center rounded-[10px] bg-[#2A1F1C] text-[#FBF7F2] hover:bg-[#2A1F1C]/90 disabled:opacity-40"><ArrowRight className="h-4 w-4" /></button></div>{!kb && <p className="mt-2 text-[11.5px] leading-snug text-[#6E5E55]">AI assistant. Chats are saved to help us improve. Availability and final prices are confirmed by our team on WhatsApp.</p>}</form>
     </div>}
   </>;
 }
