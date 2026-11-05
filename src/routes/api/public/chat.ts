@@ -25,6 +25,7 @@ const TOOLS = [
     input_schema: {
       type: "object",
       properties: {
+        listing_name: { type: "string", description: "Find a listing by its name. When set, all other filters are ignored." },
         district: { type: "string", enum: DISTRICTS },
         location_text: { type: "string", description: "Town or area name" },
         guests: { type: "integer" },
@@ -56,8 +57,6 @@ const TOOLS = [
       type: "object",
       properties: {
         listing_id: { type: "string" },
-        check_in: { type: "string", description: "YYYY-MM-DD" },
-        check_out: { type: "string", description: "YYYY-MM-DD" },
         guests: { type: "integer" },
       },
       required: ["listing_id"],
@@ -160,15 +159,22 @@ export const Route = createFileRoute("/api/public/chat")({
         const runTool = async (name: string, input: any): Promise<unknown> => {
           if (name === "search_listings") {
             let q = db.from("listings").select(
-              "id, title, location, district, category, max_guests, bedrooms, bathrooms, price_per_night, price_weekday, price_weekend, amenities, is_couples, listing_photos(photo_url, display_order)",
+              "id, title, location, district, category, max_guests, bedrooms, bathrooms, price_per_night, price_weekday, price_weekend, amenities, is_couples, highlights, about, description, amenity_details, bedroom_details, bathroom_details, stay_types, listing_photos(photo_url, display_order)",
             ).eq("is_active", true).eq("status", "approved");
-            if (input.district) q = q.eq("district", input.district);
-            if (input.category) q = q.eq("category", input.category);
-            if (typeof input.bedrooms_min === "number") q = q.gte("bedrooms", input.bedrooms_min);
-            if (input.couples === true) q = q.eq("is_couples", true);
-            if (typeof input.location_text === "string") {
-              const t = input.location_text.replace(/[^\p{L}\p{N} \-\u0600-\u06FF]/gu, "").trim();
-              if (t) q = q.or(`location.ilike.%${t}%,title.ilike.%${t}%`);
+            const sanitize = (v: string) => v.replace(/[^\p{L}\p{N} \-\u0600-\u06FF]/gu, "").trim();
+            const byName = typeof input.listing_name === "string" ? sanitize(input.listing_name) : "";
+            if (byName) {
+              q = q.ilike("title", `%${byName}%`);
+              input = {};
+            } else {
+              if (input.district) q = q.eq("district", input.district);
+              if (input.category) q = q.eq("category", input.category);
+              if (typeof input.bedrooms_min === "number") q = q.gte("bedrooms", input.bedrooms_min);
+              if (input.couples === true) q = q.eq("is_couples", true);
+              if (typeof input.location_text === "string") {
+                const t = sanitize(input.location_text);
+                if (t) q = q.or(`location.ilike.%${t}%,title.ilike.%${t}%`);
+              }
             }
             const { data, error } = await q.limit(200);
             if (error) { console.error("search_listings", error); return { results: [], note: "No matches" }; }
@@ -179,9 +185,16 @@ export const Route = createFileRoute("/api/public/chat")({
             if (typeof input.max_price_per_night === "number") list = list.filter((l) => nightly(l) <= input.max_price_per_night);
             if (Array.isArray(input.must_have) && input.must_have.length) {
               const kws = input.must_have.map((k: unknown) => String(k).toLowerCase().trim()).filter(Boolean);
+              const str = (v: unknown): string => v == null ? "" : typeof v === "string" ? v : Array.isArray(v) ? v.map(str).join(" ") : JSON.stringify(v);
+              const stem = (w: string) => w.length > 1 && w.endsWith("s") ? w.slice(0, -1) : w;
               list = list.filter((l) => {
-                const am = ((l.amenities ?? []) as string[]).map((a) => a.toLowerCase());
-                return kws.every((k: string) => am.some((a) => a.includes(k) || (k.startsWith("pet") && a.includes("pet"))));
+                const text = [l.title, l.location, l.district, l.highlights, l.about, l.description, l.amenities,
+                  l.amenity_details, l.bedroom_details, l.bathroom_details, l.stay_types].map(str).join(" ").toLowerCase();
+                return kws.every((k: string) => {
+                  if (k.startsWith("pet") && text.includes("pet")) return true;
+                  const words = k.split(/[^\p{L}\p{N}]+/u).filter(Boolean).map(stem);
+                  return words.length > 0 && words.every((w) => text.includes(w));
+                });
               });
             }
             list.sort((a, b) => guests != null ? a.max_guests - b.max_guests : nightly(a) - nightly(b));
@@ -204,10 +217,10 @@ export const Route = createFileRoute("/api/public/chat")({
           if (name === "get_listing_details") {
             if (typeof input.listing_id !== "string" || !UUID_RE.test(input.listing_id)) return { error: "Not found" };
             const { data } = await db.from("listings").select(
-              "id, title, location, district, category, max_guests, bedrooms, bathrooms, price_weekday, price_weekend, amenities, description",
+              "id, title, location, district, category, max_guests, bedrooms, bathrooms, price_weekday, price_weekend, amenities, description, highlights, about, amenity_details, bedroom_details, bathroom_details, stay_types, check_in_time, check_out_time, min_guests, extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after",
             ).eq("id", input.listing_id).eq("is_active", true).eq("status", "approved").maybeSingle();
             if (!data) return { error: "Not found" };
-            return { ...data, description: (data.description ?? "").slice(0, 2500) };
+            return { ...data, description: (data.description ?? "").slice(0, 2500), about: data.about == null ? null : String(data.about).slice(0, 1500) };
           }
           if (name === "show_booking_handoff") {
             if (typeof input.listing_id !== "string" || !UUID_RE.test(input.listing_id)) return { error: "Not found" };
@@ -219,10 +232,9 @@ export const Route = createFileRoute("/api/public/chat")({
               href: buildWhatsAppHref(buildListingMessage({
                 title: l.title, location: l.location,
                 url: LISTING_BASE_URL + l.id,
-                ...(input.check_in ? { preferredDate: input.check_in } : {}),
                 ...(typeof input.guests === "number" ? { guests: input.guests } : {}),
               })),
-              guests: typeof input.guests === "number" ? input.guests : null, checkIn: input.check_in ?? null,
+              guests: typeof input.guests === "number" ? input.guests : null, checkIn: null,
             };
             return { ok: true };
           }
@@ -238,7 +250,7 @@ export const Route = createFileRoute("/api/public/chat")({
         if (typeof body?.contextListingId === "string" && UUID_RE.test(body.contextListingId)) {
           const { data: contextListing } = await db.from("listings").select("id, title")
             .eq("id", body.contextListingId).eq("is_active", true).eq("status", "approved").maybeSingle();
-          if (contextListing) system += `\n\nCURRENT PAGE CONTEXT\nThe guest is currently viewing the listing "${contextListing.title}" (id ${contextListing.id}). When they say "this place", "here", "it", or ask about house rules, check-in, amenities, capacity or price without naming another listing, they mean this one: call get_listing_details with this id before answering. If they want to book it, confirm dates and guests, then call show_booking_handoff with this id.`;
+          if (contextListing) system += `\n\nCURRENT PAGE CONTEXT\nThe guest is currently viewing the listing "${contextListing.title}" (id ${contextListing.id}). When they say "this place", "here", "it", or ask about house rules, check-in, amenities, capacity or price without naming another listing, they mean this one: call get_listing_details with this id before answering. If they want to book it, call show_booking_handoff with this id right away. Do not ask for dates.`;
         }
 
         let runId: string | undefined;
@@ -340,8 +352,14 @@ export const Route = createFileRoute("/api/public/chat")({
           return fail();
         }
 
-        const reply = ((resp.content ?? []) as any[]).filter((b) => b.type === "text").map((b) => b.text).join("").trim()
-          || "Sorry, I didn't catch that. Could you rephrase?";
+        const stripEmphasis = (t: string) => t
+          .replace(/\*\*(.+?)\*\*/gs, "$1")
+          .replace(/__(.+?)__/gs, "$1")
+          .replace(/(^|[^\p{L}\p{N}*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![\p{L}\p{N}*])/gu, "$1$2")
+          .replace(/(^|[^\p{L}\p{N}_])_(?!\s)([^_\n]+?)(?<!\s)_(?![\p{L}\p{N}_])/gu, "$1$2")
+          .replace(/\*\*/g, "");
+        const reply = stripEmphasis(((resp.content ?? []) as any[]).filter((b) => b.type === "text").map((b) => b.text).join("").trim()
+          || "Sorry, I didn't catch that. Could you rephrase?");
 
         await db.from("chat_messages").insert({
           conversation_id: conversationId, role: "assistant", content: reply,
