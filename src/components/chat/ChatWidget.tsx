@@ -249,8 +249,8 @@ export function ChatWidget() {
           const rtl = ARABIC.test(shown);
           const size = rtl ? 'text-[16px] leading-[1.6]' : 'text-[14.5px] leading-[1.5]';
           const shape = message.role === 'user'
-            ? (rtl ? 'self-start max-w-[80%] rounded-[16px_16px_16px_4px]' : 'self-end max-w-[80%] rounded-[16px_16px_4px_16px]') + ' bg-[#2A1F1C] text-[#FBF7F2]'
-            : (rtl ? 'self-end rounded-[16px_16px_4px_16px]' : 'self-start rounded-[16px_16px_16px_4px]') + ' bg-white border border-[#ECE3DA] ' + (message.role === 'error' ? 'text-[#8A1F1F]' : 'text-[#2A1F1C]');
+            ? 'self-end max-w-[80%] rounded-[16px_16px_4px_16px]' + ' bg-[#2A1F1C] text-[#FBF7F2]'
+            : 'self-start rounded-[16px_16px_16px_4px]' + ' bg-white border border-[#ECE3DA] ' + (message.role === 'error' ? 'text-[#8A1F1F]' : 'text-[#2A1F1C]');
           return <div key={message.id} className="contents">
           <div dir={rtl ? 'rtl' : undefined} className={`${bubble} ${size} ${shape}`}>{shown}{message.role === 'error' && <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="block mt-2 text-xs underline text-[#2A1F1C]">Message us on WhatsApp</a>}</div>
           {message.listings?.map(card => {
