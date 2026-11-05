@@ -35,7 +35,7 @@ const TOOLS = [
         must_have: {
           type: "array",
           items: { type: "string" },
-          description: 'Amenity keywords like "pool","breakfast","jacuzzi","pet"',
+          description: "Any feature, facility or detail the guest wants, for example pool, basketball court, football court, fireplace, mountain view, sea view, garden, jacuzzi, breakfast, kids area, pet friendly. Matches anywhere on the listing.",
         },
         couples: { type: "boolean" },
       },
@@ -140,16 +140,33 @@ export const Route = createFileRoute("/api/public/chat")({
 
         await db.from("chat_messages").insert({ conversation_id: conversationId, role: "user", content: message });
 
-        const { data: hist } = await db.from("chat_messages").select("role, content, created_at")
+        const { data: hist } = await db.from("chat_messages").select("role, content, created_at, listing_ids")
           .eq("conversation_id", conversationId).in("role", ["user", "assistant"])
           .order("created_at", { ascending: false }).limit(20);
         const rows = ((hist ?? []) as any[]).reverse();
         while (rows.length && rows[0].role !== "user") rows.shift();
+
+        // Titles of listings already shown, so assistant messages can carry a "Listings shown" note.
+        // This note only exists in the copy sent to the model: nothing stored or returned changes.
+        const validId = (v: unknown): v is string => typeof v === "string" && UUID_RE.test(v);
+        const shownIds = Array.from(new Set(rows.flatMap((r: any) => (Array.isArray(r.listing_ids) ? r.listing_ids : []).filter(validId))));
+        let titleById = new Map<string, string>();
+        if (shownIds.length) {
+          const { data: shown } = await db.from("listings").select("id, title").in("id", shownIds);
+          titleById = new Map(((shown ?? []) as any[]).map((l: any) => [String(l.id), String(l.title ?? "Unknown")]));
+        }
+        const shownNote = (r: any) => {
+          const ids = (Array.isArray(r.listing_ids) ? r.listing_ids : []).filter(validId);
+          if (!ids.length) return "";
+          return `\n[Listings shown: ${ids.map((id: string) => `${titleById.get(id) ?? "Unknown"} (id ${id})`).join(", ")}]`;
+        };
+
         const messages: any[] = [];
         for (const r of rows) {
+          const content = String(r.content ?? "") + (r.role === "assistant" ? shownNote(r) : "");
           const last = messages[messages.length - 1];
-          if (last && last.role === r.role) last.content += "\n" + r.content;
-          else messages.push({ role: r.role, content: r.content });
+          if (last && last.role === r.role) last.content += "\n" + content;
+          else messages.push({ role: r.role, content });
         }
 
         let cards: Card[] = [];
