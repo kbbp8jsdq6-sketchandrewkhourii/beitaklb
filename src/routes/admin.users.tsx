@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Ban, ShieldOff, Trash2, Search } from "lucide-react";
+import { Ban, ShieldOff, Trash2, Search, Users, CalendarDays, CalendarRange, Eye, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,8 +29,197 @@ export const Route = createFileRoute("/admin/users")({
 type Role = "admin" | "user";
 type DisplayRole = Role | "host";
 
+type TrafficStats = {
+  visitors_today: number;
+  visitors_week: number;
+  visitors_month: number;
+  views_today: number;
+  views_week: number;
+  views_month: number;
+  top_pages: { path: string; views: number }[];
+  sources: { label: string; visitors: number }[];
+  countries: { label: string; visitors: number }[];
+  devices: { label: string; visitors: number }[];
+  listings: { id: string; title: string; views: number; reserve_clicks: number; conversion: number }[];
+  funnel: { visitors: number; listing_viewers: number; reserve_clicks: number };
+};
+
+const fmtExact = (d: string) =>
+  new Date(d).toLocaleString(undefined, {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "numeric", minute: "2-digit", second: "2-digit",
+  });
+const fmtDateTime = (d: string) =>
+  new Date(d).toLocaleString(undefined, {
+    month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
+  });
+
+function StatCard({ label, value, icon: Icon }: { label: string; value: number | string; icon: typeof Users }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <Icon className="h-4 w-4" />
+        {label}
+      </div>
+      <div className="mt-2 font-display text-3xl text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function RankedList({ title, rows }: { title: string; rows: { label: string; value: number }[] }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <h3 className="mb-3 font-display text-lg text-foreground">{title}</h3>
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No data yet.</p>
+      ) : (
+        <ul className="space-y-1.5 text-sm">
+          {rows.map((r, i) => (
+            <li key={`${r.label}-${i}`} className="flex items-center justify-between gap-3">
+              <span className="truncate text-foreground" title={r.label}>{r.label}</span>
+              <span className="flex-none font-bold text-primary">{r.value}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function TrafficSection() {
+  const statsQ = useQuery({
+    queryKey: ["admin-traffic-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_traffic_stats");
+      if (error) throw error;
+      return data as unknown as TrafficStats;
+    },
+  });
+  const visitsQ = useQuery({
+    queryKey: ["admin-recent-visits"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_recent_visits", { max_rows: 50 });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const s = statsQ.data;
+  const n = (v: number | undefined) => (v ?? 0).toLocaleString();
+  const f = s?.funnel;
+  const conv = f && f.visitors > 0 ? ((f.reserve_clicks / f.visitors) * 100).toFixed(1) : "0.0";
+
+  return (
+    <section className="mb-8 space-y-4">
+      <h2 className="font-display text-2xl text-foreground">Website traffic</h2>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <StatCard label="Visitors today" value={n(s?.visitors_today)} icon={Users} />
+        <StatCard label="Visitors this week" value={n(s?.visitors_week)} icon={CalendarDays} />
+        <StatCard label="Visitors this month" value={n(s?.visitors_month)} icon={CalendarRange} />
+        <StatCard label="Page views today" value={n(s?.views_today)} icon={Eye} />
+        <StatCard label="Page views this month" value={n(s?.views_month)} icon={BarChart3} />
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Funnel (last 30 days)</div>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span><span className="font-display text-2xl text-foreground">{n(f?.visitors)}</span> <span className="text-muted-foreground">Visitors</span></span>
+          <span className="text-muted-foreground">→</span>
+          <span><span className="font-display text-2xl text-foreground">{n(f?.listing_viewers)}</span> <span className="text-muted-foreground">Viewed a listing</span></span>
+          <span className="text-muted-foreground">→</span>
+          <span><span className="font-display text-2xl text-foreground">{n(f?.reserve_clicks)}</span> <span className="text-muted-foreground">Reserve clicks</span></span>
+          <span className="ml-auto rounded-full bg-primary/15 px-3 py-1 text-xs font-bold text-primary">{conv}% conversion</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-4">
+        <RankedList title="Top pages" rows={(s?.top_pages ?? []).map((r) => ({ label: r.path, value: r.views }))} />
+        <RankedList title="Traffic sources" rows={(s?.sources ?? []).map((r) => ({ label: r.label, value: r.visitors }))} />
+        <RankedList title="Countries" rows={(s?.countries ?? []).map((r) => ({ label: r.label, value: r.visitors }))} />
+        <RankedList title="Devices" rows={(s?.devices ?? []).map((r) => ({ label: r.label, value: r.visitors }))} />
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card">
+        <h3 className="p-4 pb-2 font-display text-lg text-foreground">Listings performance (30 days)</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted text-left text-xs uppercase tracking-wider">
+              <tr>
+                <th className="p-3">Listing</th>
+                <th className="p-3 text-right">Views</th>
+                <th className="p-3 text-right">Reserve clicks</th>
+                <th className="p-3 text-right">Conversion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(s?.listings ?? []).map((l) => (
+                <tr key={l.id} className="border-t border-border">
+                  <td className="p-3 font-medium">{l.title}</td>
+                  <td className="p-3 text-right">{n(l.views)}</td>
+                  <td className="p-3 text-right">{n(l.reserve_clicks)}</td>
+                  <td className="p-3 text-right text-primary">{Number(l.conversion ?? 0).toFixed(1)}%</td>
+                </tr>
+              ))}
+              {(s?.listings ?? []).length === 0 && (
+                <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">No data yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card">
+        <h3 className="p-4 pb-2 font-display text-lg text-foreground">Recent visits</h3>
+        <div className="max-h-[420px] overflow-auto">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 bg-muted text-left text-xs uppercase tracking-wider">
+              <tr>
+                <th className="p-3">Time</th>
+                <th className="p-3">Page</th>
+                <th className="p-3">Source</th>
+                <th className="p-3">Country</th>
+                <th className="p-3">Device</th>
+                <th className="p-3">Visitor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(visitsQ.data ?? []).map((v, i) => (
+                <tr key={`${v.created_at}-${i}`} className="border-t border-border">
+                  <td className="whitespace-nowrap p-3 text-muted-foreground">{fmtExact(v.created_at)}</td>
+                  <td className="max-w-[240px] truncate p-3" title={v.path}>{v.listing_title || v.path}</td>
+                  <td className="p-3">{v.source ?? "-"}</td>
+                  <td className="p-3">{v.country ?? "-"}</td>
+                  <td className="p-3">{v.device ?? "-"}</td>
+                  <td className="whitespace-nowrap p-3">
+                    {v.user_name ? v.user_name : (
+                      <>Guest <span className="text-muted-foreground">{(v.visitor_id ?? "").slice(0, 6)}</span></>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {(visitsQ.data ?? []).length === 0 && (
+                <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No data yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
+
+  const lastVisitsQ = useQuery({
+    queryKey: ["admin-user-last-visits"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_user_last_visits");
+      if (error) throw error;
+      const map = new Map<string, { last_visit: string; visit_count: number }>();
+      (data ?? []).forEach((r) => r.user_id && map.set(r.user_id, { last_visit: r.last_visit, visit_count: Number(r.visit_count) }));
+      return map;
+    },
+  });
 
   const usersQ = useQuery({
     queryKey: ["admin-users-full"],
@@ -134,6 +323,8 @@ function AdminUsersPage() {
         </p>
       </header>
 
+      <TrafficSection />
+
       <div className="mb-4 flex items-center gap-2 rounded-xl border border-border bg-card p-3">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
@@ -152,10 +343,11 @@ function AdminUsersPage() {
           <thead className="bg-muted text-left text-xs uppercase tracking-wider">
             <tr>
               <th className="p-3">Name</th>
-              <th className="p-3">Phone</th>
+              <th className="w-32 whitespace-nowrap p-3">Phone</th>
               <th className="p-3">Role</th>
               <th className="p-3">Status</th>
               <th className="p-3">Joined</th>
+              <th className="p-3">Last visit</th>
               <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -165,7 +357,7 @@ function AdminUsersPage() {
               return (
                 <tr key={u.id} className="border-t border-border">
                   <td className="p-3 font-medium">{u.full_name ?? "-"}</td>
-                  <td className="p-3 text-muted-foreground">
+                  <td className="w-32 whitespace-nowrap p-3 text-xs text-muted-foreground">
                     {u.phone ?? "-"}
                   </td>
                   <td className="p-3">
@@ -199,7 +391,19 @@ function AdminUsersPage() {
                     )}
                   </td>
                   <td className="p-3 text-muted-foreground">
-                    {new Date(u.created_at).toLocaleDateString()}
+                    {fmtDateTime(u.created_at)}
+                  </td>
+                  <td className="whitespace-nowrap p-3">
+                    {(() => {
+                      const lv = lastVisitsQ.data?.get(u.id);
+                      if (!lv) return <span className="text-muted-foreground">-</span>;
+                      return (
+                        <>
+                          <div>{fmtDateTime(lv.last_visit)}</div>
+                          <div className="text-xs text-muted-foreground">{lv.visit_count} {lv.visit_count === 1 ? "visit" : "visits"}</div>
+                        </>
+                      );
+                    })()}
                   </td>
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
@@ -231,7 +435,7 @@ function AdminUsersPage() {
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-6 text-center text-muted-foreground">
+                <td colSpan={7} className="p-6 text-center text-muted-foreground">
                   No users found.
                 </td>
               </tr>
