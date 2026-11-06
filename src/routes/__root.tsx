@@ -10,6 +10,18 @@ import { MaintenanceGate } from "@/components/MaintenanceGate";
 
 
 import appCss from "../styles.css?url";
+import { trackPageView } from "@/lib/trackPageView";
+
+function PageViewTracker() {
+  const pathname = useLocation({ select: (l) => l.pathname });
+  const { user, loading, isAdmin } = useAuth();
+  const userId = user?.id ?? null;
+  useEffect(() => {
+    if (loading) return;
+    trackPageView(pathname, userId, isAdmin);
+  }, [pathname, loading, userId, isAdmin]);
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -108,7 +120,7 @@ function RootComponent() {
         <SiteGate />
         <BackButton />
         <ChatWidget />
-        
+        <PageViewTracker />
         <Toaster position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
