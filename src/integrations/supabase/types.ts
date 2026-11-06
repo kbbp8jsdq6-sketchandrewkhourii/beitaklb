@@ -977,6 +977,28 @@ export type Database = {
       }
     }
     Functions: {
+      admin_recent_visits: {
+        Args: { max_rows?: number }
+        Returns: {
+          country: string
+          created_at: string
+          device: string
+          listing_title: string
+          path: string
+          source: string
+          user_name: string
+          visitor_id: string
+        }[]
+      }
+      admin_traffic_stats: { Args: never; Returns: Json }
+      admin_user_last_visits: {
+        Args: never
+        Returns: {
+          last_visit: string
+          user_id: string
+          visit_count: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
