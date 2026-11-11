@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, AlertTriangle, CircleCheck } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, AlertTriangle, CircleCheck, Moon } from "lucide-react";
+import { activeHolidayRates, formatHolidayDates } from "@/lib/holiday-rates";
 import { detailsFromRow, type ListingDetails } from "@/lib/listing-details";
 import { openChat } from "@/lib/chat-events";
 import { Header } from "@/components/Header";
@@ -103,6 +104,49 @@ export const Route = createFileRoute("/listing/$id")({
   ),
 });
 
+function HolidayRatesCard({ rates: raw, maxGuests }: { rates: unknown; maxGuests?: number | null }) {
+  const rates = activeHolidayRates(raw);
+  if (rates.length === 0) return null;
+  const guestVals = rates.map((r) => r.max_guests).filter((g): g is number => !!g);
+  const perRate = new Set(guestVals).size > 1;
+  const max = guestVals.length ? Math.max(...guestVals) : maxGuests || null;
+  return (
+    <div className="flex flex-col gap-4 rounded-xl bg-[#262626] p-5 text-white">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-display text-2xl">Christmas &amp; New Year</h3>
+        <span className="rounded-full bg-[#CC0000] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Holiday rates</span>
+      </div>
+      {rates.map((r, i) => (
+        <div key={i} className="rounded-lg bg-[#333333] px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-semibold">{r.name}</p>
+              <p className="text-[13px] text-[#C2C2C2]">{formatHolidayDates(r)}</p>
+            </div>
+            <p className="whitespace-nowrap"><span className="text-xl font-bold">${r.price}</span><span className="text-xs text-[#C2C2C2]"> / night</span></p>
+          </div>
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
+            <Moon className="h-3.5 w-3.5" aria-hidden="true" />
+            {r.min_nights ? `Minimum ${r.min_nights} night${r.min_nights === 1 ? "" : "s"}` : "No minimum"}
+          </p>
+          {perRate && r.max_guests ? (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
+              <Users className="h-3.5 w-3.5" aria-hidden="true" />
+              Maximum {r.max_guests} guests
+            </p>
+          ) : null}
+        </div>
+      ))}
+      {!perRate && max ? (
+        <p className="flex items-center gap-1.5 text-[13px] text-[#E0E0E0]">
+          <Users className="h-3.5 w-3.5" aria-hidden="true" />
+          Maximum {max} guests during the holidays
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 async function fetchListing(id: string) {
   const { data, error } = await supabase
     .from("listings")
@@ -110,7 +154,7 @@ async function fetchListing(id: string) {
       id, title, description, location, price_per_night, price_weekday, price_weekend, max_guests, bedrooms, bathrooms,
       amenities, category, host_id, created_at, latitude, longitude,
       bedroom_details, check_in_time, check_out_time, stay_types,
-      extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about, details_converted_at,
+      extra_guest_fee_weekday, extra_guest_fee_weekend, extra_guest_after, other_rates, highlights, amenity_details, about, details_converted_at, holiday_rates,
       listing_photos(id, photo_url, display_order),
       reviews(id, rating, comment, created_at, reviewer_id)
     `)
@@ -480,6 +524,8 @@ function ListingPage() {
           </button>
         </div>
 
+        <div className="lg:hidden mb-6"><HolidayRatesCard rates={listing.holiday_rates} maxGuests={listing.max_guests} /></div>
+
         <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_360px]">
           {/* Left */}
           <section>
@@ -607,6 +653,7 @@ function ListingPage() {
                   <span><span className="font-semibold text-foreground">${Number(listing.price_weekend).toFixed(0)}</span><span className="text-xs text-muted-foreground"> / night</span></span>
                 </p>
               </div>}
+              <div className="mt-4"><HolidayRatesCard rates={listing.holiday_rates} maxGuests={listing.max_guests} /></div>
               <div className="mt-4 flex items-center gap-3 border-y border-border py-4">
                 <img
                   src={beitakLogo}

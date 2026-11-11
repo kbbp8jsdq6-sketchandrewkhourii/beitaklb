@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { MapPin, Star, Heart, Coffee, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Star, Heart, Coffee, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { activeHolidayRates } from "@/lib/holiday-rates";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { saveListingReturnState } from "@/lib/listing-return";
@@ -21,6 +22,7 @@ export interface ListingCardData {
   rating?: number | null;
   amenities?: string[];
   category?: "villa" | "cabin" | "apartment" | null;
+  holiday_rates?: unknown;
 }
 
 const CATEGORY_LABEL: Record<"villa" | "cabin" | "apartment", string> = {
@@ -111,6 +113,8 @@ export function ListingCard({
   const weekend = listing.price_weekend ?? listing.price_per_night;
   const nightly = Math.min(weekday, weekend);
   const showWeekend = weekend > weekday;
+
+  const holidayRates = activeHolidayRates(listing.holiday_rates);
 
   const kindLine = listing.category
     ? `${CATEGORY_LABEL[listing.category]} in ${listing.location}`
@@ -263,6 +267,20 @@ export function ListingCard({
             <span className="font-semibold">{usd(nightly)}</span> / night
             {showWeekend && <span className="text-[#6B6363]"> · {usd(weekend)} weekends</span>}
           </p>
+          {holidayRates.length > 0 && (
+            <div className="mt-2 flex flex-col gap-1.5 rounded-[10px] bg-[#FCEDED] px-3 py-2.5 text-[13px] text-[#A30000]">
+              <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider">
+                <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                Holiday prices
+              </p>
+              {holidayRates.map((r, i) => (
+                <div key={i} className="flex justify-between gap-3">
+                  <span><strong className="font-semibold">{r.name}</strong> ${r.price} / night</span>
+                  <span className="text-[#7A1F1F]">{r.min_nights ? `min ${r.min_nights} night${r.min_nights === 1 ? "" : "s"}` : "no minimum"}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </Link>
     </motion.div>

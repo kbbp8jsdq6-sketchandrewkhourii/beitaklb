@@ -20,7 +20,7 @@ import { HolidayCollection } from "@/components/home/HolidayCollection";
 async function fetchFeaturedListings(): Promise<ListingCardData[]> {
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, location, category, bedrooms, price_per_night, price_weekday, price_weekend, amenities, max_guests, listing_photos(photo_url, display_order)")
+    .select("id, title, location, category, bedrooms, price_per_night, price_weekday, price_weekend, amenities, max_guests, holiday_rates, listing_photos(photo_url, display_order)")
     .eq("is_active", true)
     .eq("featured", true)
     .order("created_at", { ascending: false })
@@ -41,6 +41,7 @@ async function fetchFeaturedListings(): Promise<ListingCardData[]> {
       category: (l.category as ListingCardData["category"]) ?? null,
       cover: photos[0]?.photo_url ?? null,
       photos: photos.map((p) => p.photo_url),
+      holiday_rates: l.holiday_rates ?? [],
     };
   });
 }

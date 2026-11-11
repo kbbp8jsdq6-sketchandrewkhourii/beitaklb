@@ -147,7 +147,7 @@ async function fetchSearchPage(
   pageSize: number,
 ): Promise<PageResult> {
   const selectCols =
-    "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, bedrooms, listing_photos(photo_url, display_order)";
+    "id, title, description, location, price_per_night, price_weekday, price_weekend, amenities, max_guests, category, bedrooms, holiday_rates, listing_photos(photo_url, display_order)";
 
   const guestRange = getGuestCapacityRange(guests);
   let usedFallback = false;
@@ -205,6 +205,7 @@ async function fetchSearchPage(
       category: (l.category as ListingCardData["category"]) ?? null,
       cover: photos[0]?.photo_url ?? null,
       photos: photos.map((p: any) => p.photo_url),
+      holiday_rates: l.holiday_rates ?? [],
     };
   });
 
