@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+// @ts-nocheck -- run with `bun test`
+import { describe, it, expect } from "bun:test";
 import { parseHolidayRates, activeHolidayRates, formatHolidayDates } from "./holiday-rates";
 
 describe("holiday rates", () => {
