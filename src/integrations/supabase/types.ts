@@ -534,6 +534,7 @@ export type Database = {
           extra_guest_fee_weekend: number | null
           featured: boolean
           highlights: string[]
+          holiday_rates: Json
           host_id: string
           id: string
           is_active: boolean
@@ -581,6 +582,7 @@ export type Database = {
           extra_guest_fee_weekend?: number | null
           featured?: boolean
           highlights?: string[]
+          holiday_rates?: Json
           host_id: string
           id?: string
           is_active?: boolean
@@ -628,6 +630,7 @@ export type Database = {
           extra_guest_fee_weekend?: number | null
           featured?: boolean
           highlights?: string[]
+          holiday_rates?: Json
           host_id?: string
           id?: string
           is_active?: boolean
