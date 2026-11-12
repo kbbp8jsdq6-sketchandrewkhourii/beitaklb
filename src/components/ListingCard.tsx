@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { MapPin, Star, Heart, Coffee, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { activeHolidayRates } from "@/lib/holiday-rates";
+import { activeHolidayRates, cardLine, type HolidayRate } from "@/lib/holiday-rates";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { saveListingReturnState } from "@/lib/listing-return";
@@ -115,6 +115,21 @@ export function ListingCard({
   const showWeekend = weekend > weekday;
 
   const holidayRates = activeHolidayRates(listing.holiday_rates);
+  const holidayGroups = (() => {
+    const groups: { name: string; rates: HolidayRate[] }[] = [];
+    for (const r of holidayRates) {
+      const g = groups.find((x) => x.name === r.name);
+      if (g) g.rates.push(r);
+      else groups.push({ name: r.name, rates: [r] });
+    }
+    const order = (n: string) => {
+      const s = n.toLowerCase();
+      if (s.includes("christmas")) return 0;
+      if (s.includes("new year")) return 1;
+      return 2;
+    };
+    return groups.sort((a, b) => order(a.name) - order(b.name));
+  })();
 
   const kindLine = listing.category
     ? `${CATEGORY_LABEL[listing.category]} in ${listing.location}`
@@ -267,17 +282,16 @@ export function ListingCard({
             <span className="font-semibold">{usd(nightly)}</span> / night
             {showWeekend && <span className="text-[#6B6363]"> · {usd(weekend)} weekends</span>}
           </p>
-          {holidayRates.length > 0 && (
+          {holidayGroups.length > 0 && (
             <div className="mt-2 flex flex-col gap-1.5 rounded-[10px] bg-[#FCEDED] px-3 py-2.5 text-[13px] text-[#A30000]">
               <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider">
                 <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                 Holiday prices
               </p>
-              {holidayRates.map((r, i) => (
-                <div key={i} className="flex justify-between gap-3">
-                  <span><strong className="font-semibold">{r.name}</strong> ${r.price} / night</span>
-                  <span className="text-[#7A1F1F]">{r.min_nights ? `min ${r.min_nights} night${r.min_nights === 1 ? "" : "s"}` : "no minimum"}</span>
-                </div>
+              {holidayGroups.map((g) => (
+                <p key={g.name} className="leading-snug">
+                  <strong className="font-semibold">{g.name}</strong> {cardLine(g.rates)}
+                </p>
               ))}
             </div>
           )}

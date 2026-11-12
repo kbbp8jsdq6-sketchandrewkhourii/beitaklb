@@ -2,7 +2,7 @@ import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-rout
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, AlertTriangle, CircleCheck, Moon } from "lucide-react";
-import { activeHolidayRates, formatHolidayDates } from "@/lib/holiday-rates";
+import { activeHolidayRates, formatHolidayDates, fmt } from "@/lib/holiday-rates";
 import { detailsFromRow, type ListingDetails } from "@/lib/listing-details";
 import { openChat } from "@/lib/chat-events";
 import { Header } from "@/components/Header";
@@ -116,27 +116,45 @@ function HolidayRatesCard({ rates: raw, maxGuests }: { rates: unknown; maxGuests
         <h3 className="font-display text-2xl">Christmas &amp; New Year</h3>
         <span className="rounded-full bg-[#CC0000] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">Holiday rates</span>
       </div>
-      {rates.map((r, i) => (
-        <div key={i} className="rounded-lg bg-[#333333] px-4 py-3">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-semibold">{r.name}</p>
-              <p className="text-[13px] text-[#C2C2C2]">{formatHolidayDates(r)}</p>
+      {rates.map((r, i) => {
+        const lines: string[] = [];
+        if (r.price != null && r.price_2n != null) {
+          lines.push(`${fmt(r.price)} / 1 night`, `${fmt(r.price_2n)} / 2 nights`);
+        } else if (r.price_2n != null) {
+          lines.push(`${fmt(r.price_2n)} / 2 nights`);
+        } else if (r.price != null) {
+          lines.push(`${fmt(r.price)} / night`);
+        }
+        const note = r.note ? (r.note.startsWith("$") ? `+ ${r.note}` : r.note) : null;
+        return (
+          <div key={i} className="rounded-lg bg-[#333333] px-4 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold">{r.name}{r.option ? ` · ${r.option}` : ""}</p>
+                <p className="text-[13px] text-[#C2C2C2]">{formatHolidayDates(r)}</p>
+              </div>
+              <div className="text-right font-bold leading-snug">
+                {lines.map((l, j) => (
+                  <p key={j}>{l}</p>
+                ))}
+              </div>
             </div>
-            <p className="whitespace-nowrap"><span className="text-xl font-bold">${r.price}</span><span className="text-xs text-[#C2C2C2]"> / night</span></p>
+            {r.min_nights != null && r.min_nights >= 2 && (
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
+                <Moon className="h-3.5 w-3.5" aria-hidden="true" />
+                Minimum {r.min_nights} night{r.min_nights === 1 ? "" : "s"}
+              </p>
+            )}
+            {note && <p className="mt-1 text-xs text-[#E0E0E0]">{note}</p>}
+            {perRate && r.max_guests ? (
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
+                <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                Maximum {r.max_guests} guests
+              </p>
+            ) : null}
           </div>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
-            <Moon className="h-3.5 w-3.5" aria-hidden="true" />
-            {r.min_nights ? `Minimum ${r.min_nights} night${r.min_nights === 1 ? "" : "s"}` : "No minimum"}
-          </p>
-          {perRate && r.max_guests ? (
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
-              <Users className="h-3.5 w-3.5" aria-hidden="true" />
-              Maximum {r.max_guests} guests
-            </p>
-          ) : null}
-        </div>
-      ))}
+        );
+      })}
       {!perRate && max ? (
         <p className="flex items-center gap-1.5 text-[13px] text-[#E0E0E0]">
           <Users className="h-3.5 w-3.5" aria-hidden="true" />
