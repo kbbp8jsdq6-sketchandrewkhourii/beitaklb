@@ -5,6 +5,7 @@ export type HolidayRate = {
   end: string;
   price: number | null;
   price_2n: number | null;
+  booked: boolean;
   min_nights: number | null;
   max_guests: number | null;
   note: string | null;
@@ -40,8 +41,9 @@ export function parseHolidayRates(v: unknown): HolidayRate[] {
     const end = typeof r.end === "string" ? r.end.trim() : "";
     const price = positiveOrNull(r.price);
     const price_2n = positiveOrNull(r.price_2n);
+    const booked = r.booked === true;
     if (!name || !DATE_RE.test(start) || !DATE_RE.test(end)) continue;
-    if (price == null && price_2n == null) continue;
+    if (!booked && price == null && price_2n == null) continue;
     out.push({
       name,
       option: strOrNull(r.option),
@@ -49,6 +51,7 @@ export function parseHolidayRates(v: unknown): HolidayRate[] {
       end,
       price,
       price_2n,
+      booked,
       min_nights: numOrNull(r.min_nights),
       max_guests: numOrNull(r.max_guests),
       note: strOrNull(r.note),
@@ -82,8 +85,12 @@ export function fmt(n: number): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
 
+export function isBookedGroup(group: HolidayRate[]): boolean {
+  return group.length > 0 && group.every((r) => r.booked);
+}
+
 export function cardLine(group: HolidayRate[]): string {
-  const first = group[0];
+  const first = group.find((r) => !r.booked);
   if (!first) return "";
   const min = first.min_nights;
   const prefix = min != null && min >= 2 ? `min ${min} nights · ` : "";

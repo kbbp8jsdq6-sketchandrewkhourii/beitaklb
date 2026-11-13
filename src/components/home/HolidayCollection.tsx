@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, MapPin, Snowflake } from "lucide-react";
+import { CalendarOff, ChevronLeft, ChevronRight, MapPin, Snowflake } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import type { HolidayListing } from "@/lib/holiday-collection.functions";
@@ -54,11 +54,16 @@ export function HolidayCollection({ listings }: { listings: HolidayListing[] }) 
                       {[l.max_guests && `Up to ${l.max_guests} guests`, l.bedrooms && `${l.bedrooms} ${l.bedrooms === 1 ? "bedroom" : "bedrooms"}`].filter(Boolean).join(" · ")}
                     </p>
                   )}
-                  {l.price && (
+                  {l.booked_holiday ? (
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <CalendarOff className="h-4 w-4 text-primary" aria-hidden="true" />
+                      Booked for {l.booked_holiday}
+                    </p>
+                  ) : l.price ? (
                     <p className="mt-2 text-sm text-muted-foreground">
                       From <span className="font-display text-2xl text-primary">${l.price.toLocaleString("en-US")}</span> / night
                     </p>
-                  )}
+                  ) : null}
                 </div>
               </Link>
             ))}

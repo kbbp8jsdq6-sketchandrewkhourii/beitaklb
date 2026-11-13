@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { matchesHolidayLocation, shuffleHolidayListings } from "./holiday-collection";
+import { activeHolidayRates } from "./holiday-rates";
 
 export interface HolidayListing {
   id: string;
@@ -11,6 +12,7 @@ export interface HolidayListing {
   bedrooms: number | null;
   price: number | null;
   cover: string | null;
+  booked_holiday: string | null;
 }
 
 export const getHolidayCollection = createServerFn({ method: "GET" }).handler(async (): Promise<HolidayListing[]> => {
@@ -32,7 +34,7 @@ export const getHolidayCollection = createServerFn({ method: "GET" }).handler(as
   if (!places.length) return [];
   const { data, error } = await client
     .from("listings")
-    .select("id, title, location, bedrooms, max_guests, price_weekday, listing_photos(photo_url, display_order)")
+    .select("id, title, location, bedrooms, max_guests, price_weekday, holiday_rates, listing_photos(photo_url, display_order)")
     .eq("is_active", true);
   if (error) { console.error("Holiday collection read failed"); return []; }
   return shuffleHolidayListings((data ?? [])
@@ -40,6 +42,8 @@ export const getHolidayCollection = createServerFn({ method: "GET" }).handler(as
     .map((l) => {
       const photos = (l.listing_photos ?? []).slice().sort((a, b) => a.display_order - b.display_order);
       const price = Number(l.price_weekday);
+      const bookedRates = activeHolidayRates(l.holiday_rates).filter((r) => r.booked);
+      const bookedHoliday = bookedRates.find((r) => r.name.toLowerCase().includes("new year")) ?? bookedRates[0];
       return {
         id: l.id,
         title: l.title,
@@ -48,6 +52,7 @@ export const getHolidayCollection = createServerFn({ method: "GET" }).handler(as
         bedrooms: l.bedrooms && l.bedrooms > 0 ? l.bedrooms : null,
         price: Number.isFinite(price) && price > 0 ? price : null,
         cover: photos[0]?.photo_url ?? null,
+        booked_holiday: bookedHoliday?.name ?? null,
       };
     }));
 });

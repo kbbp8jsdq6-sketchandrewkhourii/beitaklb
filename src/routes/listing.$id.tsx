@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams, notFound } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, AlertTriangle, CircleCheck, Moon } from "lucide-react";
+import { MapPin, Star, Users, BedDouble, Bath, Check, Instagram, DollarSign, Coffee, Heart, MessageCircle, Clock, Waves, Wifi, Car, Flame, Snowflake, Tv, Zap, Droplets, Dumbbell, PawPrint, Accessibility, Umbrella, Sun, WashingMachine, Bath as Tub, AlertTriangle, CircleCheck, Moon, CalendarOff } from "lucide-react";
 import { activeHolidayRates, formatHolidayDates, fmt } from "@/lib/holiday-rates";
 import { detailsFromRow, type ListingDetails } from "@/lib/listing-details";
 import { openChat } from "@/lib/chat-events";
@@ -134,19 +134,24 @@ function HolidayRatesCard({ rates: raw, maxGuests }: { rates: unknown; maxGuests
                 <p className="text-[13px] text-[#C2C2C2]">{formatHolidayDates(r)}</p>
               </div>
               <div className="text-right font-bold leading-snug">
-                {lines.map((l, j) => (
+                {r.booked ? (
+                  <p className="flex items-center justify-end gap-1.5">
+                    <CalendarOff className="h-4 w-4" aria-hidden="true" />
+                    Booked
+                  </p>
+                ) : lines.map((l, j) => (
                   <p key={j}>{l}</p>
                 ))}
               </div>
             </div>
-            {r.min_nights != null && r.min_nights >= 2 && (
+            {!r.booked && r.min_nights != null && r.min_nights >= 2 && (
               <p className="mt-2 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
                 <Moon className="h-3.5 w-3.5" aria-hidden="true" />
                 Minimum {r.min_nights} night{r.min_nights === 1 ? "" : "s"}
               </p>
             )}
             {note && <p className="mt-1 text-xs text-[#E0E0E0]">{note}</p>}
-            {perRate && r.max_guests ? (
+            {perRate && !r.booked && r.max_guests ? (
               <p className="mt-1 flex items-center gap-1.5 text-xs text-[#E0E0E0]">
                 <Users className="h-3.5 w-3.5" aria-hidden="true" />
                 Maximum {r.max_guests} guests

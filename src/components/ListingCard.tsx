@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { MapPin, Star, Heart, Coffee, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { activeHolidayRates, cardLine, type HolidayRate } from "@/lib/holiday-rates";
+import { MapPin, Star, Heart, Coffee, ChevronLeft, ChevronRight, CalendarDays, CalendarOff } from "lucide-react";
+import { activeHolidayRates, cardLine, isBookedGroup, type HolidayRate } from "@/lib/holiday-rates";
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { saveListingReturnState } from "@/lib/listing-return";
@@ -290,7 +290,13 @@ export function ListingCard({
               </p>
               {holidayGroups.map((g) => (
                 <p key={g.name} className="leading-snug">
-                  <strong className="font-semibold">{g.name}</strong> {cardLine(g.rates)}
+                  <strong className="font-semibold">{g.name}</strong>{" "}
+                  {isBookedGroup(g.rates) ? (
+                    <span className="inline-flex items-center gap-1 align-middle">
+                      <CalendarOff className="h-3.5 w-3.5" aria-hidden="true" />
+                      Booked
+                    </span>
+                  ) : cardLine(g.rates)}
                 </p>
               ))}
             </div>
