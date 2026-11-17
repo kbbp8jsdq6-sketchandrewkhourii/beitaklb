@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 // The Header overlays the hero on the homepage, so the stage pins at the very top.
 const CSS = `
 html,body{overflow-x:clip !important}
-.dnh-track{--p:0;position:relative;height:280vh}
+.dnh-track{--p:0;position:relative;height:160vh}
 .dnh-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#0A1530}
 .dnh-scene{position:absolute;inset:0;transform:scale(calc(1.02 + var(--p) * 0.07));transform-origin:50% 62%;will-change:transform}
 .dnh-layer{position:absolute;inset:0}
