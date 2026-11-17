@@ -18,7 +18,30 @@ export const Route = createFileRoute("/admin/optimize-photos")({
 
 const BUCKET = "listing-photos";
 
-type PhotoRow = { id: string; photo_url: string; listing_id: string };
+type PhotoRow = { id: string; photo_url: string; listing_id: string; display_order: number };
+
+/** Cover photos over this size get re-compressed in "heavy covers" mode. */
+const HEAVY_BYTES = 1024 * 1024;
+
+/** The first photo (lowest display_order) of each listing is its cover. */
+function coverRows(rows: PhotoRow[]): PhotoRow[] {
+  const best = new Map<string, PhotoRow>();
+  for (const r of rows) {
+    const cur = best.get(r.listing_id);
+    if (!cur || r.display_order < cur.display_order) best.set(r.listing_id, r);
+  }
+  return [...best.values()];
+}
+
+/** File size from a HEAD request: no photo data is downloaded. */
+async function remoteSize(url: string): Promise<number> {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return Number(res.headers.get("content-length") ?? 0);
+  } catch {
+    return 0;
+  }
+}
 
 function isOptimized(url: string) {
   try {
@@ -54,13 +77,34 @@ function OptimizePhotosPage() {
   const [bytesAfter, setBytesAfter] = useState(0);
   const [errors, setErrors] = useState<{ id: string; msg: string }[]>([]);
   const [done, setDone] = useState(false);
+  // Heavy covers: covers over 1 MB, found by real file size (catches PNGs saved with a .webp name).
+  const [heavyCovers, setHeavyCovers] = useState<PhotoRow[] | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanned, setScanned] = useState(0);
+
+  async function scanCovers() {
+    setScanning(true);
+    setScanned(0);
+    const covers = coverRows(rows);
+    const heavy: PhotoRow[] = [];
+    for (let i = 0; i < covers.length; i += 8) {
+      const batch = covers.slice(i, i + 8);
+      const sizes = await Promise.all(batch.map((r) => remoteSize(r.photo_url)));
+      batch.forEach((r, j) => sizes[j] > HEAVY_BYTES && heavy.push(r));
+      setScanned(Math.min(i + 8, covers.length));
+    }
+    setHeavyCovers(heavy);
+    setProcessedIdx(0);
+    setDone(false);
+    setScanning(false);
+  }
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("listing_photos")
-        .select("id, photo_url, listing_id");
+        .select("id, photo_url, listing_id, display_order");
       if (error) toast.error(error.message);
       setRows((data ?? []) as PhotoRow[]);
       setLoading(false);
@@ -84,7 +128,15 @@ function OptimizePhotosPage() {
     const origSize = origBlob.size;
 
     const compressed = await compressImage(origBlob, { maxWidth: 1600, quality: 0.8 });
-    const newPath = path.replace(/\.[^./]+$/, "") + ".webp";
+    // Safari can't encode WebP and silently returns PNG: refuse instead of uploading a bigger file.
+    if (compressed.type !== "image/webp") {
+      throw new Error("This browser can't make WebP photos. Run this page in Chrome.");
+    }
+    if (compressed.size >= origSize) {
+      throw new Error(`skipped: already small (${fmtBytes(origSize)})`);
+    }
+    // New file name so phones don't keep showing an old cached copy of the same URL.
+    const newPath = path.replace(/(-opt)?\.[^./]+$/, "") + "-opt.webp";
 
     const { error: upErr } = await supabase.storage
       .from(BUCKET)
@@ -112,7 +164,7 @@ function OptimizePhotosPage() {
     setRunning(true);
     setDone(false);
     // Snapshot the current remaining list so pause/resume traverses stable indexes
-    const queue = rows.filter((r) => !isOptimized(r.photo_url));
+    const queue = heavyCovers ?? rows.filter((r) => !isOptimized(r.photo_url));
     for (let i = 0; i < queue.length; i++) {
       if (!runningRef.current) break;
       setProcessedIdx(i);
@@ -137,7 +189,7 @@ function OptimizePhotosPage() {
 
   const total = rows.length;
   const alreadyCount = optimized.length;
-  const remainingCount = remaining.length;
+  const remainingCount = heavyCovers ? heavyCovers.length : remaining.length;
   const progressPct = remainingCount === 0 ? 100 : Math.round((processedIdx / remainingCount) * 100);
   const saved = bytesBefore - bytesAfter;
 
@@ -170,6 +222,23 @@ function OptimizePhotosPage() {
             </div>
           </div>
 
+          <div className="glass rounded-xl p-4 space-y-2 text-sm">
+            <div className="font-semibold">Heavy cover photos only (recommended)</div>
+            <p className="text-xs text-muted-foreground">
+              Checks each listing's cover photo size without downloading it, then only
+              re-compresses covers over 1 MB. Use Chrome.
+            </p>
+            <Button onClick={scanCovers} disabled={scanning || running} variant="secondary">
+              {scanning ? `Checking covers… ${scanned}` : heavyCovers ? "Check again" : "Find heavy covers"}
+            </Button>
+            {heavyCovers ? (
+              <p className="text-xs">
+                {heavyCovers.length} heavy cover{heavyCovers.length === 1 ? "" : "s"} found. Start below
+                optimizes only these.
+              </p>
+            ) : null}
+          </div>
+
           <div className="glass rounded-xl p-4 space-y-3">
             <div className="flex items-center gap-3">
               {running ? (
@@ -177,7 +246,7 @@ function OptimizePhotosPage() {
                   <Pause className="mr-2 h-4 w-4" /> Pause
                 </Button>
               ) : (
-                <Button onClick={start} disabled={remainingCount === 0}>
+                <Button onClick={start} disabled={remainingCount === 0 || scanning}>
                   <Play className="mr-2 h-4 w-4" />
                   {processedIdx > 0 && !done ? "Resume" : "Start optimizing"}
                 </Button>

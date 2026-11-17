@@ -304,15 +304,26 @@ function strict(schema: Record<string, unknown>): Record<string, unknown> {
   return schema;
 }
 
-export const CONVERT_MODEL = "openai/gpt-6-astra";
+// Cheaper model for this simple extraction task. If the gateway rejects it
+// (unknown model id), we retry once with the previous model so the button keeps working.
+export const CONVERT_MODEL = "openai/gpt-6-luna";
+export const CONVERT_MODEL_FALLBACK = "openai/gpt-6-astra";
 
 /** Calls the gateway and returns normalized fields. Throws Error with a friendly message. */
 export async function convertDescription(text: string, apiKey: string): Promise<ConversionResult> {
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  let res = await requestConversion(text, apiKey, CONVERT_MODEL);
+  if (res.status === 400 || res.status === 404) {
+    res = await requestConversion(text, apiKey, CONVERT_MODEL_FALLBACK);
+  }
+  return readConversion(res);
+}
+
+function requestConversion(text: string, apiKey: string, model: string) {
+  return fetch("https://ai.gateway.lovable.dev/v1/responses", {
     method: "POST",
     headers: { "Lovable-API-Key": apiKey, Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: CONVERT_MODEL,
+      model,
       stream: true,
       store: false,
       reasoning: { effort: "low" },
@@ -328,6 +339,9 @@ export async function convertDescription(text: string, apiKey: string): Promise<
       },
     }),
   });
+}
+
+async function readConversion(res: Response): Promise<ConversionResult> {
   if (res.status === 429) throw new Error("AI is busy, try again in a moment.");
   if (res.status === 402) throw new Error("AI credits have run out for this workspace.");
   if (!res.ok || !res.body) throw new Error(`Conversion failed (${res.status}). Try again.`);
