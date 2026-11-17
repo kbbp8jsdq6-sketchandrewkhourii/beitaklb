@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronDown, Heart } from "lucide-react";
+import { ArrowRight, ChevronDown, Heart } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -73,12 +73,19 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async () => {
-    const [featuredListings, googleReviews, holidayListings] = await Promise.all([
+    const [featuredListings, googleReviews, holidayListings, listingCount] = await Promise.all([
       fetchFeaturedListings(),
       getGoogleReviews(),
       getHolidayCollection().catch(() => []),
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true)
+        .eq("status", "approved")
+        .then(({ count, error }) => (error ? null : count ?? null))
+        .catch(() => null),
     ]);
-    return { featuredListings, googleReviews, holidayListings };
+    return { featuredListings, googleReviews, holidayListings, listingCount };
   },
   component: HomePage,
   errorComponent: () => <p className="p-8 text-muted-foreground">The homepage could not be loaded. Please try again.</p>,
@@ -129,7 +136,7 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured, googleReviews, holidayListings } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, googleReviews, holidayListings, listingCount } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -166,23 +173,19 @@ function HomePage() {
         <DesktopHero />
       </div>
 
-      {/* CTA BAR — sits below the hero so buttons are never cut off */}
+      {/* CTA BAR — sits below the hero so the call to action is never cut off */}
       <section className="relative bg-background">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-3 px-4 py-10 sm:flex-row sm:gap-4 sm:py-12">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-10 sm:py-12">
           <Link
             to="/search"
-            className="inline-flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-primary px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg transition hover:bg-primary/90 sm:w-auto sm:text-base"
+            className="group inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg transition hover:bg-primary/90 sm:w-auto sm:min-w-[360px] sm:text-lg"
           >
-            Browse listings
+            {listingCount === null ? "Browse all stays" : `Browse all ${listingCount} stays`}
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
-          <a
-            href={`https://wa.me/96181160435?text=${encodeURIComponent("Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-md border-2 border-foreground bg-transparent px-7 py-3.5 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-foreground hover:text-background sm:w-auto sm:text-base"
-          >
-            Become a host
-          </a>
+          <p className="mt-3 text-center text-sm text-muted-foreground">
+            Villas, chalets and cabins across Lebanon
+          </p>
         </div>
       </section>
 
