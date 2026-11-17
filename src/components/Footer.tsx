@@ -1,9 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Mail } from "lucide-react";
+import { ArrowUp, Instagram } from "lucide-react";
 import { Logo } from "./Logo";
 import { PatternBackground } from "./PatternBackground";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { WhatsAppLogo } from "@/components/icons/WhatsAppLogo";
 
 const BECOME_HOST_MESSAGE = "Hi Beitak! I'm interested in listing my unit on your website. Could you help me get started?";
 const WHATSAPP_URL = `https://wa.me/96181160435?text=${encodeURIComponent(BECOME_HOST_MESSAGE)}`;
@@ -84,22 +83,19 @@ export function Footer() {
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
             </div>
-            <div className="mt-3 space-y-1.5 text-sm text-foreground/70">
-              <p>@Beitak.lb</p>
-              <p className="flex items-center gap-2">
-                <WhatsAppLogo className="h-4 w-4 shrink-0" />
-                <span>+961 81 160 435</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" />
-                <span>Beitaklb@gmail.com</span>
-              </p>
-            </div>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-foreground/10 pt-6 pb-6 text-center text-xs text-foreground/60">
-          © {new Date().getFullYear()} BEITAK. All rights reserved.
+        <div className="mt-10 flex flex-col items-center gap-4 border-t border-foreground/10 pt-6 pb-6 text-center text-xs text-foreground/60">
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-white px-5 py-2.5 text-sm font-bold text-foreground transition hover:border-primary hover:bg-primary hover:text-white"
+          >
+            <ArrowUp className="h-4 w-4" />
+            Back to top
+          </button>
+          <span>© {new Date().getFullYear()} BEITAK. All rights reserved.</span>
         </div>
       </div>
       </div>
