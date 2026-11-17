@@ -73,19 +73,12 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async () => {
-    const [featuredListings, googleReviews, holidayListings, listingCount] = await Promise.all([
+    const [featuredListings, googleReviews, holidayListings] = await Promise.all([
       fetchFeaturedListings(),
       getGoogleReviews(),
       getHolidayCollection().catch(() => []),
-      supabase
-        .from("listings")
-        .select("id", { count: "exact", head: true })
-        .eq("is_active", true)
-        .eq("status", "approved")
-        .then(({ count, error }) => (error ? null : count ?? null))
-        .catch(() => null),
     ]);
-    return { featuredListings, googleReviews, holidayListings, listingCount };
+    return { featuredListings, googleReviews, holidayListings };
   },
   component: HomePage,
   errorComponent: () => <p className="p-8 text-muted-foreground">The homepage could not be loaded. Please try again.</p>,
@@ -136,7 +129,7 @@ const FAQS = [
 ];
 
 function HomePage() {
-  const { featuredListings: initialFeatured, googleReviews, holidayListings, listingCount } = Route.useLoaderData();
+  const { featuredListings: initialFeatured, googleReviews, holidayListings } = Route.useLoaderData();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -173,19 +166,32 @@ function HomePage() {
         <DesktopHero />
       </div>
 
-      {/* CTA BAR — sits below the hero so the call to action is never cut off */}
+      {/* CTA CARD — photo card linking to all listings */}
       <section className="relative bg-background">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-10 sm:py-12">
+        <div className="mx-auto max-w-3xl px-4 py-10 sm:py-12">
           <Link
             to="/search"
-            className="group inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg transition hover:bg-primary/90 sm:w-auto sm:min-w-[360px] sm:text-lg"
+            aria-label="Explore all stays"
+            className="group relative block h-[200px] overflow-hidden rounded-2xl sm:h-[280px]"
           >
-            {listingCount === null ? "Browse all stays" : `Browse all ${listingCount} stays`}
-            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            <img
+              src={featuredListings[0]?.cover ?? "/batroun.webp"}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/5 to-black/70" />
+            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+              <h2 className="font-display text-[40px] leading-[0.95] text-white sm:text-[56px]">
+                Explore all stays
+              </h2>
+              <span className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[15px] font-bold text-foreground shadow-md">
+                See listings
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
           </Link>
-          <p className="mt-3 text-center text-sm text-muted-foreground">
-            Villas, chalets and cabins across Lebanon
-          </p>
         </div>
       </section>
 
