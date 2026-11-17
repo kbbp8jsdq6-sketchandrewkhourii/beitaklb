@@ -16,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Logo } from "@/components/Logo";
 import { WhatsAppLogo } from "@/components/icons/WhatsAppLogo";
 
 const TIKTOK_URL = "https://www.tiktok.com/@beitak.lb?_r=1&_t=ZS-95kaRlKp5d6";
@@ -117,9 +118,7 @@ export function HamburgerMenu({ triggerClassName }: { triggerClassName?: string 
               className="fixed inset-y-0 right-0 z-[9999] flex h-screen w-[88vw] max-w-sm flex-col overflow-y-auto bg-background shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                <p className="font-display text-xl tracking-wide text-foreground">
-                  BEI<span className="text-primary">TAK</span>
-                </p>
+                <Logo size="md" />
                 <button
                   type="button"
                   onClick={close}
