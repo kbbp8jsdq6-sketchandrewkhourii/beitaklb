@@ -186,7 +186,7 @@ export function Header() {
                 </Link>
                 <Link
                   to="/auth/signup"
-                  className="inline-flex h-10 items-center rounded-full bg-[#CC0000] px-3.5 text-[13px] font-bold text-white shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-[18px]"
+                  className="hidden md:inline-flex whitespace-nowrap h-10 items-center rounded-full bg-[#CC0000] px-3.5 text-[13px] font-bold text-white shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-[18px]"
                 >
                   Sign up
                 </Link>
@@ -268,10 +268,10 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="whitespace-nowrap">
                 <Link to="/auth/login">Log in</Link>
               </Button>
-              <Button asChild size="sm" className="gap-2">
+              <Button asChild size="sm" className="hidden gap-2 whitespace-nowrap md:inline-flex">
                 <Link to="/auth/signup">Sign up</Link>
               </Button>
             </>
