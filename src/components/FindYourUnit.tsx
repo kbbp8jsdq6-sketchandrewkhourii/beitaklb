@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus, MessageCircle } from "lucide-react";
+import { Bed, Bath, Search, MapPin, ChevronDown, SlidersHorizontal, X, Users, Minus, Plus, ArrowRight } from "lucide-react";
+import { HouseBotIcon } from "@/components/chat/HouseBotIcon";
 import { openChat } from "@/lib/chat-events";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
@@ -354,13 +355,21 @@ export function FindYourUnit() {
               Search
             </Button>
           </div>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Not sure where to start?{" "}
-            <Button type="button" onClick={() => openChat()} variant="link" className="inline-flex h-auto min-h-[38px] items-center gap-1.5 whitespace-normal p-0 font-semibold text-primary">
-              <MessageCircle className="h-4 w-4 text-primary" aria-hidden="true" />
-              <span className="underline underline-offset-[3px]">Ask our AI assistant</span>
-            </Button>
-          </p>
+        </div>
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-[#F3CFCF] bg-[#FCEDED] p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+          <div className="flex items-start gap-3 sm:flex-1 sm:items-center">
+            <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-primary">
+              <HouseBotIcon className="h-7 w-7" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-base font-bold text-foreground">Not sure where to start?</p>
+              <p className="mt-0.5 text-sm text-[#6B6363]">Tell the Beitak assistant what you need and it suggests stays in seconds.</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => openChat()} className="group ml-14 inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 sm:ml-0 sm:flex-none">
+            Ask the Beitak assistant
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </button>
         </div>
       </div>
     </section>
