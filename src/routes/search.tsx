@@ -11,6 +11,8 @@ import { SlidersHorizontal, X, Minus, Plus, Users, ArrowUpDown, MapPin, ChevronD
 import { openChat } from "@/lib/chat-events";
 import { cn } from "@/lib/utils";
 import { restoreListingReturnScroll } from "@/lib/listing-return";
+import { fetchSuggestionPool } from "@/components/FindYourUnit";
+import { Button } from "@/components/ui/button";
 
 const searchSchema = z.object({
   q: fallback(z.string().optional(), undefined),
@@ -237,6 +239,7 @@ function SearchPage() {
   const [localMax, setLocalMax] = useState<number>(maxBudget);
   const [localLocation, setLocalLocation] = useState<string>(location ?? "");
   const [localAmenities, setLocalAmenities] = useState<string[]>(selectedAmenities);
+  const [localKeyword, setLocalKeyword] = useState<string>(q ?? "");
   const [appliedParams, setAppliedParams] = useState({
     guests,
     minBudget,
@@ -340,6 +343,61 @@ function SearchPage() {
   };
 
 
+  const { data: suggestionPool = [] } = useQuery({
+    queryKey: ["unit-suggestion-pool"],
+    queryFn: fetchSuggestionPool,
+    staleTime: 5 * 60_000,
+  });
+  const keywordCities = useMemo(
+    () => Array.from(new Set(suggestionPool.map((u) => u.city).filter(Boolean))).sort(),
+    [suggestionPool],
+  );
+  const keywordSuggestions = useMemo(() => {
+    const k = localKeyword.trim().toLowerCase();
+    if (!k) return [];
+    return suggestionPool
+      .filter((u) => `${u.name} ${u.location} ${u.city} ${u.amenities.join(" ")}`.toLowerCase().includes(k))
+      .slice(0, 6);
+  }, [localKeyword, suggestionPool]);
+
+  const runKeywordSearch = () => {
+    const next = {
+      guests: localGuests,
+      minBudget: localMin,
+      maxBudget: localMax,
+      location: localLocation || "",
+      bedrooms: localBedrooms,
+      amenities: localAmenities,
+      sortPrice,
+      q: localKeyword.trim() || undefined,
+      district,
+      category,
+      bathrooms: localBathrooms ?? 0,
+    };
+    setAppliedParams(next);
+    navigate({
+      search: () => ({
+        ...next,
+        location: next.location || undefined,
+        bedrooms: next.bedrooms > 0 ? next.bedrooms : undefined,
+        amenities: next.amenities.length > 0 ? next.amenities : undefined,
+      }),
+      resetScroll: false,
+    });
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
+  useEffect(() => {
+    if (window.location.hash === "#search") {
+      setTimeout(() => {
+        document.getElementById("search")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById("keyword-search-input")?.focus({ preventScroll: true });
+      }, 50);
+    }
+  }, []);
+
   const totalLoaded = filteredResults.length;
 
   useEffect(() => {
@@ -368,6 +426,77 @@ function SearchPage() {
               ? "Searching…"
               : `${totalLoaded}${hasNextPage ? "+" : ""} result${totalLoaded === 1 ? "" : "s"}`}
           </p>
+        </div>
+
+        <div id="search" className="mt-6 scroll-mt-24 grid gap-3 md:grid-cols-[1fr_160px] md:gap-4">
+          <div className="min-w-0 rounded-[14px] border border-border bg-card md:flex">
+            <div className="relative min-w-0 flex-1">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
+              <input
+                id="keyword-search-input"
+                type="text"
+                value={localKeyword}
+                onChange={(e) => setLocalKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && runKeywordSearch()}
+                placeholder="Search by name, city, location, description or amenity…"
+                aria-label="Search guesthouses"
+                className="h-[60px] w-full min-w-0 rounded-[14px] bg-transparent pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+              />
+              {localKeyword.trim().length > 0 && keywordSuggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border bg-popover shadow-xl">
+                  <p className="px-4 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Matching listings
+                  </p>
+                  <ul className="pb-2">
+                    {keywordSuggestions.map((u) => (
+                      <li key={u.id}>
+                        <Link
+                          to="/listing/$id"
+                          params={{ id: u.id }}
+                          className="flex items-start gap-3 px-4 py-2.5 hover:bg-accent"
+                        >
+                          {u.image ? (
+                            <img src={u.image} alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-md object-cover" loading="lazy" decoding="async" />
+                          ) : (
+                            <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-foreground">{u.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{u.location}</p>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="relative border-t border-border md:w-[220px] md:shrink-0 md:border-l md:border-t-0">
+              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
+              <select
+                value={localLocation}
+                onChange={(e) => setLocalLocation(e.target.value)}
+                aria-label="City"
+                className="h-[60px] w-full appearance-none rounded-[14px] bg-transparent pl-12 pr-10 text-base text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+              >
+                <option value="">All Cities</option>
+                {keywordCities.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
+          </div>
+          <Button
+            type="button"
+            onClick={runKeywordSearch}
+            className="h-[60px] w-full rounded-[14px] text-base font-bold uppercase"
+          >
+            <Search className="h-4 w-4" />
+            Search
+          </Button>
         </div>
 
         {/* Filter panel */}
@@ -458,6 +587,7 @@ function SearchPage() {
                 setLocalLocation("");
                 setLocalBedrooms(0);
                 setLocalAmenities([]);
+                setLocalKeyword("");
                 setAppliedParams({ guests: 1, minBudget: 0, maxBudget: 2000, location: "", bedrooms: 0, amenities: [], sortPrice: "none", q: undefined, district: undefined, category: undefined, bathrooms: 0 });
                 navigate({
                   search: () => ({}),
@@ -568,7 +698,7 @@ function SearchPage() {
                 </button>
                 <button type="button" onClick={() => {
                   setLocalGuests(1); setLocalMin(0); setLocalMax(2000); setLocalLocation("");
-                  setLocalBedrooms(0); setLocalAmenities([]);
+                  setLocalBedrooms(0); setLocalAmenities([]); setLocalKeyword("");
                   setAppliedParams({ guests: 1, minBudget: 0, maxBudget: 2000, location: "", bedrooms: 0, amenities: [], sortPrice: "none", q: undefined, district: undefined, category: undefined, bathrooms: 0 });
                   navigate({ search: () => ({}), resetScroll: false });
                 }} className="inline-flex h-11 items-center rounded-lg border-2 border-foreground px-4 text-sm font-semibold text-foreground hover:bg-foreground hover:text-white">Clear filters</button>

@@ -8,6 +8,7 @@ import {
   User as UserIcon,
   Instagram,
   Heart,
+  Search,
   List,
   CircleUserRound,
   LayoutDashboard,
@@ -33,6 +34,14 @@ export function Header() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isHome = pathname === "/";
+  const goToSearch = () => {
+    if (pathname === "/search") {
+      document.getElementById("search")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("keyword-search-input")?.focus({ preventScroll: true });
+    } else {
+      navigate({ to: "/search", hash: "search" });
+    }
+  };
   const [scrolled, setScrolled] = useState(false);
   const [overlay, setOverlay] = useState(isHome);
 
@@ -141,6 +150,9 @@ export function Header() {
               <List className="h-4 w-4" />
               Listings
             </Link>
+            <button type="button" onClick={goToSearch} aria-label="Search stays" className={`${GLASS_ROUND} inline-flex`}>
+              <Search className="h-5 w-5" />
+            </button>
             <Link to="/favorites" aria-label="My favorites" className={`${GLASS_ROUND} inline-flex`}>
               <Heart className="h-5 w-5" />
             </Link>
@@ -219,6 +231,14 @@ export function Header() {
             <List className="h-3.5 w-3.5" />
             Listings
           </Link>
+          <button
+            type="button"
+            onClick={goToSearch}
+            aria-label="Search stays"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
+          >
+            <Search className="h-5 w-5" />
+          </button>
           <Link
             to="/favorites"
             aria-label="My favorites"

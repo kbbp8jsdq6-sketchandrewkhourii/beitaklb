@@ -35,7 +35,7 @@ const AMENITIES = [
   "Hot water",
 ] as const;
 
-interface SuggestionUnit {
+export interface SuggestionUnit {
   id: string;
   name: string;
   location: string;
@@ -46,7 +46,7 @@ interface SuggestionUnit {
 
 /** Lightweight query — pulls only city + amenities for typeahead suggestions.
  *  Limited to 200 rows so it never explodes for 100+ listings. */
-async function fetchSuggestionPool(): Promise<SuggestionUnit[]> {
+export async function fetchSuggestionPool(): Promise<SuggestionUnit[]> {
   const { data, error } = await supabase
     .from("listings")
     .select("id, title, location, listing_photos(photo_url, display_order), amenities")
