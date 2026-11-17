@@ -1,5 +1,5 @@
 import { useLocation, useRouter } from "@tanstack/react-router";
-import { X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getListingReturnUrl } from "@/lib/listing-return";
 
 /**
@@ -19,7 +19,16 @@ export function BackButton() {
   if (pathname === "/") return null;
 
   const handleBack = () => {
-    window.location.href = "/";
+    // Came here from another page of the site: go back, so the previous page
+    // reopens with its filters and scroll position (router scroll restoration).
+    const idx = (window.history.state as { __TSR_index?: number } | null)?.__TSR_index ?? 0;
+    if (idx > 0) {
+      router.history.back();
+      return;
+    }
+    // Opened directly (shared link, new tab, refresh): use the saved results page if any.
+    const saved = pathname.startsWith("/listing/") ? getListingReturnUrl() : null;
+    window.location.href = saved ?? "/";
   };
 
 
@@ -30,7 +39,7 @@ export function BackButton() {
       aria-label="Back"
       className="fixed left-3 top-3 z-[9998] inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/90 text-black shadow-sm backdrop-blur transition hover:bg-white hover:shadow-md sm:left-4 sm:top-4"
     >
-      <X className="h-5 w-5" strokeWidth={2.25} />
+      <ArrowLeft className="h-5 w-5" strokeWidth={2.25} />
     </button>
   );
 }
