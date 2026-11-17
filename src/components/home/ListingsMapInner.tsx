@@ -80,6 +80,7 @@ export function ListingsMapInner({
             key={listing.id}
             position={[listing.latitude, listing.longitude]}
             icon={createPinIcon()}
+            title={listing.title}
             eventHandlers={{
               click: (e) => {
                 L.DomEvent.stopPropagation(e as unknown as Event);

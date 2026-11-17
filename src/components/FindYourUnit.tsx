@@ -428,6 +428,15 @@ function DualSlider({
   const minPct = toPercent(valueMin);
   const maxPct = toPercent(valueMax);
 
+  // Arrow keys move a handle by one step (keyboard users and AI agents).
+  const keyMove = (e: React.KeyboardEvent, which: "min" | "max") => {
+    const dir = e.key === "ArrowRight" || e.key === "ArrowUp" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -1 : 0;
+    if (!dir) return;
+    e.preventDefault();
+    if (which === "min") onChangeMin(Math.max(min, Math.min(valueMin + dir * step, valueMax - step)));
+    else onChangeMax(Math.min(max, Math.max(valueMax + dir * step, valueMin + step)));
+  };
+
   return (
     <div className="relative h-[38px] select-none" ref={trackRef}>
       <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/20" />
@@ -437,13 +446,27 @@ function DualSlider({
       />
       <div
         onPointerDown={dragMin}
-        aria-label="Minimum budget handle"
+        onKeyDown={(e) => keyMove(e, "min")}
+        role="slider"
+        tabIndex={0}
+        aria-label="Minimum budget"
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={valueMin}
+        aria-valuetext={`$${valueMin}`}
         className="absolute top-1/2 flex h-[38px] w-[38px] -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full active:cursor-grabbing"
         style={{ left: `${minPct}%` }}
       ><span className="pointer-events-none h-5 w-5 rounded-full border-2 border-primary bg-card shadow" /></div>
       <div
         onPointerDown={dragMax}
-        aria-label="Maximum budget handle"
+        onKeyDown={(e) => keyMove(e, "max")}
+        role="slider"
+        tabIndex={0}
+        aria-label="Maximum budget"
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={valueMax}
+        aria-valuetext={`$${valueMax}`}
         className="absolute top-1/2 flex h-[38px] w-[38px] -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full active:cursor-grabbing"
         style={{ left: `${maxPct}%` }}
       ><span className="pointer-events-none h-5 w-5 rounded-full border-2 border-primary bg-card shadow" /></div>
