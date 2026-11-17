@@ -68,7 +68,7 @@ export function HolidayCollection({ listings }: { listings: HolidayListing[] }) 
               </Link>
             ))}
           </div>
-          <p className="mt-4 text-center text-xs opacity-70 md:hidden">Swipe to see all {listings.length} winter stays</p>
+          <p className="mt-4 text-center text-xs opacity-70 md:hidden">Swipe to see all winter stays</p>
         </Reveal>
       </div>
     </section>
